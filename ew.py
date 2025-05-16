@@ -6,20 +6,10 @@ import os
 import io
 from xlsxwriter import Workbook
 from PIL import Image
-from pages import Graph, Who_we_are
+#from pages import Graph, Who_we_are
 
 st.set_page_config(page_title="Financials", layout="wide")
 
-
-# Mappa delle pagine
-PAGES = {
-    "Page 1": Graph,
-    "Page 2": Who_we_are,
-}
-
-# Menu di navigazione nella sidebar
-st.sidebar.title("Navigazione")
-selection = st.sidebar.radio("Vai a", list(PAGES.keys()))
 
 # Funzione per convertire l'immagine in base64
 def get_base64_of_bin_file(bin_file):
@@ -278,7 +268,7 @@ st.sidebar.markdown(
 )
 
 # Carica e esegui la pagina selezionata
-page = PAGES[selection]
-page.run()
+#page = PAGES[selection]
+#page.run()
 
 st.markdown("</div>", unsafe_allow_html=True)
