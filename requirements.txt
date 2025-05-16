@@ -1,16 +1,8 @@
 Flask
 yfinance
-csv
-os
-pickle
 pandas
 apscheduler
-atexit
-datetime
 streamlit
-data_utils
-base64
-io
 xlsxwriter
 Pillow
 plotly
