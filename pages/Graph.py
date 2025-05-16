@@ -7,80 +7,79 @@ import base64
 
 st.set_page_config(page_title="Graphs", layout="wide")
 
+COLUMN_LABELS = {
+"symbol": "Ticker",
+"sector": "Sector",
+"industry": "Industry",
+"description": "Company Name",
+"stock_exchange": "Exchange",
+"year": "Year",
+"total_revenue": "Total Revenue",
+"operating_revenue": "Operating Revenue",
+"cost_of_revenue": "Cost of Revenue",
+"gross_profit": "Gross Profit",
+"operating_expense": "Operating Expense",
+"sg_and_a": "SG&A",
+"r_and_d": "R&D",
+"operating_income": "Operating Income",
+"net_non_operating_interest_income_expense": "Non-Operating Interest Income/Expense",
+"interest_expense_non_operating": "Interest Expense (Non-Op)",
+"pretax_income": "Pre-tax Income",
+"tax_provision": "Tax Provision",
+"net_income_common_stockholders": "Net Income to Stockholders",
+"net_income": "Net Income",
+"net_income_continuous_operations": "Net Income (Cont. Ops)",
+"basic_eps": "Basic EPS",
+"diluted_eps": "Diluted EPS",
+"basic_average_shares": "Avg. Shares (Basic)",
+"diluted_average_shares": "Avg. Shares (Diluted)",
+"total_expenses": "Total Expenses",
+"normalized_income": "Normalized Income",
+"interest_expense": "Interest Expense",
+"net_interest_income": "Net Interest Income",
+"ebit": "EBIT",
+"ebitda": "EBITDA",
+"reconciled_depreciation": "Reconciled Depreciation",
+"normalized_ebitda": "Normalized EBITDA",
+"total_assets": "Total Assets",
+"stockholders_equity": "Stockholders' Equity",
+"changes_in_cash": "Changes in Cash",
+"working_capital": "Working Capital",
+"invested_capital": "Invested Capital",
+"total_debt": "Total Debt"
+}
+
+# Funzione per convertire l'immagine in base64
+def get_base64_of_bin_file(bin_file):
+    with open(bin_file, 'rb') as f:
+        data = f.read()
+    return base64.b64encode(data).decode()
+
+# Path del logo (assicurati che il file esista)
+logo_path = os.path.join("images", "logo.png")
+logo_html = ""
+if os.path.exists(logo_path):
+    logo_base64 = get_base64_of_bin_file(logo_path)
+    logo_html = f'<img src="data:image/png;base64,{logo_base64}" class="logo">'
+    
+st.markdown(f"""
+<style>
+    .main-container {{
+        padding-left: 1cm;
+        padding-right: 1cm;
+    }}
+    .logo {{
+        height: 60px;
+        margin: 15px auto;
+        display: block;
+    }}
+</style>
+<div class='main-container'>
+    {logo_html}
+""", unsafe_allow_html=True)
+
+
 def run():
-    COLUMN_LABELS = {
-    "symbol": "Ticker",
-    "sector": "Sector",
-    "industry": "Industry",
-    "description": "Company Name",
-    "stock_exchange": "Exchange",
-    "year": "Year",
-    "total_revenue": "Total Revenue",
-    "operating_revenue": "Operating Revenue",
-    "cost_of_revenue": "Cost of Revenue",
-    "gross_profit": "Gross Profit",
-    "operating_expense": "Operating Expense",
-    "sg_and_a": "SG&A",
-    "r_and_d": "R&D",
-    "operating_income": "Operating Income",
-    "net_non_operating_interest_income_expense": "Non-Operating Interest Income/Expense",
-    "interest_expense_non_operating": "Interest Expense (Non-Op)",
-    "pretax_income": "Pre-tax Income",
-    "tax_provision": "Tax Provision",
-    "net_income_common_stockholders": "Net Income to Stockholders",
-    "net_income": "Net Income",
-    "net_income_continuous_operations": "Net Income (Cont. Ops)",
-    "basic_eps": "Basic EPS",
-    "diluted_eps": "Diluted EPS",
-    "basic_average_shares": "Avg. Shares (Basic)",
-    "diluted_average_shares": "Avg. Shares (Diluted)",
-    "total_expenses": "Total Expenses",
-    "normalized_income": "Normalized Income",
-    "interest_expense": "Interest Expense",
-    "net_interest_income": "Net Interest Income",
-    "ebit": "EBIT",
-    "ebitda": "EBITDA",
-    "reconciled_depreciation": "Reconciled Depreciation",
-    "normalized_ebitda": "Normalized EBITDA",
-    "total_assets": "Total Assets",
-    "stockholders_equity": "Stockholders' Equity",
-    "changes_in_cash": "Changes in Cash",
-    "working_capital": "Working Capital",
-    "invested_capital": "Invested Capital",
-    "total_debt": "Total Debt"
-    }
-
-    # Funzione per convertire l'immagine in base64
-    def get_base64_of_bin_file(bin_file):
-        with open(bin_file, 'rb') as f:
-            data = f.read()
-        return base64.b64encode(data).decode()
-
-    # Path del logo (assicurati che il file esista)
-    logo_path = os.path.join("images", "logo.png")
-    logo_html = ""
-    if os.path.exists(logo_path):
-        logo_base64 = get_base64_of_bin_file(logo_path)
-        logo_html = f'<img src="data:image/png;base64,{logo_base64}" class="logo">'
-        
-    st.markdown(f"""
-    <style>
-        .main-container {{
-            padding-left: 1cm;
-            padding-right: 1cm;
-        }}
-        .logo {{
-            height: 60px;
-            margin: 15px auto;
-            display: block;
-        }}
-    </style>
-    <div class='main-container'>
-        {logo_html}
-    """, unsafe_allow_html=True)
-
-
-
     st.title("📈 Interactive Graphs")
 
     exchanges = read_exchanges("exchanges.txt")
