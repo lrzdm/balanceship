@@ -65,8 +65,11 @@ def get_financial_data(symbol, years, force_refresh=False, description=None, sto
             return []
         
         data_list = []
-        columns_years = financials.columns.year
-        year_indices = [i for i, y in enumerate(columns_years) if str(y) in years]
+        columns_years = [col.year if hasattr(col, 'year') else int(str(col)[:4]) for col in financials.columns]
+        #year_indices = [i for i, y in enumerate(columns_years) if str(y) in years]
+        available_years = [str(col.year) for col in financials.columns if isinstance(col, pd.Timestamp)]
+        year_indices = [i for i, y in enumerate(available_years) if y in years]
+
 
         for year_index in year_indices:
             year_column = financials.columns[year_index]
@@ -159,4 +162,140 @@ def get_all_financial_data(force_refresh=False):
 
     return financial_data
 
+def compute_kpis(financial_data):
+    import pandas as pd
+    import numpy as np
+
+    # Mappa colonne dataset -> nomi usati nei KPI
+    col_map = {
+        'Gross Profit': 'gross_profit',
+        'Total Revenue': 'total_revenue',
+        'Operating Income': 'operating_income',
+        'Net Income': 'net_income',
+        'EBITDA': 'ebitda',
+        'EBIT': 'ebit',
+        'Total Assets': 'total_assets',
+        'Stockholders Equity': 'stockholders_equity',
+        'Invested Capital': 'invested_capital',
+        'Total Debt': 'total_debt',
+        'Interest Expense': 'interest_expense',
+        'Tax Provision': 'tax_provision',
+        'Pretax Income': 'pretax_income',
+        'SG&A': 'sg_and_a',
+        'R&D': 'r_and_d',
+        'Cash from Operations': 'changes_in_cash',  # occhio se è corretto!
+        'Working Capital': 'working_capital',
+        'Current Assets': 'current_assets',
+        'Current Liabilities': 'current_liabilities',
+        'inventories': 'inventories',
+        'cost_of_revenue': 'cost_of_revenue',
+        'receivables': 'receivables',
+    }
+
+    # Invertiamo il dizionario per rinominare da dataset a nomi KPI
+    reverse_map = {v: k for k, v in col_map.items()}
+
+    try:
+        def to_float(val):
+            if pd.isna(val):
+                return np.nan
+            if isinstance(val, str):
+                # pulizia stringhe numeriche con virgole, parentesi ecc.
+                val = val.replace(",", "").replace("(", "-").replace(")", "")
+            try:
+                return float(val)
+            except:
+                return np.nan
+
+        # Se è un dizionario singolo, lo trasformiamo in lista per DataFrame
+        if isinstance(financial_data, dict):
+            financial_data = [financial_data]
+
+        df = pd.DataFrame(financial_data)
+
+        # Rinominare le colonne del dataset con i nomi KPI (se presenti)
+        df.rename(columns=reverse_map, inplace=True)
+
+        # Assicuriamoci che tutte le colonne necessarie esistano, altrimenti creiamole con NaN
+        for col in col_map.keys():
+            if col not in df.columns:
+                df[col] = np.nan
+
+        # Conversione numerica su tutte le colonne KPI
+        for col in col_map.keys():
+            df[col] = df[col].apply(to_float)
+
+        # Colonne "base" che devono sempre esserci
+        if 'symbol' not in df.columns:
+            df['symbol'] = 'N/A'
+        if 'year' not in df.columns:
+            df['year'] = 'N/A'
+
+        # Calcolo KPI
+        df['Gross Margin'] = df['Gross Profit'] / df['Total Revenue']
+        df['Operating Margin'] = df['Operating Income'] / df['Total Revenue']
+        df['Net Margin'] = df['Net Income'] / df['Total Revenue']
+        df['EBITDA Margin'] = df['EBITDA'] / df['Total Revenue']
+        df['ROA'] = df['Net Income'] / df['Total Assets']
+        df['ROE'] = df['Net Income'] / df['Stockholders Equity']
+        df['ROIC'] = df['EBIT'] / df['Invested Capital']
+        df['Debt/Equity'] = df['Total Debt'] / df['Stockholders Equity']
+        df['Interest Coverage'] = df['EBIT'] / df['Interest Expense']
+        df['Tax Rate'] = df['Tax Provision'] / df['Pretax Income']
+        df['SG&A/Revenue'] = df['SG&A'] / df['Total Revenue']
+        df['R&D/Revenue'] = df['R&D'] / df['Total Revenue']
+        df['Cash Flow to Debt'] = df['Cash from Operations'] / df['Total Debt']
+        df['Working Capital/Revenue'] = df['Working Capital'] / df['Total Revenue']
+        #df['Current Ratio'] = df['Current Assets'] / df['Current Liabilities']
+        #df['Quick Ratio'] = (df['Current Assets'] - df['inventories']) / df['Current Liabilities']
+        df['Asset Turnover'] = df['Total Revenue'] / df['Total Assets']
+        #df['Inventory Turnover'] = df['cost_of_revenue'] / df['inventories']
+        #df['Receivables Turnover'] = df['Total Revenue'] / df['receivables']
+        df['Equity Ratio'] = df['Stockholders Equity'] / df['Total Assets']
+
+        df = df.drop_duplicates(subset=['symbol', 'year'])
+
+        # Restituisco solo le colonne richieste, se esistono
+        kpi_cols = ['symbol', 'year', 'Gross Margin', 'Operating Margin', 'Net Margin', 'EBITDA Margin',
+                    'ROA', 'ROE', 'ROIC', 'Debt/Equity', 'Interest Coverage', 'Tax Rate',
+                    'SG&A/Revenue', 'R&D/Revenue', 'Cash Flow to Debt', 'Working Capital/Revenue', 'Asset Turnover', 'Equity Ratio']
+
+        # Per sicurezza, filtriamo solo colonne esistenti
+        kpi_cols_present = [col for col in kpi_cols if col in df.columns]
+
+        return df[kpi_cols_present]
+
+    except Exception as e:
+        print(f"Errore nel calcolo dei KPI: {e}")
+        return pd.DataFrame()
+
+
+
+##
+##def main():
+##    st.title("📊 Financial KPI Comparison Tool")
+##
+##    symbols = ['AAPL', 'MSFT', 'GOOG', 'AMZN']  # Puoi caricare la lista da companies.csv se vuoi
+##    years = ['2021', '2022', '2023']
+##
+##    col1, col2 = st.columns(2)
+##    with col1:
+##        company1 = st.selectbox("Select First Company", symbols, key="c1")
+##        year1 = st.selectbox("Select Year for Company 1", years, key="y1")
+##    with col2:
+##        company2 = st.selectbox("Select Second Company", symbols, key="c2")
+##        year2 = st.selectbox("Select Year for Company 2", years, key="y2")
+##
+##    if st.button("Compare KPI"):
+##        data1 = get_financial_data(company1, [year1])
+##        data2 = get_financial_data(company2, [year2])
+##        all_data = data1 + data2
+##        df_kpis = compute_kpis(all_data)
+##
+##        st.subheader("🔍 KPI Comparison Table")
+##        df_pivot = df_kpis.pivot(index="symbol", columns="year")
+##        st.dataframe(df_pivot.style.format("{:.2%}"))
+
+if __name__ == '__main__':
+    main()
 

@@ -11,33 +11,45 @@ from PIL import Image
 st.set_page_config(page_title="Financials", layout="wide")
 
 
-# Funzione per convertire l'immagine in base64
 def get_base64_of_bin_file(bin_file):
     with open(bin_file, 'rb') as f:
         data = f.read()
     return base64.b64encode(data).decode()
 
-# Path del logo (assicurati che il file esista)
-logo_path = os.path.join("images", "logo.png")
+logo1_path = os.path.join("images", "logo1.png")
+logo2_path = os.path.join("images", "logo2.png")
+
 logo_html = ""
-if os.path.exists(logo_path):
-    logo_base64 = get_base64_of_bin_file(logo_path)
-    logo_html = f'<img src="data:image/png;base64,{logo_base64}" class="logo">'
+if os.path.exists(logo1_path):
+    logo1_base64 = get_base64_of_bin_file(logo1_path)
+    logo_html += f'<img src="data:image/png;base64,{logo1_base64}" class="logo logo-large">'
+
+if os.path.exists(logo2_path):
+    logo2_base64 = get_base64_of_bin_file(logo2_path)
+    logo_html += f'<img src="data:image/png;base64,{logo2_base64}" class="logo logo-small">'
+
+logo_html = f"<div class='logo-container'>{logo_html}</div>"
 
 st.markdown(f"""
 <style>
-    .main-container {{
-        padding-left: 1cm;
-        padding-right: 1cm;
+    .logo-container {{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 30px;
+        margin: 20px auto;
     }}
     .logo {{
-        height: 60px;
-        margin: 15px auto;
         display: block;
     }}
+    .logo-large {{
+        height: 100px;
+    }}
+    .logo-small {{
+        height: 60px;
+    }}
 </style>
-<div class='main-container'>
-    {logo_html}
+{logo_html}
 """, unsafe_allow_html=True)
 
 
@@ -212,6 +224,19 @@ st.sidebar.markdown("###")
 
 # --- Sidebar: Logo + Nome + Link in basso ---
 # HTML e CSS per posizionare in basso
+# Funzione per convertire l'immagine in base64
+def get_base64_of_bin_file2(bin_file):
+    with open(bin_file, 'rb') as f:
+        data = f.read()
+    return base64.b64encode(data).decode()
+
+# Path del logo (assicurati che il file esista)
+logo_path = os.path.join("images", "logo4.png")
+logo_html = ""
+if os.path.exists(logo_path):
+    logo_base64 = get_base64_of_bin_file2(logo_path)
+    logo_html = f'<img src="data:image/png;base64,{logo_base64}" class="logo">'
+    
 st.sidebar.markdown(
     f"""
     <style>
@@ -244,7 +269,7 @@ st.sidebar.markdown(
         }}
 
         .sidebar-footer img {{
-            height: 30px;
+            height: 70px;
             margin-right: 8px;
             vertical-align: middle;
         }}
@@ -267,8 +292,5 @@ st.sidebar.markdown(
     unsafe_allow_html=True
 )
 
-# Carica e esegui la pagina selezionata
-#page = PAGES[selection]
-#page.run()
 
 st.markdown("</div>", unsafe_allow_html=True)
