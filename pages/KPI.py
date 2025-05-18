@@ -128,78 +128,75 @@ def run():
 
     run_kpis()
 
+# --- Sidebar: Logo + Nome + Link in basso ---
+# HTML e CSS per posizionare in basso
+# Funzione per convertire l'immagine in base64
+def get_base64_of_bin_file2(bin_file):
+    with open(bin_file, 'rb') as f:
+        data = f.read()
+    return base64.b64encode(data).decode()
 
-
+# Path del logo (assicurati che il file esista)
+logo_path = os.path.join("images", "logo4.png")
+logo_html = ""
+if os.path.exists(logo_path):
+    logo_base64 = get_base64_of_bin_file2(logo_path)
+    logo_html = f'<img src="data:image/png;base64,{logo_base64}" class="logo">'
     
-    # --- Sidebar: Logo + Nome + Link in basso ---
-    # HTML e CSS per posizionare in basso
-    # Funzione per convertire l'immagine in base64
-    def get_base64_of_bin_file2(bin_file):
-        with open(bin_file, 'rb') as f:
-            data = f.read()
-        return base64.b64encode(data).decode()
+st.sidebar.markdown(
+    f"""
+    <style>
+        /* Elimina bordi e ombre nei contenitori della sidebar */
+        section[data-testid="stSidebar"] div {{
+            border: none !important;
+            box-shadow: none !important;
+        }}
 
-    # Path del logo (assicurati che il file esista)
-    logo_path = os.path.join("images", "logo4.png")
-    logo_html = ""
-    if os.path.exists(logo_path):
-        logo_base64 = get_base64_of_bin_file2(logo_path)
-        logo_html = f'<img src="data:image/png;base64,{logo_base64}" class="logo">'
-        
-    st.sidebar.markdown(
-        f"""
-        <style>
-            /* Elimina bordi e ombre nei contenitori della sidebar */
-            section[data-testid="stSidebar"] div {{
-                border: none !important;
-                box-shadow: none !important;
-            }}
+        /* Specificamente rimuove eventuali linee sopra il footer */
+        .sidebar-footer {{
+            border-top: none !important;
+            box-shadow: none !important;
+            margin-top: 0px !important;
+            padding-top: 0px !important;
+        }}
 
-            /* Specificamente rimuove eventuali linee sopra il footer */
-            .sidebar-footer {{
-                border-top: none !important;
-                box-shadow: none !important;
-                margin-top: 0px !important;
-                padding-top: 0px !important;
-            }}
+        .sidebar-footer div {{
+            border: none !important;
+            box-shadow: none !important;
+        }}
 
-            .sidebar-footer div {{
-                border: none !important;
-                box-shadow: none !important;
-            }}
+        .sidebar-footer a {{
+            border: none !important;
+            box-shadow: none !important;
+            text-decoration: none;
+            font-size: 12px;
+            display: block;
+            margin-top: 12px;
+        }}
 
-            .sidebar-footer a {{
-                border: none !important;
-                box-shadow: none !important;
-                text-decoration: none;
-                font-size: 12px;
-                display: block;
-                margin-top: 12px;
-            }}
+        .sidebar-footer img {{
+            height: 70px;
+            margin-right: 8px;
+            vertical-align: middle;
+        }}
 
-            .sidebar-footer img {{
-                height: 70px;
-                margin-right: 8px;
-                vertical-align: middle;
-            }}
+        .sidebar-footer span {{
+            font-size: 13px;
+            vertical-align: middle;
+        }}
 
-            .sidebar-footer span {{
-                font-size: 13px;
-                vertical-align: middle;
-            }}
+    </style>
 
-        </style>
-
-        <div class="sidebar-footer">
-            <div>
-                <img src="data:image/png;base64,{logo_base64}">
-                <span>Your Name</span>
-            </div>
-            <a href="https://github.com/tuo-username" target="_blank">🌐 LinkedIn</a>
+    <div class="sidebar-footer">
+        <div>
+            <img src="data:image/png;base64,{logo_base64}">
+            <span>Your Name</span>
         </div>
-        """,
-        unsafe_allow_html=True
-    )
+        <a href="https://github.com/tuo-username" target="_blank">🌐 LinkedIn</a>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 # Esegui la funzione run per ogni pagina
 if __name__ == "__main__":
