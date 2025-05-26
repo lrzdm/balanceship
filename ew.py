@@ -212,7 +212,7 @@ if financial_data:
     )
 
     st.dataframe(df, use_container_width=True)
-
+    #st.dataframe(df.style.format(str), height=600)
 else:
     st.warning("No financial data available for the selected years and exchanges.")
 

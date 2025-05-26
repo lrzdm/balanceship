@@ -4,11 +4,14 @@ import csv
 import os
 import pickle
 import pandas as pd
-from apscheduler.schedulers.background import BackgroundScheduler
+import time
 import atexit
 import datetime
+from apscheduler.schedulers.background import BackgroundScheduler
+import threading
 
 CACHE_DIR = 'cache'
+#cache_lock = threading.Lock()
 
 def read_exchanges(filename):
     exchanges = {}
@@ -21,7 +24,7 @@ def read_exchanges(filename):
 
 def read_companies(filename):
     companies = []
-    with open(filename, 'r') as file:
+    with open(filename, 'r', encoding='utf-8', errors='replace') as file:
         reader = csv.DictReader(file)
         for row in reader:
             companies.append(row)
@@ -34,6 +37,21 @@ def format_to_billions(value):
     except Exception:
         return "N/A"
     
+##def load_from_cache(symbol, years):
+##    cache_file = os.path.join(CACHE_DIR, f'{symbol}_{"_".join(years)}.pkl')
+##    if os.path.exists(cache_file):
+##        with cache_lock:
+##            with open(cache_file, 'rb') as f:
+##                return pickle.load(f)
+##    return None
+##
+##def save_to_cache(symbol, years, data):
+##    os.makedirs(CACHE_DIR, exist_ok=True)
+##    cache_file = os.path.join(CACHE_DIR, f'{symbol}_{"_".join(years)}.pkl')
+##    with cache_lock:
+##        with open(cache_file, 'wb') as f:
+##            pickle.dump(data, f)
+            
 def load_from_cache(symbol, years):
     cache_file = os.path.join(CACHE_DIR, f'{symbol}_{"_".join(years)}.pkl')
     if os.path.exists(cache_file):
@@ -156,6 +174,7 @@ def get_all_financial_data(force_refresh=False):
                 data['description'] = description
                 data['stock_exchange'] = stock_exchange
                 financial_data.append(data)
+            time.sleep(2)  # 👉 evita rate limit!
                 
     financial_data = remove_duplicates(financial_data)
     financial_data.sort(key=lambda x: (x['symbol'], x['year']))
@@ -270,31 +289,18 @@ def compute_kpis(financial_data):
         return pd.DataFrame()
 
 
+#SCHEDULER PER REFRESH CACHE UNA VOLTA AL GIORNO
+scheduler = BackgroundScheduler()
+scheduler.add_job(
+    func=lambda: get_all_financial_data(force_refresh=True), 
+    trigger="cron", 
+    hour=3  # esegue ogni giorno alle 3 di notte
+)
+scheduler.start()
 
-##
-##def main():
-##    st.title("📊 Financial KPI Comparison Tool")
-##
-##    symbols = ['AAPL', 'MSFT', 'GOOG', 'AMZN']  # Puoi caricare la lista da companies.csv se vuoi
-##    years = ['2021', '2022', '2023']
-##
-##    col1, col2 = st.columns(2)
-##    with col1:
-##        company1 = st.selectbox("Select First Company", symbols, key="c1")
-##        year1 = st.selectbox("Select Year for Company 1", years, key="y1")
-##    with col2:
-##        company2 = st.selectbox("Select Second Company", symbols, key="c2")
-##        year2 = st.selectbox("Select Year for Company 2", years, key="y2")
-##
-##    if st.button("Compare KPI"):
-##        data1 = get_financial_data(company1, [year1])
-##        data2 = get_financial_data(company2, [year2])
-##        all_data = data1 + data2
-##        df_kpis = compute_kpis(all_data)
-##
-##        st.subheader("🔍 KPI Comparison Table")
-##        df_pivot = df_kpis.pivot(index="symbol", columns="year")
-##        st.dataframe(df_pivot.style.format("{:.2%}"))
+#Assicura che il processo venga chiuso correttamente
+atexit.register(lambda: scheduler.shutdown())
+
 
 if __name__ == '__main__':
     main()
