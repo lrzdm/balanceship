@@ -56,18 +56,27 @@ def run():
     profiles = [
         {
             'name': 'Lorenzo De Meo',
-            'description': 'Professional with an engineering background and an MBA, specializing in financial reporting, internal audit, and risk management. Experienced in financial analysis, accounting, and managing financial risks to support strategic decision-making. Proficient in leveraging Power BI and Python for data-driven insights. Proven ability to communicate complex financial information to senior leadership and build strong relationships with stakeholders.',
+            'description': 'Professional with an engineering background and an MBA, specializing in financial reporting, internal audit, and risk management.\
+Experienced in financial analysis, accounting, and managing financial risks to support strategic decision-making. Proficient in leveraging Power BI and \
+Python for data-driven insights. Proven ability to communicate complex financial information to senior leadership and build strong relationships with \
+stakeholders.',
             'image_path': 'images/Lorenzo De Meo_01.jpg'
         },
         {
             'name': 'William Herbert Gazzo',
-            'description': 'Professional with a solid business background and a professional training from SDA Bocconi. Specializing in project management, business planning, and the management of financing and budgets. He boasts extensive experience in consulting firms and multinational companies, where he has held managerial roles. Expert in managing projects across various sectors, from Automotive to FMCG, from Energy to Pharma, with a particular focus on the latter. Skilled in the use of PowerPoint and project management software, he has a proven ability to communicate complex information to C-level executives, both internally and externally. Always ready to face new challenges and contribute to achieving shared goals.',
-            'image_path': 'images/person2.jpg'
+            'description': 'Professional with a solid business background and a professional training from SDA Bocconi. \
+Specializing in project management, business planning, and the management of financing and budgets. He boasts extensive experience in consulting firms \
+and multinational companies, where he has held managerial roles. Expert in managing projects across various sectors, from Automotive to FMCG, from Energy \
+to Pharma, with a particular focus on the latter.',
+            'image_path': 'images/William H Gazzo_01.jpg'
         },
         {
             'name': 'Gabriele Schininà',
-            'description': 'Professional with a solid economic and financial background and training from SDA Bocconi. Specializing in financial modelling, strategic planning, and budget management. He boasts extensive experience in listed and non-listed multinational companies, where he has held roles in business controlling. Expert in financial analysis, accounting, and managing budgets and forecasts, providing crucial support for strategic decision-making. Proficient in using Power BI and Excel to gain data-driven insights, he has a proven ability to communicate complex financial information to company leadership. Excels in building and maintaining strong relationships with internal and external stakeholders, thus contributing to a collaborative and results-oriented work environment.',
-            'image_path': 'images/person3.jpg'
+            'description': 'Professional with a solid economic and financial background and training from SDA Bocconi. Specializing in financial modelling, \
+strategic planning, and budget management. He boasts extensive experience in listed and non-listed multinational companies, where he has held roles in \
+business controlling. Expert in financial analysis, accounting, and managing budgets and forecasts, providing crucial support for strategic decision-making. \
+Proficient in using Power BI and Excel to gain data-driven insights.',
+            'image_path': 'images/02.png'
         },
         {
             'name': 'Giovanni Serusi',
