@@ -11,6 +11,7 @@ def get_base64_of_bin_file(bin_file):
         data = f.read()
     return base64.b64encode(data).decode()
 
+# --- LOGHI IN ALTO ---
 logo1_path = os.path.join("images", "logo1.png")
 logo2_path = os.path.join("images", "logo2.png")
 
@@ -33,6 +34,7 @@ st.markdown(f"""
         align-items: center;
         gap: 30px;
         margin: 20px auto;
+        flex-wrap: wrap;
     }}
     .logo {{
         display: block;
@@ -43,135 +45,166 @@ st.markdown(f"""
     .logo-small {{
         height: 60px;
     }}
+    .startup-box {{
+        background-color: #f0f2f6;
+        border-radius: 12px;
+        padding: 25px;
+        margin: 30px auto;
+    }}
+    .description-block {{
+        padding: 40px 20px;
+        text-align: justify;
+        font-size: 18px;
+    }}
+    .profile-card {{
+        background-color: #ffffff;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        margin-bottom: 25px;
+    }}
+    .contact-section {{
+        margin-top: 50px;
+        padding: 30px;
+        background-color: #f9f9f9;
+        border-radius: 12px;
+        text-align: center;
+    }}
+    .social-icons a {{
+        margin: 0 10px;
+        font-size: 24px;
+        text-decoration: none;
+    }}
+    @media screen and (max-width: 768px) {{
+        .description-block {{
+            font-size: 16px;
+        }}
+        .profile-card h4 {{
+            font-size: 18px;
+        }}
+        .profile-card p {{
+            font-size: 14px;
+        }}
+    }}
 </style>
 {logo_html}
 """, unsafe_allow_html=True)
 
-# Contenuto della pagina
-def run():
-    st.markdown("<div class='main-container'>", unsafe_allow_html=True)
+# --- INFORMAZIONI STARTUP ---
+st.markdown("""
+<div class='startup-box'>
+    <h2 style='text-align: center;'>🚀Our Startup</h2>
+    <ul style='list-style: none; padding-left: 0; font-size: 16px;'>
+        <li><strong>Founded:</strong> 2025</li>
+        <li><strong>Sector:</strong> Finance & Data Analytics</li>
+        <li><strong>Headquarters:</strong> Rome, Italy</li>
+        <li><strong>Mission:</strong> Empower businesses with intelligent financial tools</li>
+    </ul>
+</div>
+""", unsafe_allow_html=True)
 
-    st.title("👥 Who We Are")
+# --- DESCRIZIONE AZIENDA ---
+st.markdown("""
+<div class='description-block'>
+    <h2 style='text-align: center;'>🏢 About Us</h2>
+    <p>At Balanceship, we’re on a mission to bring clarity and simplicity to financial data.\
+    Navigating financial information should be like sailing a well-balanced ship—steady, reliable, and easy to steer.\
+    In a world full of complex numbers and overwhelming reports, Balance-ship provides a calm, clear view. We help users compare and benchmark\
+    company financials in a straightforward, visually intuitive way. Our platform is designed to give you trustworthy insights-fast.\
+    Whether you're exploring markets, tracking competitors, or making strategic decisions, Balanceship offers a streamlined way to compare\
+    financials across companies-with accuracy, transparency, and ease. We’re here to be the go-to source for smart, simple financial comparison.
+<div style='margin-top: 20px; font-weight: bold; text-align: center;'>
+    We are Balanceship. Built for clarity. Backed by data. Designed for everyone.
+</div>
+""", unsafe_allow_html=True)
 
-    profiles = [
-        {
-            'name': 'Lorenzo De Meo',
-            'description': 'Professional with an engineering background and an MBA, specializing in financial reporting, internal audit, and risk management.\
+# --- PROFILI ---
+st.markdown("<h2 style='text-align: center;'>👥 Our Team</h2>", unsafe_allow_html=True)
+
+profiles = [
+    {
+        'name': 'Lorenzo De Meo',
+        'description': 'Professional with an engineering background and an MBA, specializing in financial reporting, internal audit, and risk management.\
 Experienced in financial analysis, accounting, and managing financial risks to support strategic decision-making. Proficient in leveraging Power BI and \
-Python for data-driven insights. Proven ability to communicate complex financial information to senior leadership and build strong relationships with \
-stakeholders.',
-            'image_path': 'images/Lorenzo De Meo_01.jpg'
-        },
-        {
-            'name': 'William Herbert Gazzo',
-            'description': 'Professional with a solid business background and a professional training from SDA Bocconi. \
+Python for data-driven insights.',
+        'image_path': 'images/Lorenzo De Meo_01.jpg'
+    },
+    {
+        'name': 'William Herbert Gazzo',
+        'description': 'Professional with a solid business background and a professional training from SDA Bocconi. \
 Specializing in project management, business planning, and the management of financing and budgets. He boasts extensive experience in consulting firms \
-and multinational companies, where he has held managerial roles. Expert in managing projects across various sectors, from Automotive to FMCG, from Energy \
-to Pharma, with a particular focus on the latter.',
-            'image_path': 'images/William H Gazzo_01.jpg'
-        },
-        {
-            'name': 'Gabriele Schininà',
-            'description': 'Professional with a solid economic and financial background and training from SDA Bocconi. Specializing in financial modelling, \
+and multinational companies, where he has held managerial roles.',
+        'image_path': 'images/William H Gazzo_01.jpg'
+    },
+    {
+        'name': 'Gabriele Schininà',
+        'description': 'Professional with a solid economic and financial background and training from SDA Bocconi. Specializing in financial modelling, \
 strategic planning, and budget management. He boasts extensive experience in listed and non-listed multinational companies, where he has held roles in \
-business controlling. Expert in financial analysis, accounting, and managing budgets and forecasts, providing crucial support for strategic decision-making. \
-Proficient in using Power BI and Excel to gain data-driven insights.',
-            'image_path': 'images/02.png'
-        },
-        {
-            'name': 'Giovanni Serusi',
-            'description': 'Professional with a solid scientific background, specializing in clinical and cognitive neuroscience and with economic training from SDA Bocconi. Specializing in competitive intelligence and scouting new investment opportunities with a focus on the life-science sector. Excels in building and maintaining strong relationships with internal and external stakeholders, contributing to the development of a robust and collaborative network.',
-            'image_path': 'images/Giovanni Serusi_01.jpg'
-        }
-    ]
+business controlling.',
+        'image_path': 'images/Gabriele Schinina_01.jpg'
+    },
+    {
+        'name': 'Giovanni Serusi',
+        'description': 'Professional with a solid scientific background, specializing in clinical and cognitive neuroscience and with economic training\
+from SDA Bocconi. Specializing in competitive intelligence and scouting new investment opportunities with a focus on the life-science sector.',
+        'image_path': 'images/Giovanni Serusi_01.jpg'
+    }
+]
 
-    for profile in profiles:
-        col1, col2 = st.columns([1, 3])
-        with col1:
+for profile in profiles:
+    with st.container():
+        cols = st.columns([1, 3])
+        with cols[0]:
             if os.path.exists(profile['image_path']):
                 img = Image.open(profile['image_path'])
                 st.image(img, use_container_width=True)
-        with col2:
-            st.markdown(f"### {profile['name']}")
-            st.markdown(f"<p class='description'>{profile['description']}</p>", unsafe_allow_html=True)
+        with cols[1]:
+            st.markdown(f"<div class='profile-card'><h4>{profile['name']}</h4><p>{profile['description']}</p></div>", unsafe_allow_html=True)
 
-    st.markdown("</div>", unsafe_allow_html=True)
+# Percorsi delle icone
+instagram_icon_path = os.path.join("images", "IG.png")
+linkedin_icon_path = os.path.join("images", "LIN.png")
 
-# Titolo in alto nella sidebar
-    st.sidebar.title("       ")
-    st.sidebar.markdown("---")
-    st.sidebar.markdown("###")
+# Converti le immagini in base64
+instagram_icon_base64 = get_base64_of_bin_file(instagram_icon_path)
+linkedin_icon_base64 = get_base64_of_bin_file(linkedin_icon_path)
 
-# --- Sidebar: Logo + Nome + Link in basso ---
-# HTML e CSS per posizionare in basso
-# Funzione per convertire l'immagine in base64
-def get_base64_of_bin_file2(bin_file):
-    with open(bin_file, 'rb') as f:
-        data = f.read()
-    return base64.b64encode(data).decode()
+# --- CONTATTI ---
+# HTML per visualizzare le icone con link
+##st.markdown(f"""
+##<div style='display: flex; justify-content: center; gap: 20px;'>
+##    <a href='https://www.instagram.com/tuo_profilo' target='_blank'>
+##        <img src='data:image/png;base64,{instagram_icon_base64}' width='40' height='40'>
+##    </a>
+##    <a href='https://www.linkedin.com/in/tuo_profilo' target='_blank'>
+##        <img src='data:image/png;base64,{linkedin_icon_base64}' width='40' height='40'>
+##    </a>
+##</div>
+##""", unsafe_allow_html=True)
 
-# Path del logo (assicurati che il file esista)
+st.markdown(f"""
+<div class='contact-section'>
+    <h3>📬 Contact Us</h3>
+    <p>If you want to collaborate or learn more about our project, feel free to <a href='mailto:your-email@example.com'>send us an email</a>.</p>
+    <div style='display: flex; justify-content: center; gap: 20px;'>
+        <a href='https://www.instagram.com/tuo_profilo' target='_blank'>
+            <img src='data:image/png;base64,{instagram_icon_base64}' width='40' height='40'>
+        </a>
+        <a href='https://www.linkedin.com/in/tuo_profilo' target='_blank'>
+            <img src='data:image/png;base64,{linkedin_icon_base64}' width='40' height='40'>
+        </a>
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+# --- SIDEBAR ---
 logo_path = os.path.join("images", "logo4.png")
-logo_html = ""
-if os.path.exists(logo_path):
-    logo_base64 = get_base64_of_bin_file2(logo_path)
-    logo_html = f'<img src="data:image/png;base64,{logo_base64}" class="logo">'
-    
-st.sidebar.markdown(
-    f"""
-    <style>
-        /* Elimina bordi e ombre nei contenitori della sidebar */
-        section[data-testid="stSidebar"] div {{
-            border: none !important;
-            box-shadow: none !important;
-        }}
+logo_base64 = get_base64_of_bin_file(logo_path) if os.path.exists(logo_path) else ""
 
-        /* Specificamente rimuove eventuali linee sopra il footer */
-        .sidebar-footer {{
-            border-top: none !important;
-            box-shadow: none !important;
-            margin-top: 0px !important;
-            padding-top: 0px !important;
-        }}
-
-        .sidebar-footer div {{
-            border: none !important;
-            box-shadow: none !important;
-        }}
-
-        .sidebar-footer a {{
-            border: none !important;
-            box-shadow: none !important;
-            text-decoration: none;
-            font-size: 12px;
-            display: block;
-            margin-top: 12px;
-        }}
-
-        .sidebar-footer img {{
-            height: 70px;
-            margin-right: 8px;
-            vertical-align: middle;
-        }}
-
-        .sidebar-footer span {{
-            font-size: 13px;
-            vertical-align: middle;
-        }}
-
-    </style>
-
-    <div class="sidebar-footer">
-        <div>
-            <img src="data:image/png;base64,{logo_base64}">
-            <span>Your Name</span>
-        </div>
+st.sidebar.markdown(f"""
+    <div style='text-align: center;'>
+        <img src="data:image/png;base64,{logo_base64}" style='height: 70px;'><br>
+        <span style='font-size: 14px;'>Your Name</span><br>
         <a href="https://github.com/tuo-username" target="_blank">🌐 LinkedIn</a>
     </div>
-    """,
-    unsafe_allow_html=True
-)
-
-# Esegui la funzione run per ogni pagina
-if __name__ == "__main__":
-    run()
+""", unsafe_allow_html=True)
