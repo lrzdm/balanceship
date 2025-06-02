@@ -6,3 +6,4 @@ streamlit
 xlsxwriter
 Pillow
 plotly
+sqlalchemy
