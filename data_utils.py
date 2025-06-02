@@ -7,11 +7,12 @@ import pandas as pd
 import time
 import atexit
 import datetime
-from apscheduler.schedulers.background import BackgroundScheduler
-import threading
+from cache_db import load_from_db as load_from_cache
+from cache_db import save_to_db as save_to_cache
 
-CACHE_DIR = 'cache'
-#cache_lock = threading.Lock()
+##
+##CACHE_DIR = 'cache'
+###cache_lock = threading.Lock()
 
 def read_exchanges(filename):
     exchanges = {}
@@ -37,33 +38,6 @@ def format_to_billions(value):
     except Exception:
         return "N/A"
     
-##def load_from_cache(symbol, years):
-##    cache_file = os.path.join(CACHE_DIR, f'{symbol}_{"_".join(years)}.pkl')
-##    if os.path.exists(cache_file):
-##        with cache_lock:
-##            with open(cache_file, 'rb') as f:
-##                return pickle.load(f)
-##    return None
-##
-##def save_to_cache(symbol, years, data):
-##    os.makedirs(CACHE_DIR, exist_ok=True)
-##    cache_file = os.path.join(CACHE_DIR, f'{symbol}_{"_".join(years)}.pkl')
-##    with cache_lock:
-##        with open(cache_file, 'wb') as f:
-##            pickle.dump(data, f)
-            
-def load_from_cache(symbol, years):
-    cache_file = os.path.join(CACHE_DIR, f'{symbol}_{"_".join(years)}.pkl')
-    if os.path.exists(cache_file):
-        with open(cache_file, 'rb') as f:
-            return pickle.load(f)
-    return None
-
-def save_to_cache(symbol, years, data):
-    os.makedirs(CACHE_DIR, exist_ok=True)
-    cache_file = os.path.join(CACHE_DIR, f'{symbol}_{"_".join(years)}.pkl')
-    with open(cache_file, 'wb') as f:
-        pickle.dump(data, f)
         
 def get_financial_data(symbol, years, force_refresh=False, description=None, stock_exchange=None):
     if not force_refresh:
@@ -157,7 +131,7 @@ def remove_duplicates(data):
             unique_data.append(item)
     return unique_data
 
-def get_all_financial_data(force_refresh=False):
+def get_all_financial_data(force_refresh=True):
     #print(f"[{datetime.datetime.now()}] >>> get_all_financial_data() chiamata dallo scheduler...")
     exchanges = read_exchanges('exchanges.txt')
     financial_data = []
@@ -289,17 +263,17 @@ def compute_kpis(financial_data):
         return pd.DataFrame()
 
 
-#SCHEDULER PER REFRESH CACHE UNA VOLTA AL GIORNO
-scheduler = BackgroundScheduler()
-scheduler.add_job(
-    func=lambda: get_all_financial_data(force_refresh=True), 
-    trigger="cron", 
-    hour=3  # esegue ogni giorno alle 3 di notte
-)
-scheduler.start()
-
-#Assicura che il processo venga chiuso correttamente
-atexit.register(lambda: scheduler.shutdown())
+##SCHEDULER PER REFRESH CACHE UNA VOLTA AL GIORNO
+##scheduler = BackgroundScheduler()
+##scheduler.add_job(
+##    func=lambda: get_all_financial_data(force_refresh=True), 
+##    trigger="cron", 
+##    hour=3  # esegue ogni giorno alle 3 di notte
+##)
+##scheduler.start()
+##
+##Assicura che il processo venga chiuso correttamente
+##atexit.register(lambda: scheduler.shutdown())
 
 
 if __name__ == '__main__':
