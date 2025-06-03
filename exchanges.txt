@@ -12,4 +12,3 @@ Nikkei 225,japan_companies.txt
 Shanghai,shanghai_companies.txt
 Hong Kong,hk_companies.txt
 Tadawul All Share,saudi_companies.txt
-LSE, lse_companies.txt
