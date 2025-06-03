@@ -10,5 +10,6 @@ Euro Stoxx 50,euro_companies.txt
 Ibex 35,spain_companies.txt
 Nikkei 225,japan_companies.txt
 Shanghai,shanghai_companies.txt
-Hong Seng,hk_companies.txt
+Hong Kong,hk_companies.txt
 Tadawul All Share,saudi_companies.txt
+LSE, lse_companies.txt
