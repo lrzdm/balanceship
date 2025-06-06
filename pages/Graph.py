@@ -169,7 +169,7 @@ def run():
 
     run_kpis()
 
-def run():
+def run_graph():
     st.title("📈 Interactive Graphs")
 
     exchanges = read_exchanges("exchanges.txt")
@@ -377,7 +377,7 @@ def run():
 
 # Esegui la funzione run
 if __name__ == "__main__":
-    run()
+    run_graph()
 
 st.markdown("</div>", unsafe_allow_html=True)
 
