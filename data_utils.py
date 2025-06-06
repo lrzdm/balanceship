@@ -10,9 +10,6 @@ import datetime
 from cache_db import load_from_db as load_from_cache
 from cache_db import save_to_db as save_to_cache
 
-##
-##CACHE_DIR = 'cache'
-###cache_lock = threading.Lock()
 
 def read_exchanges(filename):
     exchanges = {}
@@ -261,19 +258,6 @@ def compute_kpis(financial_data):
     except Exception as e:
         print(f"Errore nel calcolo dei KPI: {e}")
         return pd.DataFrame()
-
-
-##SCHEDULER PER REFRESH CACHE UNA VOLTA AL GIORNO
-##scheduler = BackgroundScheduler()
-##scheduler.add_job(
-##    func=lambda: get_all_financial_data(force_refresh=True), 
-##    trigger="cron", 
-##    hour=3  # esegue ogni giorno alle 3 di notte
-##)
-##scheduler.start()
-##
-##Assicura che il processo venga chiuso correttamente
-##atexit.register(lambda: scheduler.shutdown())
 
 
 if __name__ == '__main__':
