@@ -1,14 +1,28 @@
 import os
 import json
+import requests
 from sqlalchemy import create_engine, Column, String, Text, Integer
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-Base = declarative_base()
+def download_database_if_missing():
+    db_path = "data/financial_cache.db"
+    if not os.path.exists(db_path):
+        print("Scaricamento del database da GitHub...")
+        url = "https://github.com/lrzdm/balanceship/releases/download/1.0/financial_cache.db"
+        response = requests.get(url)
+        with open(db_path, "wb") as f:
+            f.write(response.content)
+        print("✅ Database scaricato.")
 
-# Path e modalità di connessione
-DATABASE_URL = "sqlite:///financial_cache.db"
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+# Scarica il database se non presente
+download_database_if_missing()
+
+# Crea la cartella se non esiste
+os.makedirs("data", exist_ok=True)
+engine = create_engine('sqlite:///data/financial_cache.db')
+
+Base = declarative_base()
 Session = sessionmaker(bind=engine)
 
 class FinancialCache(Base):
@@ -18,13 +32,9 @@ class FinancialCache(Base):
     years = Column(String)  # es: "2021_2022_2023"
     data_json = Column(Text)
 
-# CREA LE TABELLE SOLO IN LOCALE
-if os.environ.get("STREAMLIT_CLOUD") != "1":
-    Base.metadata.create_all(engine)
+Base.metadata.create_all(engine)
 
 def save_to_db(symbol, years, data):
-    if os.environ.get("STREAMLIT_CLOUD") == "1":
-        return  # Disabilita salvataggio su cloud per evitare errori
     session = Session()
     key = "_".join(years)
     entry = session.query(FinancialCache).filter_by(symbol=symbol, years=key).first()
@@ -39,14 +49,8 @@ def save_to_db(symbol, years, data):
 def load_from_db(symbol, years):
     session = Session()
     key = "_".join(years)
-    try:
-        entry = session.query(FinancialCache).filter_by(symbol=symbol, years=key).first()
-        if entry:
-            return json.loads(entry.data_json)
-    except Exception as e:
-        import streamlit as st
-        st.error("Errore nella lettura del database. Potrebbe essere corrotto.")
-        st.exception(e)
-    finally:
-        session.close()
+    entry = session.query(FinancialCache).filter_by(symbol=symbol, years=key).first()
+    session.close()
+    if entry:
+        return json.loads(entry.data_json)
     return None
