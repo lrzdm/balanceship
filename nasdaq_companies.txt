@@ -66,7 +66,6 @@ OKTA,Okta, Inc.
 ZM,Zoom Video Communications
 DOCU,DocuSign, Inc.
 CRWD,CrowdStrike Holdings
-SPLK,Splunk Inc.
 UBER,Uber Technologies, Inc.
 LYFT,Lyft, Inc.
 ZS,Zscaler, Inc.
@@ -89,10 +88,8 @@ DDOG,Datadog, Inc.
 FSLY,Fastly, Inc.
 NET,Cloudflare, Inc.
 PTON,Peloton Interactive, Inc.
-SQ,Square, Inc.
 ROKU,Roku, Inc.
 SPOT,Spotify Technology S.A.
 ETSY,Etsy, Inc.
 SHOP,Shopify Inc.
 TWLO,Twilio Inc.
-WORK,Slack Technologies, Inc.
