@@ -1,9 +1,10 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from data_utils import read_exchanges, read_companies, get_financial_data, remove_duplicates
+from data_utils import read_exchanges, read_companies, get_financial_data, remove_duplicates, compute_kpis, get_all_financial_data
 import os
 import base64
+
 
 st.set_page_config(page_title="Graphs", layout="wide")
 
@@ -49,335 +50,212 @@ COLUMN_LABELS = {
 "total_debt": "Total Debt"
 }
 
+# Funzione per convertire immagini in base64
 def get_base64_of_bin_file(bin_file):
     with open(bin_file, 'rb') as f:
         data = f.read()
     return base64.b64encode(data).decode()
 
-logo1_path = os.path.join("images", "logo1.png")
-logo2_path = os.path.join("images", "logo2.png")
+# Header con logo
+def render_logos():
+    logo_html = ""
+    for logo_path, css_class in [("images/logo1.png", "logo-large"), ("images/logo2.png", "logo-small")]:
+        if os.path.exists(logo_path):
+            base64_logo = get_base64_of_bin_file(logo_path)
+            logo_html += f'<img src="data:image/png;base64,{base64_logo}" class="logo {css_class}">' 
+    st.markdown(f"""
+    <style>
+        .logo-container {{ display: flex; justify-content: center; gap: 30px; margin: 20px auto; }}
+        .logo {{ display: block; }}
+        .logo-large {{ height: 100px; }}
+        .logo-small {{ height: 60px; }}
+    </style>
+    <div class='logo-container'>{logo_html}</div>
+    """, unsafe_allow_html=True)
 
-logo_html = ""
-if os.path.exists(logo1_path):
-    logo1_base64 = get_base64_of_bin_file(logo1_path)
-    logo_html += f'<img src="data:image/png;base64,{logo1_base64}" class="logo logo-large">'
+### Footer nella sidebar
+##def render_sidebar_footer():
+##    logo_path = os.path.join("images", "logo4.png")
+##    logo_html = ""
+##    if os.path.exists(logo_path):
+##        logo_base64 = get_base64_of_bin_file(logo_path)
+##        logo_html = f'<img src="data:image/png;base64,{logo_base64}" class="logo">'
+##    st.sidebar.markdown(f"""
+##    <style>
+##        section[data-testid="stSidebar"] div {{ border: none !important; box-shadow: none !important; }}
+##        .sidebar-footer a {{ font-size: 12px; display: block; margin-top: 12px; }}
+##        .sidebar-footer img {{ height: 70px; margin-right: 8px; vertical-align: middle; }}
+##        .sidebar-footer span {{ font-size: 13px; vertical-align: middle; }}
+##    </style>
+##    <div class="sidebar-footer">
+##        <div>{logo_html}<span>Your Name</span></div>
+##        <a href="https://github.com/tuo-username" target="_blank">\ud83c\udf10 LinkedIn</a>
+##    </div>
+##    """, unsafe_allow_html=True)
 
-if os.path.exists(logo2_path):
-    logo2_base64 = get_base64_of_bin_file(logo2_path)
-    logo_html += f'<img src="data:image/png;base64,{logo2_base64}" class="logo logo-small">'
+# KPI Table e Grafici
+@st.cache_data(show_spinner=False)
+def load_financials():
+    return get_all_financial_data()
 
-logo_html = f"<div class='logo-container'>{logo_html}</div>"
+def render_kpis():
+    st.header("📊 Financial KPI Table")
+    df_financials = load_financials()
+    df_kpis = compute_kpis(df_financials)
 
-st.markdown(f"""
-<style>
-    .logo-container {{
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 30px;
-        margin: 20px auto;
-    }}
-    .logo {{
-        display: block;
-    }}
-    .logo-large {{
-        height: 100px;
-    }}
-    .logo-small {{
-        height: 60px;
-    }}
-</style>
-{logo_html}
-""", unsafe_allow_html=True)
+    if 'description' not in df_kpis.columns:
+        df_kpis = df_kpis.merge(pd.DataFrame(df_financials)[['symbol', 'description']].drop_duplicates(), on='symbol', how='left')
 
-# Contenuto della pagina
-def run():    
-    def run_kpis():
-        st.title("📊 Financial KPI Table")
+    descriptions_dict = df_kpis.drop_duplicates(subset='symbol').set_index('description')['symbol'].to_dict()
+    descriptions_available = sorted(descriptions_dict.keys())
+    years_available = sorted(df_kpis['year'].astype(str).unique())
 
-        @st.cache_data(show_spinner=False)
-        def load_financials_from_cache():
-            return get_all_financial_data()
-
-        financial_data = load_financials_from_cache()
-        df_fin = pd.DataFrame(financial_data)
-
-        # Calcolo KPI
-        df_kpis = compute_kpis(financial_data)
-
-        # Aggiungi description se manca
-        if 'description' not in df_kpis.columns:
-            df_kpis = df_kpis.merge(df_fin[['symbol', 'description']].drop_duplicates(), on='symbol', how='left')
-
-        # Filtri
-        descriptions_dict = df_kpis.drop_duplicates(subset='symbol').set_index('description')['symbol'].to_dict()
-        descriptions_available = sorted(descriptions_dict.keys())
-
-        col1, col2 = st.columns(2)
-        with col1:
-            selected_descriptions = st.multiselect(
-                "Select Companies",
-                descriptions_available,
-                default=[descriptions_available[0]] if descriptions_available else []
-            )
-        with col2:
-            years_available = sorted(df_kpis['year'].astype(str).unique())
-            selected_years = st.multiselect("Select Years", years_available, default=years_available)
-
-        selected_symbols = [descriptions_dict[desc] for desc in selected_descriptions]
-
-        if selected_symbols and selected_years:
-            df_filtered = df_kpis[
-                (df_kpis['symbol'].isin(selected_symbols)) &
-                (df_kpis['year'].astype(str).isin(selected_years))
-            ]
-
-            # Mettiamo i KPI come colonna per pivot: assumo che compute_kpis crei colonne KPI, quindi faccio melt
-            # Se invece i KPI sono colonne, melt per farle righe:
-            id_vars = ['symbol', 'description', 'year']
-            value_vars = [col for col in df_filtered.columns if col not in id_vars]
-
-            df_melt = df_filtered.melt(id_vars=id_vars, value_vars=value_vars, var_name='KPI', value_name='Value')
-
-            # Ora pivot: index=KPI, columns=description + year combinati
-            df_melt['desc_year'] = df_melt['description'] + ' ' + df_melt['year'].astype(str)
-
-            df_pivot = df_melt.pivot(index='KPI', columns='desc_year', values='Value')
-            
-            st.subheader("📋 KPIs List")
-            #st.dataframe(df_pivot.style.format("{:.2%}"))
-            st.dataframe(df_pivot.style.format("{:.2%}"), height=600)
-
-            # Grafici
-            st.subheader("📈 KPI Charts")
-            for kpi in df_pivot.index:
-                st.markdown(f"### {kpi}")
-                kpi_data = df_pivot.loc[kpi].reset_index()
-                kpi_data.columns = ['Company-Year', 'Value']
-                fig = px.line(
-                    kpi_data,
-                    x='Company-Year',
-                    y='Value',
-                    markers=True,
-                    title=f'{kpi} over time',
-                    labels={'Company-Year': 'Company-Year', 'Value': kpi},
-                )
-                fig.update_layout(xaxis_tickangle=-45, height=400)
-                st.plotly_chart(fig, use_container_width=True)
-        else:
-            st.info("Please select at least one company and one year to view KPIs.")
-
-    run_kpis()
-
-def run_graph():
-    st.title("📈 Interactive Graphs")
-
-    exchanges = read_exchanges("exchanges.txt")
-    exchange_names = list(exchanges.keys())
-    years = ['2021', '2022', '2023']
-    columns_to_plot = [
-        "total_revenue", "net_income", "ebitda", "gross_profit",
-        "stockholders_equity", "total_assets", "basic_eps", "diluted_eps"
-    ]
-
-    @st.cache_data(show_spinner=False)
-    def load_data():
-        data = []
-        for exchange in exchanges:
-            companies = read_companies(exchanges[exchange])
-            for company in companies:
-                symbol = company['ticker']
-                description = company['description']
-                data_list = get_financial_data(symbol, years)
-                for entry in data_list:
-                    entry['description'] = description
-                    entry['stock_exchange'] = exchange
-                    data.append(entry)
-        return remove_duplicates(data)
-
-    raw_data = load_data()
-    df = pd.DataFrame(raw_data)
-
-    st.subheader("📊 Graph 1: Metric over Time per Company")
     col1, col2 = st.columns(2)
     with col1:
-        selected_metric = st.selectbox("Select Metric", options=columns_to_plot, format_func=lambda x: COLUMN_LABELS.get(x, x), index=columns_to_plot.index("total_revenue"))
+        selected_desc = st.multiselect("Select Companies", descriptions_available, default=descriptions_available[:1])
     with col2:
-        default_companies = ["Netflix"] if "Netflix" in df['description'].values else []
-        selected_companies = st.multiselect("Select Companies", sorted(df['description'].unique().tolist()), default=["Netflix"] if "Netflix" in df['description'].values else [])
+        selected_years = st.multiselect("Select Years", years_available, default=years_available)
 
-    if selected_companies:
-        plot_df = df[df['description'].isin(selected_companies)]
-        plot_df[selected_metric] = pd.to_numeric(plot_df[selected_metric], errors='coerce')
-        plot_df['year'] = plot_df['year'].astype(str)
-        fig = px.line(
-            plot_df,
-            x="year",
-            y=selected_metric,
-            color="description",
-            line_shape="linear",
-            markers=True,
-            labels={"year": "Year", selected_metric: COLUMN_LABELS.get(selected_metric, selected_metric), "description": "Company"},
-            category_orders={"year": ["2021", "2022", "2023"]},
-            title=COLUMN_LABELS.get(selected_metric, selected_metric) + " Over Time"
-        )
-        # Rimuovi i markers esplicitamente
-        #fig.update_traces(mode='lines')  # Imposta la dimensione del marker a 0
-        fig.update_layout(
-            xaxis=dict(
-                tickmode="array",
-                tickvals=["2021", "2022", "2023"],
-                ticktext=["2021", "2022", "2023"]
-            )
-        )    
+    selected_symbols = [descriptions_dict[d] for d in selected_desc]
+
+    if selected_symbols and selected_years:
+        df_filtered = df_kpis[
+            (df_kpis['symbol'].isin(selected_symbols)) &
+            (df_kpis['year'].astype(str).isin(selected_years))
+        ]
+        id_vars = ['symbol', 'description', 'year']
+        value_vars = [col for col in df_filtered.columns if col not in id_vars]
+        df_melt = df_filtered.melt(id_vars=id_vars, value_vars=value_vars, var_name='KPI', value_name='Value')
+        df_melt['desc_year'] = df_melt['description'] + ' ' + df_melt['year'].astype(str)
+        df_pivot = df_melt.pivot(index='KPI', columns='desc_year', values='Value')
+
+        st.subheader("KPIs List")
+        st.dataframe(df_pivot.style.format("{:.2%}"), height=600)
+
+##        st.subheader("KPI Charts")
+##        for kpi in df_pivot.index:
+##            st.markdown(f"### {kpi}")
+##            chart_data = df_pivot.loc[kpi].reset_index()
+##            chart_data.columns = ['Company-Year', 'Value']
+##            fig = px.line(chart_data, x='Company-Year', y='Value', markers=True, title=f'{kpi} over time')
+##            fig.update_layout(xaxis_tickangle=-45, height=400)
+##            st.plotly_chart(fig, use_container_width=True)
+    else:
+        st.info("Please select at least one company and one year to view KPIs.")
+
+# Grafici Generali
+@st.cache_data(show_spinner=False)
+def load_all_data():
+    exchanges = read_exchanges("exchanges.txt")
+    data = []
+    for name in exchanges:
+        for company in read_companies(exchanges[name]):
+            symbol = company['ticker']
+            description = company['description']
+            for entry in get_financial_data(symbol, ['2021', '2022', '2023']):
+                entry['description'] = description
+                entry['stock_exchange'] = name
+                data.append(entry)
+    return remove_duplicates(data)
+
+def render_general_graphs():
+    st.header("📈 Interactive Graphs")
+    df = pd.DataFrame(load_all_data())
+    years = ['2021', '2022', '2023']
+    columns_to_plot = ["total_revenue", "net_income", "ebitda", "gross_profit", "stockholders_equity", "total_assets", "basic_eps", "diluted_eps"]
+
+    st.subheader("Graph 1: Metric over Time per Company")
+    col1, col2 = st.columns(2)
+    with col1:
+        metric = st.selectbox("Select Metric", options=columns_to_plot, format_func=lambda x: COLUMN_LABELS.get(x, x), index=0)
+    with col2:
+        default = ["Netflix"] if "Netflix" in df['description'].values else []
+        companies = st.multiselect("Select Companies", sorted(df['description'].unique()), default=default)
+
+    if companies:
+        df1 = df[df['description'].isin(companies)]
+        df1[metric] = pd.to_numeric(df1[metric], errors='coerce')
+        df1['year'] = df1['year'].astype(str)
+        fig = px.line(df1, x='year', y=metric, color='description', markers=True,
+                      labels={"year": "Year", metric: COLUMN_LABELS.get(metric, metric), "description": "Company"},
+                      title=COLUMN_LABELS.get(metric, metric) + " Over Time")
+        fig.update_layout(xaxis=dict(tickmode="array", tickvals=years, ticktext=years))
         st.plotly_chart(fig, use_container_width=True)
-        #st.download_button("Download Graph 1 as PNG", fig.to_image(format="png"), file_name="graph1.png")
-    st.markdown("<div style='margin-bottom: 3cm;'></div>", unsafe_allow_html=True)
 
-    st.subheader("📊 Graph 2: Metric Average per Sector")
+    st.subheader("Graph 2: Metric Average per Sector")
     col1, col2, col3 = st.columns(3)
     with col1:
-        metric_sector = st.selectbox("Metric", options=columns_to_plot, format_func=lambda x: COLUMN_LABELS.get(x, x), index=columns_to_plot.index("total_revenue"), key="sector")
+        metric_sector = st.selectbox("Metric", options=columns_to_plot, format_func=lambda x: COLUMN_LABELS.get(x, x), index=0, key="sector")
     with col2:
+        exchange_names = list(read_exchanges("exchanges.txt").keys())
         selected_exchange = st.selectbox("Stock Exchange", exchange_names)
     with col3:
-        selected_year = st.selectbox("Year", years, index=years.index("2023"))
+        selected_year = st.selectbox("Year", years, index=2)
 
-    sector_df = df[(df['stock_exchange'] == selected_exchange) & (df['year'] == selected_year)]
-    sector_df[metric_sector] = pd.to_numeric(sector_df[metric_sector], errors='coerce')
-    sector_mean = sector_df.groupby("sector")[metric_sector].mean().reset_index()
+    df_sector = df[(df['stock_exchange'] == selected_exchange) & (df['year'] == selected_year)]
+    df_sector[metric_sector] = pd.to_numeric(df_sector[metric_sector], errors='coerce')
+    sector_avg = df_sector.groupby("sector")[metric_sector].mean().reset_index()
 
     fig2 = px.bar(
-        sector_mean,
-        x="sector",
-        y=metric_sector,
-        title=f"Average {metric_sector.replace('_', ' ').title()} per Sector in {selected_year} ({selected_exchange})",
-        labels={metric_sector: metric_sector.replace('_', ' ').title(), "sector": "Sector"}
+    sector_avg,
+    x="sector",
+    y=metric_sector,
+    title=f"Average {COLUMN_LABELS.get(metric_sector, metric_sector)} per Sector in {selected_year} ({selected_exchange})",
+    labels={metric_sector: COLUMN_LABELS.get(metric_sector, metric_sector), "sector": "Sector"}
     )
     st.plotly_chart(fig2, use_container_width=True)
-    #st.download_button("Download Graph 2 as PNG", fig2.to_image(format="png"), file_name="graph2.png")
-    st.markdown("<div style='margin-bottom: 3cm;'></div>", unsafe_allow_html=True)
 
-    st.subheader("📊 Graph 3: Ratio Over Time")
+    st.subheader("Graph 3: Ratio Over Time")
     col1, col2, col3 = st.columns(3)
     with col1:
-        selected_ratio_companies = st.multiselect("Select Companies", sorted(df['description'].unique()), default=["Netflix"] if "Netflix" in df['description'].values else [], key="ratio")
+        ratio_companies = st.multiselect("Select Companies", sorted(df['description'].unique()), default=default, key="ratio")
     with col2:
-        numerator = st.selectbox("Numerator", options=columns_to_plot, format_func=lambda x: COLUMN_LABELS.get(x, x), index=columns_to_plot.index("total_revenue"), key="num")
+        numerator = st.selectbox("Numerator", columns_to_plot, format_func=lambda x: COLUMN_LABELS.get(x, x), key="num")
     with col3:
-        denominator = st.selectbox("Denominator", options=columns_to_plot, format_func=lambda x: COLUMN_LABELS.get(x, x), index=columns_to_plot.index("stockholders_equity") if "stockholders_equity" in columns_to_plot else 1, key="den")
+        denominator = st.selectbox("Denominator", columns_to_plot, format_func=lambda x: COLUMN_LABELS.get(x, x), key="den")
 
-    if selected_ratio_companies and numerator != denominator:
-        ratio_df = df[df['description'].isin(selected_ratio_companies)].copy()
-        ratio_df[numerator] = pd.to_numeric(ratio_df[numerator], errors='coerce')
-        ratio_df[denominator] = pd.to_numeric(ratio_df[denominator], errors='coerce')
-        ratio_df['ratio'] = ratio_df[numerator] / ratio_df[denominator]
-        ratio_df['year'] = ratio_df['year'].astype(str)
-        fig3 = px.line(
-            ratio_df,
-            x="year",
-            y="ratio",
-            color="description",
-            line_shape="linear",
-            markers=True,
-            labels={"year": "Year", "ratio": "Ratio", "description": "Company"},
-            category_orders={"year": ["2021", "2022", "2023"]},
-            title=f"{COLUMN_LABELS.get(numerator, numerator)} / {COLUMN_LABELS.get(denominator, denominator)} Over Time"
-        )
-
-    # Rimuovi i markers esplicitamente
-        #fig3.update_traces(mode='lines')  # Imposta la dimensione del marker a 0
-
-        fig3.update_layout(
-            xaxis=dict(
-                tickmode="array",
-                tickvals=["2021", "2022", "2023"],
-                ticktext=["2021", "2022", "2023"]
-            )
-        )
-        
+    if ratio_companies and numerator != denominator:
+        df_ratio = df[df['description'].isin(ratio_companies)].copy()
+        df_ratio[numerator] = pd.to_numeric(df_ratio[numerator], errors='coerce')
+        df_ratio[denominator] = pd.to_numeric(df_ratio[denominator], errors='coerce')
+        df_ratio['ratio'] = df_ratio[numerator] / df_ratio[denominator]
+        df_ratio['year'] = df_ratio['year'].astype(str)
+        fig3 = px.line(df_ratio, x='year', y='ratio', color='description', markers=True,
+                       labels={"year": "Year", "ratio": "Ratio", "description": "Company"},
+                       title=f"{COLUMN_LABELS.get(numerator, numerator)} / {COLUMN_LABELS.get(denominator, denominator)} Over Time")
+        fig3.update_layout(xaxis=dict(tickmode="array", tickvals=years, ticktext=years))
         st.plotly_chart(fig3, use_container_width=True)
-        #st.download_button("Download Graph 3 as PNG", fig3.to_image(format="png"), file_name="graph3.png")
-    st.markdown("<div style='margin-bottom: 3cm;'></div>", unsafe_allow_html=True)
 
-    # Titolo in alto nella sidebar
-    st.sidebar.title("       ")
-    st.sidebar.markdown("---")
-    st.sidebar.markdown("###")
+# --- SIDEBAR ---
+logo_path = os.path.join("images", "logo4.png")
+logo_base64 = get_base64_of_bin_file(logo_path) if os.path.exists(logo_path) else ""
 
-    # --- Sidebar: Logo + Nome + Link in basso ---
-    # HTML e CSS per posizionare in basso
-    # Funzione per convertire l'immagine in base64
-    def get_base64_of_bin_file2(bin_file):
-        with open(bin_file, 'rb') as f:
-            data = f.read()
-        return base64.b64encode(data).decode()
+# Percorsi delle icone
+instagram_icon_path = os.path.join("images", "IG.png")
+linkedin_icon_path = os.path.join("images", "LIN.png")
 
-    # Path del logo (assicurati che il file esista)
-    logo_path = os.path.join("images", "logo4.png")
-    logo_html = ""
-    if os.path.exists(logo_path):
-        logo_base64 = get_base64_of_bin_file2(logo_path)
-        logo_html = f'<img src="data:image/png;base64,{logo_base64}" class="logo">'
-        
-    st.sidebar.markdown(
-        f"""
-        <style>
-            /* Elimina bordi e ombre nei contenitori della sidebar */
-            section[data-testid="stSidebar"] div {{
-                border: none !important;
-                box-shadow: none !important;
-            }}
+# Converti le immagini in base64
+instagram_icon_base64 = get_base64_of_bin_file(instagram_icon_path)
+linkedin_icon_base64 = get_base64_of_bin_file(linkedin_icon_path)
 
-            /* Specificamente rimuove eventuali linee sopra il footer */
-            .sidebar-footer {{
-                border-top: none !important;
-                box-shadow: none !important;
-                margin-top: 0px !important;
-                padding-top: 0px !important;
-            }}
+st.sidebar.markdown(f"""
+    <div style='text-align: center;'>
+        <img src="data:image/png;base64,{logo_base64}" style="height: 70px; display: inline-block; margin-top: 20px;"><br>
+        <span style='font-size: 14px;'>Navigate financial sea with clarity!</span><br>
+        <a href='https://www.instagram.com/tuo_profilo' target='_blank' style="display: inline-block; margin-top: 20px;">
+            <img src='data:image/png;base64,{instagram_icon_base64}' width='40' height='40'>
+        <a href='https://www.linkedin.com/in/tuo_profilo' target='_blank' style="display: inline-block; margin-top: 20px;">
+            <img src='data:image/png;base64,{linkedin_icon_base64}' width='40' height='40'>
+    </div>
 
-            .sidebar-footer div {{
-                border: none !important;
-                box-shadow: none !important;
-            }}
+""", unsafe_allow_html=True)
 
-            .sidebar-footer a {{
-                border: none !important;
-                box-shadow: none !important;
-                text-decoration: none;
-                font-size: 12px;
-                display: block;
-                margin-top: 12px;
-            }}
+def run():
+    render_logos()
+    render_kpis()
+    st.markdown("---")
+    render_general_graphs()
+    #render_sidebar_footer()
 
-            .sidebar-footer img {{
-                height: 70px;
-                margin-right: 8px;
-                vertical-align: middle;
-            }}
-
-            .sidebar-footer span {{
-                font-size: 13px;
-                vertical-align: middle;
-            }}
-
-        </style>
-
-        <div class="sidebar-footer">
-            <div>
-                <img src="data:image/png;base64,{logo_base64}">
-                <span>Your Name</span>
-            </div>
-            <a href="https://github.com/tuo-username" target="_blank">🌐 LinkedIn</a>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-# Esegui la funzione run
 if __name__ == "__main__":
-    run_graph()
-
-st.markdown("</div>", unsafe_allow_html=True)
-
+    run()
