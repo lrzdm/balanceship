@@ -99,7 +99,7 @@ def load_from_db(symbol, years):
 
 def save_kpis_to_db(kpi_df):
     if os.environ.get("STREAMLIT_CLOUD") == "1":
-    return
+        return
     session = Session()
     try:
         for _, row in kpi_df.iterrows():
