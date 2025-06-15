@@ -9,7 +9,7 @@ from PIL import Image
 #from pages import Graph, Who_we_are
 
 st.set_page_config(page_title="Financials", layout="wide")
-os.environ["STREAMLIT_CLOUD"] = "1"
+#os.environ["STREAMLIT_CLOUD"] = "1"
 
 def get_base64_of_bin_file(bin_file):
     with open(bin_file, 'rb') as f:
@@ -83,6 +83,7 @@ if st.button("Reset Filters"):
     selected_exchanges = ['NASDAQ']
     selected_sectors = []
     selected_industries = []
+    st.rerun()
 
 currency = "USD"
 exchange_currency_mapping = {
@@ -112,10 +113,13 @@ for exchange in selected_exchanges:
         description = company['description']
         stock_exchange = exchange
         data_list = get_financial_data(symbol, selected_years)
-        for data in data_list:
-            data['description'] = description
-            data['stock_exchange'] = stock_exchange
-            financial_data.append(data)
+        for i, data in enumerate(data_list):
+            if data is not None and isinstance(data, dict):
+                data['description'] = description
+                data['stock_exchange'] = stock_exchange
+                financial_data.append(data)
+
+            
 
 financial_data = remove_duplicates(financial_data)
 if selected_sectors:
@@ -133,6 +137,7 @@ if selected_sectors:
 if selected_industries:
     financial_data = [d for d in financial_data if d.get('industry') in selected_industries]
 
+financial_data = [x for x in financial_data if isinstance(x, dict) and 'symbol' in x and 'year' in x]
 financial_data.sort(key=lambda x: (x['symbol'], x['year']))
 
 
@@ -148,7 +153,7 @@ if financial_data:
     'basic_average_shares', 'diluted_average_shares', 'total_expenses',
     'normalized_income', 'interest_expense', 'net_interest_income',
     'ebit', 'ebitda', 'reconciled_depreciation', 'normalized_ebitda',
-    'total_assets', 'stockholders_equity', 'changes_in_cash',
+    'total_assets', 'stockholders_equity', 'free_cash_flow', 'changes_in_cash',
     'working_capital', 'invested_capital', 'total_debt'
     ]
 
@@ -190,6 +195,7 @@ if financial_data:
     "normalized_ebitda": "Normalized EBITDA",
     "total_assets": "Total Assets",
     "stockholders_equity": "Stockholders' Equity",
+    "free_cash_flow": "Free Cash Flow",
     "changes_in_cash": "Changes in Cash",
     "working_capital": "Working Capital",
     "invested_capital": "Invested Capital",

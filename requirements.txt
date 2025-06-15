@@ -1,4 +1,3 @@
-Flask
 yfinance
 pandas
 apscheduler
@@ -7,3 +6,4 @@ xlsxwriter
 Pillow
 plotly
 sqlalchemy
+psycopg2-binary

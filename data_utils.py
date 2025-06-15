@@ -7,8 +7,9 @@ import pandas as pd
 import time
 import atexit
 import datetime
-from cache_db import load_from_db as load_from_cache
-from cache_db import save_to_db as save_to_cache
+from cache_db import load_from_db
+from cache_db import save_to_db
+import random
 
 
 def read_exchanges(filename):
@@ -28,19 +29,23 @@ def read_companies(filename):
             companies.append(row)
     return companies
 
-def format_to_billions(value):
-    try:
-        value_in_billions = value / 1_000_000_000
-        return f"{value_in_billions:,.3f}"
-    except Exception:
-        return "N/A"
+##def format_to_billions(value):
+##    try:
+##        value_in_billions = value / 1_000_000_000
+##        return f"{value_in_billions:,.3f}"
+##    except Exception:
+##        return "N/A"
     
-        
-def get_financial_data(symbol, years, force_refresh=False, description=None, stock_exchange=None):
-    if not force_refresh:
-        cached_data = load_from_cache(symbol, years)
-        if cached_data is not None:
-            return cached_data
+def get_financial_data_from_source(symbol, years, description=None, stock_exchange=None):
+    #Scarica i dati finanziari da Yahoo Finance per ogni anno richiesto
+
+    def format_to_billions(x):
+        try:
+            return float(x) / 1e9
+        except:
+            return 0
+
+    results = []
 
     try:
         stock = yf.Ticker(symbol)
@@ -52,21 +57,24 @@ def get_financial_data(symbol, years, force_refresh=False, description=None, sto
         if financials.empty and balance_sheet.empty and cashflow.empty:
             print(f"No financial data found for symbol: {symbol}")
             return []
-        
-        data_list = []
-        columns_years = [col.year if hasattr(col, 'year') else int(str(col)[:4]) for col in financials.columns]
-        #year_indices = [i for i, y in enumerate(columns_years) if str(y) in years]
-        available_years = [str(col.year) for col in financials.columns if isinstance(col, pd.Timestamp)]
-        year_indices = [i for i, y in enumerate(available_years) if y in years]
 
+        # Ottieni anni disponibili nei dati
+        columns_years = [str(col.year) for col in financials.columns if isinstance(col, pd.Timestamp)]
 
-        for year_index in year_indices:
+        for year in years:
+            sleep_time = random.uniform(4, 8)
+            time.sleep(sleep_time)
+            if year not in columns_years:
+                print(f"Year {year} not found for symbol {symbol}")
+                continue
+
+            year_index = columns_years.index(year)
             year_column = financials.columns[year_index]
-            year = str(columns_years[year_index])
 
-            #current_assets = balance_sheet.loc['Current Assets', year_column] if 'Current Assets' in balance_sheet.index else 0
-            #current_liabilities = balance_sheet.loc['Current Liabilities', year_column] if 'Current Liabilities' in balance_sheet.index else 0
-   
+            # Funzioni di utilità per prendere i dati in modo sicuro
+            def f(idx): return financials.loc[idx, year_column] if idx in financials.index else 0
+            def fb(idx): return balance_sheet.loc[idx, year_column] if idx in balance_sheet.index else 0
+            def fc(idx): return cashflow.loc[idx, year_column] if idx in cashflow.index else 0
 
             data = {
                 'symbol': symbol,
@@ -75,48 +83,79 @@ def get_financial_data(symbol, years, force_refresh=False, description=None, sto
                 'description': description,
                 'stock_exchange': stock_exchange,
                 'year': year,
-                'total_revenue': format_to_billions(financials.loc['Total Revenue', year_column] if 'Total Revenue' in financials.index else 0),
-                'operating_revenue': format_to_billions(financials.loc['Operating Revenue', year_column] if 'Operating Revenue' in financials.index else 0),
-                'cost_of_revenue': format_to_billions(financials.loc['Cost Of Revenue', year_column] if 'Cost Of Revenue' in financials.index else 0),
-                'gross_profit': format_to_billions(financials.loc['Gross Profit', year_column] if 'Gross Profit' in financials.index else 0),
-                'operating_expense': format_to_billions(financials.loc['Operating Expense', year_column] if 'Operating Expense' in financials.index else 0),
-                'sg_and_a': format_to_billions(financials.loc['Selling General And Administration', year_column] if 'Selling General And Administration' in financials.index else 0),
-                'r_and_d': format_to_billions(financials.loc['Research And Development', year_column] if 'Research And Development' in financials.index else 0),
-                'operating_income': format_to_billions(financials.loc['Operating Income', year_column] if 'Operating Income' in financials.index else 0),
-                'net_non_operating_interest_income_expense': format_to_billions(financials.loc['Net Non Operating Interest Income Expense', year_column] if 'Net Non Operating Interest Income Expense' in financials.index else 0),
-                'interest_expense_non_operating': format_to_billions(financials.loc['Interest Expense Non Operating', year_column] if 'Interest Expense Non Operating' in financials.index else 0),
-                'pretax_income': format_to_billions(financials.loc['Pretax Income', year_column] if 'Pretax Income' in financials.index else 0),
-                'tax_provision': format_to_billions(financials.loc['Tax Provision', year_column] if 'Tax Provision' in financials.index else 0),
-                'net_income_common_stockholders': format_to_billions(financials.loc['Net Income Common Stockholders', year_column] if 'Net Income Common Stockholders' in financials.index else 0),
-                'net_income': format_to_billions(financials.loc['Net Income', year_column] if 'Net Income' in financials.index else 0),
-                'net_income_continuous_operations': format_to_billions(financials.loc['Net Income Continuous Operations', year_column] if 'Net Income Continuous Operations' in financials.index else 0),
-                'basic_eps': financials.loc['Basic EPS', year_column] if 'Basic EPS' in financials.index else 0,
-                'diluted_eps': financials.loc['Diluted EPS', year_column] if 'Diluted EPS' in financials.index else 0,
-                'basic_average_shares': format_to_billions(financials.loc['Basic Average Shares', year_column] if 'Basic Average Shares' in financials.index else 0),
-                'diluted_average_shares': format_to_billions(financials.loc['Diluted Average Shares', year_column] if 'Diluted Average Shares' in financials.index else 0),
-                'total_expenses': format_to_billions(financials.loc['Total Expenses', year_column] if 'Total Expenses' in financials.index else 0),
-                'normalized_income': format_to_billions(financials.loc['Normalized Income', year_column] if 'Normalized Income' in financials.index else 0),
-                'interest_expense': format_to_billions(financials.loc['Interest Expense', year_column] if 'Interest Expense' in financials.index else 0),
-                'net_interest_income': format_to_billions(financials.loc['Net Interest Income', year_column] if 'Net Interest Income' in financials.index else 0),
-                'ebit': format_to_billions(financials.loc['EBIT', year_column] if 'EBIT' in financials.index else 0),
-                'ebitda': format_to_billions(financials.loc['EBITDA', year_column] if 'EBITDA' in financials.index else 0),
-                'reconciled_depreciation': format_to_billions(financials.loc['Reconciled Depreciation', year_column] if 'Reconciled Depreciation' in financials.index else 0),
-                'normalized_ebitda': format_to_billions(financials.loc['Normalized EBITDA', year_column] if 'Normalized EBITDA' in financials.index else 0),
-                'total_assets': format_to_billions(balance_sheet.loc['Total Assets', year_column] if 'Total Assets' in balance_sheet.index else 0),
-                'stockholders_equity': format_to_billions(balance_sheet.loc["Stockholders Equity", year_column] if "Stockholders Equity" in balance_sheet.index else 0),
-                'changes_in_cash': format_to_billions(cashflow.loc['Changes In Cash', year_column] if 'Changes In Cash' in cashflow.index else 0),
-                'working_capital': format_to_billions(balance_sheet.loc["Working Capital", year_column] if "Working Capital" in balance_sheet.index else 0),
-                'invested_capital': format_to_billions(balance_sheet.loc["Invested Capital", year_column] if "Invested Capital" in balance_sheet.index else 0),
-                'total_debt': format_to_billions(balance_sheet.loc["Total Debt", year_column] if "Total Debt" in balance_sheet.index else 0)
+                'total_revenue': format_to_billions(f('Total Revenue')),
+                'operating_revenue': format_to_billions(f('Operating Revenue')),
+                'cost_of_revenue': format_to_billions(f('Cost Of Revenue')),
+                'gross_profit': format_to_billions(f('Gross Profit')),
+                'operating_expense': format_to_billions(f('Operating Expense')),
+                'sg_and_a': format_to_billions(f('Selling General And Administration')),
+                'r_and_d': format_to_billions(f('Research And Development')),
+                'operating_income': format_to_billions(f('Operating Income')),
+                'net_non_operating_interest_income_expense': format_to_billions(f('Net Non Operating Interest Income Expense')),
+                'interest_expense_non_operating': format_to_billions(f('Interest Expense Non Operating')),
+                'pretax_income': format_to_billions(f('Pretax Income')),
+                'tax_provision': format_to_billions(f('Tax Provision')),
+                'net_income_common_stockholders': format_to_billions(f('Net Income Common Stockholders')),
+                'net_income': format_to_billions(f('Net Income')),
+                'net_income_continuous_operations': format_to_billions(f('Net Income Continuous Operations')),
+                'basic_eps': f('Basic EPS'),
+                'diluted_eps': f('Diluted EPS'),
+                'basic_average_shares': format_to_billions(f('Basic Average Shares')),
+                'diluted_average_shares': format_to_billions(f('Diluted Average Shares')),
+                'total_expenses': format_to_billions(f('Total Expenses')),
+                'normalized_income': format_to_billions(f('Normalized Income')),
+                'interest_expense': format_to_billions(f('Interest Expense')),
+                'net_interest_income': format_to_billions(f('Net Interest Income')),
+                'ebit': format_to_billions(f('EBIT')),
+                'ebitda': format_to_billions(f('EBITDA')),
+                'reconciled_depreciation': format_to_billions(f('Reconciled Depreciation')),
+                'normalized_ebitda': format_to_billions(f('Normalized EBITDA')),
+                'total_assets': format_to_billions(fb('Total Assets')),
+                'stockholders_equity': format_to_billions(fb("Stockholders Equity")),
+                'free_cash_flow': format_to_billions(fc("Free Cash Flow")),
+                'changes_in_cash': format_to_billions(fc('Changes In Cash')),
+                'working_capital': format_to_billions(fb("Working Capital")),
+                'invested_capital': format_to_billions(fb("Invested Capital")),
+                'total_debt': format_to_billions(fb("Total Debt")),
             }
 
-            data_list.append(data)
+            results.append(data)
+            time.sleep(random.uniform(4, 8))
+        return results
 
-        save_to_cache(symbol, years, data_list)
-        return data_list
     except Exception as e:
         print(f"Error retrieving financial data for {symbol}: {e}")
         return []
+
+
+
+def get_financial_data(symbol, years, force_refresh=False, description=None, stock_exchange=None):
+    # Carica dati cached (None se non disponibili)
+    cached_data = load_from_db(symbol, years)
+
+    # Trova anni mancanti (dove cached_data[i] è None)
+    missing_years = [year for i, year in enumerate(years) if cached_data[i] is None]
+
+    if missing_years or force_refresh:
+        # Scarica dati mancanti
+        new_data = get_financial_data_from_source(symbol, missing_years, description=description, stock_exchange=stock_exchange)
+        if new_data:
+            # Salva nuovi dati nel DB/cache
+            save_to_db(symbol, missing_years, new_data)
+
+            # Integra i dati scaricati nei dati cached
+            for i, year in enumerate(years):
+                if cached_data[i] is None and year in missing_years:
+                    idx = missing_years.index(year)
+                    #cached_data[i] = new_data[idx]
+                    if idx < len(new_data):
+                        cached_data[i] = new_data[idx]
+                    else:
+                        cached_data[i] = None                 
+ 
+    return cached_data
+
+
 
 def remove_duplicates(data):
     seen = set()
@@ -128,8 +167,8 @@ def remove_duplicates(data):
             unique_data.append(item)
     return unique_data
 
+
 def get_all_financial_data(force_refresh=True):
-    #print(f"[{datetime.datetime.now()}] >>> get_all_financial_data() chiamata dallo scheduler...")
     exchanges = read_exchanges('exchanges.txt')
     financial_data = []
 
@@ -139,18 +178,34 @@ def get_all_financial_data(force_refresh=True):
             symbol = company['ticker']
             description = company['description']
             stock_exchange = exchange
-            # Passiamo 'description' come parametro a get_financial_data
-            data_list = get_financial_data(symbol, ['2021', '2022', '2023'], description=description, stock_exchange=stock_exchange)
-            for data in data_list:
-                data['description'] = description
-                data['stock_exchange'] = stock_exchange
-                financial_data.append(data)
-            time.sleep(2)  # 👉 evita rate limit!
-                
-    financial_data = remove_duplicates(financial_data)
-    financial_data.sort(key=lambda x: (x['symbol'], x['year']))
 
+            data_list = get_financial_data(
+                symbol, ['2021', '2022', '2023'],
+                force_refresh=force_refresh,
+                description=description,
+                stock_exchange=stock_exchange
+            )
+            print(f"Fetched {len(data_list)} records for {symbol}")
+
+            for data in data_list:
+                if data is not None and isinstance(data, dict):
+                    data['description'] = description
+                    data['stock_exchange'] = stock_exchange
+                    financial_data.append(data)
+
+            time.sleep(random.uniform(5, 9))
+
+    financial_data = remove_duplicates(financial_data)
+    financial_data = [x for x in financial_data if 'symbol' in x and 'year' in x]
+
+    # Ordina se la lista è rimasta valida
+    if financial_data:
+        financial_data.sort(key=lambda x: (x['symbol'], x['year']))
+
+    #financial_data.sort(key=lambda x: (x['symbol'], x['year']))
     return financial_data
+
+
 
 def compute_kpis(financial_data):
     import pandas as pd
@@ -173,7 +228,8 @@ def compute_kpis(financial_data):
         'Pretax Income': 'pretax_income',
         'SG&A': 'sg_and_a',
         'R&D': 'r_and_d',
-        'Cash from Operations': 'changes_in_cash',  # occhio se è corretto!
+        'Free Cash Flow': 'free_cash_flow',
+        'Change in Cash': 'changes_in_cash',
         'Working Capital': 'working_capital',
         'Current Assets': 'current_assets',
         'Current Liabilities': 'current_liabilities',
@@ -234,7 +290,7 @@ def compute_kpis(financial_data):
         df['Tax Rate'] = df['Tax Provision'] / df['Pretax Income']
         df['SG&A/Revenue'] = df['SG&A'] / df['Total Revenue']
         df['R&D/Revenue'] = df['R&D'] / df['Total Revenue']
-        df['Cash Flow to Debt'] = df['Cash from Operations'] / df['Total Debt']
+        df['FCF Margin'] = df['Free Cash Flow'] / df['Total Revenue']
         df['Working Capital/Revenue'] = df['Working Capital'] / df['Total Revenue']
         #df['Current Ratio'] = df['Current Assets'] / df['Current Liabilities']
         #df['Quick Ratio'] = (df['Current Assets'] - df['inventories']) / df['Current Liabilities']
@@ -245,10 +301,11 @@ def compute_kpis(financial_data):
 
         df = df.drop_duplicates(subset=['symbol', 'year'])
 
+
         # Restituisco solo le colonne richieste, se esistono
-        kpi_cols = ['symbol', 'year', 'Gross Margin', 'Operating Margin', 'Net Margin', 'EBITDA Margin',
+        kpi_cols = ['symbol', 'year', 'description', 'Gross Margin', 'Operating Margin', 'Net Margin', 'EBITDA Margin',
                     'ROA', 'ROE', 'ROIC', 'Debt/Equity', 'Interest Coverage', 'Tax Rate',
-                    'SG&A/Revenue', 'R&D/Revenue', 'Cash Flow to Debt', 'Working Capital/Revenue', 'Asset Turnover', 'Equity Ratio']
+                    'SG&A/Revenue', 'R&D/Revenue', 'FCF Margin', 'Working Capital/Revenue', 'Asset Turnover', 'Equity Ratio']
 
         # Per sicurezza, filtriamo solo colonne esistenti
         kpi_cols_present = [col for col in kpi_cols if col in df.columns]
@@ -258,6 +315,7 @@ def compute_kpis(financial_data):
     except Exception as e:
         print(f"Errore nel calcolo dei KPI: {e}")
         return pd.DataFrame()
+
 
 
 if __name__ == '__main__':
