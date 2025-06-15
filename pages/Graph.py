@@ -2,9 +2,11 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 from data_utils import read_exchanges, read_companies, get_financial_data, remove_duplicates, compute_kpis, get_all_financial_data
+from cache_db import save_kpis_to_db, load_kpis_from_db
 import os
 import base64
-
+import io
+import plotly.express as px
 
 st.set_page_config(page_title="Graphs", layout="wide")
 
@@ -73,51 +75,71 @@ def render_logos():
     <div class='logo-container'>{logo_html}</div>
     """, unsafe_allow_html=True)
 
-### Footer nella sidebar
-##def render_sidebar_footer():
-##    logo_path = os.path.join("images", "logo4.png")
-##    logo_html = ""
-##    if os.path.exists(logo_path):
-##        logo_base64 = get_base64_of_bin_file(logo_path)
-##        logo_html = f'<img src="data:image/png;base64,{logo_base64}" class="logo">'
-##    st.sidebar.markdown(f"""
-##    <style>
-##        section[data-testid="stSidebar"] div {{ border: none !important; box-shadow: none !important; }}
-##        .sidebar-footer a {{ font-size: 12px; display: block; margin-top: 12px; }}
-##        .sidebar-footer img {{ height: 70px; margin-right: 8px; vertical-align: middle; }}
-##        .sidebar-footer span {{ font-size: 13px; vertical-align: middle; }}
-##    </style>
-##    <div class="sidebar-footer">
-##        <div>{logo_html}<span>Your Name</span></div>
-##        <a href="https://github.com/tuo-username" target="_blank">\ud83c\udf10 LinkedIn</a>
-##    </div>
-##    """, unsafe_allow_html=True)
 
 # KPI Table e Grafici
 @st.cache_data(show_spinner=False)
 def load_financials():
-    return get_all_financial_data()
+    df_kpis = load_kpis_from_db()
+    if not df_kpis.empty:
+        return df_kpis, None
+    else:
+        df_financials = get_all_financial_data()
+        df_kpis = compute_kpis(df_financials)
+        save_kpis_to_db(df_kpis)
+        return df_kpis, df_financials
+
 
 def render_kpis():
     st.header("📊 Financial KPI Table")
-    df_financials = load_financials()
-    df_kpis = compute_kpis(df_financials)
 
-    if 'description' not in df_kpis.columns:
-        df_kpis = df_kpis.merge(pd.DataFrame(df_financials)[['symbol', 'description']].drop_duplicates(), on='symbol', how='left')
+    # Carica KPI
+    df_kpis, df_financials = load_financials()
+
+    if 'description' not in df_kpis.columns and df_financials is not None:
+        df_kpis = df_kpis.merge(
+            pd.DataFrame(df_financials)[['symbol', 'description']].drop_duplicates(),
+            on='symbol',
+            how='left'
+        )
 
     descriptions_dict = df_kpis.drop_duplicates(subset='symbol').set_index('description')['symbol'].to_dict()
     descriptions_available = sorted(descriptions_dict.keys())
     years_available = sorted(df_kpis['year'].astype(str).unique())
 
+    # Valori default sicuri
+    default_desc = ['Apple Inc.']
+    default_years = ['2023'] if "2023" in years_available else [years_available[-1]]
+
+    # Inizializza lo stato solo se mancante
+    if 'selected_desc' not in st.session_state:
+        st.session_state['selected_desc'] = default_desc
+    if 'selected_years' not in st.session_state:
+        st.session_state['selected_years'] = default_years
+
+
+
+    # LAYOUT FILTRI
     col1, col2 = st.columns(2)
-    with col1:
-        selected_desc = st.multiselect("Select Companies", descriptions_available, default=descriptions_available[:1])
-    with col2:
-        selected_years = st.multiselect("Select Years", years_available, default=years_available)
+    selected_desc = col1.multiselect(
+        "Select Companies",
+        descriptions_available,
+        default=st.session_state['selected_desc'],
+        key="desc_filter"
+    )
+    selected_years = col2.multiselect(
+        "Select Years",
+        years_available,
+        default=st.session_state['selected_years'],
+        key="year_filter"
+    )
+
+    # Aggiorna stato
+    st.session_state['selected_desc'] = selected_desc
+    st.session_state['selected_years'] = selected_years
 
     selected_symbols = [descriptions_dict[d] for d in selected_desc]
 
+    # Filtraggio
     if selected_symbols and selected_years:
         df_filtered = df_kpis[
             (df_kpis['symbol'].isin(selected_symbols)) &
@@ -129,19 +151,70 @@ def render_kpis():
         df_melt['desc_year'] = df_melt['description'] + ' ' + df_melt['year'].astype(str)
         df_pivot = df_melt.pivot(index='KPI', columns='desc_year', values='Value')
 
+        # Bottoni affiancati
+        col_reset, col_download = st.columns([1, 1])
+        with col_reset:
+            if st.button("Reset Filters"):
+                st.session_state['selected_desc'] = default_desc
+                st.session_state['selected_years'] = default_years
+                st.rerun()
+
+        with col_download:
+            buffer = io.BytesIO()
+            with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+                df_filtered.to_excel(writer, index=False, sheet_name='KPI')
+            st.download_button(
+                label="Scarica Excel",
+                data=buffer.getvalue(),
+                file_name="kpi_filtered.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
+
+        df_pivot = df_pivot.apply(pd.to_numeric, errors='coerce')
         st.subheader("KPIs List")
         st.dataframe(df_pivot.style.format("{:.2%}"), height=600)
 
-##        st.subheader("KPI Charts")
-##        for kpi in df_pivot.index:
-##            st.markdown(f"### {kpi}")
-##            chart_data = df_pivot.loc[kpi].reset_index()
-##            chart_data.columns = ['Company-Year', 'Value']
-##            fig = px.line(chart_data, x='Company-Year', y='Value', markers=True, title=f'{kpi} over time')
-##            fig.update_layout(xaxis_tickangle=-45, height=400)
-##            st.plotly_chart(fig, use_container_width=True)
+
+        # 🔵 Bubble Chart
+        st.subheader("🔵 Bubble Chart")
+        bubble_cols = [col for col in df_filtered.columns if col not in ['symbol', 'description', 'year', 'exchange']]
+        if len(bubble_cols) >= 3:
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                x_axis = st.selectbox("X Axis", bubble_cols)
+            with col2:
+                y_axis = st.selectbox("Y Axis", bubble_cols, index=1)
+            with col3:
+                size_axis = st.selectbox("Bubble Size", bubble_cols, index=2)
+
+            df_plot = df_filtered.dropna(subset=[x_axis, y_axis, size_axis])
+            df_plot['label'] = df_plot['description'] + ' ' + df_plot['year'].astype(str)
+
+            fig = px.scatter(df_plot,
+                             x=x_axis,
+                             y=y_axis,
+                             size=size_axis,
+                             color='description',
+                             hover_name='label',
+                             title="KPI Bubble Chart")
+            st.plotly_chart(fig, use_container_width=True)
+        else:
+            st.info("Seleziona almeno 3 KPI per creare il grafico a bolle.")
+
+
+        ## Uncomment for charts
+        # st.subheader("KPI Charts")
+        # for kpi in df_pivot.index:
+        #     st.markdown(f"### {kpi}")
+        #     chart_data = df_pivot.loc[kpi].reset_index()
+        #     chart_data.columns = ['Company-Year', 'Value']
+        #     fig = px.line(chart_data, x='Company-Year', y='Value', markers=True, title=f'{kpi} over time')
+        #     fig.update_layout(xaxis_tickangle=-45, height=400)
+        #     st.plotly_chart(fig, use_container_width=True)
+
     else:
         st.info("Please select at least one company and one year to view KPIs.")
+
 
 # Grafici Generali
 @st.cache_data(show_spinner=False)
@@ -153,6 +226,8 @@ def load_all_data():
             symbol = company['ticker']
             description = company['description']
             for entry in get_financial_data(symbol, ['2021', '2022', '2023']):
+                if entry is None:
+                    continue
                 entry['description'] = description
                 entry['stock_exchange'] = name
                 data.append(entry)
@@ -163,25 +238,26 @@ def render_general_graphs():
     df = pd.DataFrame(load_all_data())
     years = ['2021', '2022', '2023']
     columns_to_plot = ["total_revenue", "net_income", "ebitda", "gross_profit", "stockholders_equity", "total_assets", "basic_eps", "diluted_eps"]
-
-    st.subheader("Graph 1: Metric over Time per Company")
-    col1, col2 = st.columns(2)
-    with col1:
-        metric = st.selectbox("Select Metric", options=columns_to_plot, format_func=lambda x: COLUMN_LABELS.get(x, x), index=0)
-    with col2:
-        default = ["Netflix"] if "Netflix" in df['description'].values else []
-        companies = st.multiselect("Select Companies", sorted(df['description'].unique()), default=default)
-
-    if companies:
-        df1 = df[df['description'].isin(companies)]
-        df1[metric] = pd.to_numeric(df1[metric], errors='coerce')
-        df1['year'] = df1['year'].astype(str)
-        fig = px.line(df1, x='year', y=metric, color='description', markers=True,
-                      labels={"year": "Year", metric: COLUMN_LABELS.get(metric, metric), "description": "Company"},
-                      title=COLUMN_LABELS.get(metric, metric) + " Over Time")
-        fig.update_layout(xaxis=dict(tickmode="array", tickvals=years, ticktext=years))
-        st.plotly_chart(fig, use_container_width=True)
-
+    default = ["Apple Inc."] if "Apple Inc." in df['description'].values else []
+##
+##    st.subheader("Graph 1: Metric over Time per Company")
+##    col1, col2 = st.columns(2)
+##    with col1:
+##        metric = st.selectbox("Select Metric", options=columns_to_plot, format_func=lambda x: COLUMN_LABELS.get(x, x), index=0)
+##    with col2:
+##        default = ["Netflix"] if "Netflix" in df['description'].values else []
+##        companies = st.multiselect("Select Companies", sorted(df['description'].unique()), default=default)
+##
+##    if companies:
+##        df1 = df[df['description'].isin(companies)]
+##        df1[metric] = pd.to_numeric(df1[metric], errors='coerce')
+##        df1['year'] = df1['year'].astype(str)
+##        fig = px.line(df1, x='year', y=metric, color='description', markers=True,
+##                      labels={"year": "Year", metric: COLUMN_LABELS.get(metric, metric), "description": "Company"},
+##                      title=COLUMN_LABELS.get(metric, metric) + " Over Time")
+##        fig.update_layout(xaxis=dict(tickmode="array", tickvals=years, ticktext=years))
+##        st.plotly_chart(fig, use_container_width=True)
+##
     st.subheader("Graph 2: Metric Average per Sector")
     col1, col2, col3 = st.columns(3)
     with col1:
@@ -205,26 +281,27 @@ def render_general_graphs():
     )
     st.plotly_chart(fig2, use_container_width=True)
 
-    st.subheader("Graph 3: Ratio Over Time")
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        ratio_companies = st.multiselect("Select Companies", sorted(df['description'].unique()), default=default, key="ratio")
-    with col2:
-        numerator = st.selectbox("Numerator", columns_to_plot, format_func=lambda x: COLUMN_LABELS.get(x, x), key="num")
-    with col3:
-        denominator = st.selectbox("Denominator", columns_to_plot, format_func=lambda x: COLUMN_LABELS.get(x, x), key="den")
-
-    if ratio_companies and numerator != denominator:
-        df_ratio = df[df['description'].isin(ratio_companies)].copy()
-        df_ratio[numerator] = pd.to_numeric(df_ratio[numerator], errors='coerce')
-        df_ratio[denominator] = pd.to_numeric(df_ratio[denominator], errors='coerce')
-        df_ratio['ratio'] = df_ratio[numerator] / df_ratio[denominator]
-        df_ratio['year'] = df_ratio['year'].astype(str)
-        fig3 = px.line(df_ratio, x='year', y='ratio', color='description', markers=True,
-                       labels={"year": "Year", "ratio": "Ratio", "description": "Company"},
-                       title=f"{COLUMN_LABELS.get(numerator, numerator)} / {COLUMN_LABELS.get(denominator, denominator)} Over Time")
-        fig3.update_layout(xaxis=dict(tickmode="array", tickvals=years, ticktext=years))
-        st.plotly_chart(fig3, use_container_width=True)
+##    st.subheader("Graph 3: Ratio Over Time")
+##    col1, col2, col3 = st.columns(3)
+##    with col1:
+##        #default = ["Apple Inc."] if "Apple Inc." in df['description'].values else []
+##        ratio_companies = st.multiselect("Select Companies", sorted(df['description'].unique()), default=default, key="ratio")
+##    with col2:
+##        numerator = st.selectbox("Numerator", columns_to_plot, format_func=lambda x: COLUMN_LABELS.get(x, x), key="num")
+##    with col3:
+##        denominator = st.selectbox("Denominator", columns_to_plot, format_func=lambda x: COLUMN_LABELS.get(x, x), key="den")
+##
+##    if ratio_companies and numerator != denominator:
+##        df_ratio = df[df['description'].isin(ratio_companies)].copy()
+##        df_ratio[numerator] = pd.to_numeric(df_ratio[numerator], errors='coerce')
+##        df_ratio[denominator] = pd.to_numeric(df_ratio[denominator], errors='coerce')
+##        df_ratio['ratio'] = df_ratio[numerator] / df_ratio[denominator]
+##        df_ratio['year'] = df_ratio['year'].astype(str)
+##        fig3 = px.line(df_ratio, x='year', y='ratio', color='description', markers=True,
+##                       labels={"year": "Year", "ratio": "Ratio", "description": "Company"},
+##                       title=f"{COLUMN_LABELS.get(numerator, numerator)} / {COLUMN_LABELS.get(denominator, denominator)} Over Time")
+##        fig3.update_layout(xaxis=dict(tickmode="array", tickvals=years, ticktext=years))
+##        st.plotly_chart(fig3, use_container_width=True)
 
 # --- SIDEBAR ---
 logo_path = os.path.join("images", "logo4.png")

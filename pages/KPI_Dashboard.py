@@ -107,7 +107,7 @@ df_kpi_all = pd.merge(df_kpi_all, df_raw[["symbol", "basic_eps", "sector"]], on=
 df_kpi_all.rename(columns={
     "EBITDA Margin": "EBITDA Margin",
     "Debt/Equity": "Debt to Equity",
-    "ROIC": "ROI",
+    "FCF Margin": "FCF Margin",
     "basic_eps": "EPS"
 }, inplace=True)
 
@@ -233,8 +233,8 @@ def kpi_chart(df_visible, df_full, metric, title):
         title=title,
         yaxis_title=metric,
         barmode="group",
-        height=420,
-        margin=dict(t=50, b=100, l=40, r=40),
+        height=280,
+        margin=dict(t=28, b=28, l=20, r=20),
         legend=dict(
             orientation="h",
             yanchor="bottom",
@@ -256,6 +256,6 @@ with col2:
 
 col3, col4 = st.columns(2)
 with col3:
-    st.plotly_chart(kpi_chart(df_visible, df_kpi_all, "ROI", "Return on Invested Capital (ROI)"), use_container_width=True)
+    st.plotly_chart(kpi_chart(df_visible, df_kpi_all, "FCF Margin", "Free Cash Flow Margin"), use_container_width=True)
 with col4:
     st.plotly_chart(kpi_chart(df_visible, df_kpi_all, "EPS", "Earnings Per Share (EPS)"), use_container_width=True)
