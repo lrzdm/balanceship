@@ -40,18 +40,13 @@ class KPICache(Base):
     year = Column(Integer, index=True)
     kpi_json = Column(Text)
 
-def create_tables():
-    """
-    Crea le tabelle solo in ambiente di sviluppo locale.
-    In produzione, usa Alembic per le migrazioni.
-    """
-    if os.getenv("ENV", "dev") == "dev":
-        Base.metadata.create_all(engine)
-        logger.info("Tabelle create o già esistenti.")
-    else:
-        logger.info("In produzione, usa Alembic per migrare.")
+# CREA LE TABELLE SOLO IN LOCALE
+if os.environ.get("STREAMLIT_CLOUD") != "1":
+    Base.metadata.create_all(engine)
 
 def save_to_db(symbol, years, data):
+    if os.environ.get("STREAMLIT_CLOUD") == "1":
+        return  # Disabilita salvataggio su cloud per evitare errori
     session = Session()
     try:
         for i, year in enumerate(years):
