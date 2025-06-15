@@ -1,20 +1,29 @@
 import os
 import json
-import logging
-from sqlalchemy import create_engine, Column, String, Text, Integer, and_
+from sqlalchemy import create_engine, Column, String, Text, Integer
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker
 import pandas as pd
 
-# Setup logging base
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+def download_database_if_missing():
+    db_path = "sqlite:///data/financials_db.db"
+    if not os.path.exists(db_path):
+        print("Scaricamento del database da GitHub...")
+        url = "https://github.com/lrzdm/balanceship/releases/download/1.2/financials_db.db"
+        response = requests.get(url)
+        with open(db_path, "wb") as f:
+            f.write(response.content)
+        print("✅ Database scaricato.")
+
+# Scarica il database se non presente
+download_database_if_missing()
+
+# Crea la cartella se non esiste
+os.makedirs("data", exist_ok=True)
+engine = create_engine('sqlite:///data/financials_db.db')
 
 Base = declarative_base()
 
-DATABASE_URL = os.environ.get("DATABASE_URL")
-engine = create_engine(DATABASE_URL, pool_pre_ping=True, pool_size=10, max_overflow=20)
-Session = scoped_session(sessionmaker(bind=engine))
 
 class FinancialCache(Base):
     __tablename__ = 'cache'
@@ -149,3 +158,4 @@ def load_kpis_from_db():
         return pd.DataFrame()
     finally:
         session.close()
+
