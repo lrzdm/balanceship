@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 Base = declarative_base()
 
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:wMacbV49RsmSiTcW@db.wsjpfxdjormctqbyqzsm.supabase.co:5432/postgres")
+DATABASE_URL = os.environ.get("DATABASE_URL")
 engine = create_engine(DATABASE_URL, pool_pre_ping=True, pool_size=10, max_overflow=20)
 Session = scoped_session(sessionmaker(bind=engine))
 
