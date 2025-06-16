@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
-from data_utils import read_exchanges, read_companies, get_financial_data, remove_duplicates, save_to_db
+from data_utils import read_exchanges, read_companies, get_financial_data, remove_duplicates
+from cache_db import save_to_db
 import base64
 import os
 import io
