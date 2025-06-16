@@ -52,20 +52,23 @@ def save_to_db(symbol, years, data):
     try:
         for i, year in enumerate(years):
             year_int = int(year)
-            data_for_year = data[i] if i < len(data) else {}
+            data_for_year = data[i] if i < len(data) and data[i] is not None else {}
             json_data = json.dumps(data_for_year)
 
-            # Cerca record esistente
-            entry = session.query(FinancialCache).filter_by(symbol=symbol, year=year_int).first()
+            logger.debug(f"Salvando JSON per {symbol} anno {year_int}: {json_data}")
 
-            if entry:
-                if entry.data_json != json_data:
-                    entry.data_json = json_data
-                    logger.info(f"Aggiornato FinancialCache per {symbol} anno {year_int}")
-            else:
-                entry = FinancialCache(symbol=symbol, year=year_int, data_json=json_data)
-                session.add(entry)
-                logger.info(f"Inserito FinancialCache per {symbol} anno {year_int}")
+            # UPSERT con SQLAlchemy PostgreSQL (se usi Postgres, altrimenti usa la tua logica)
+            from sqlalchemy.dialects.postgresql import insert
+            stmt = insert(FinancialCache).values(
+                symbol=symbol,
+                year=year_int,
+                data_json=json_data
+            )
+            stmt = stmt.on_conflict_do_update(
+                index_elements=['symbol', 'year'],
+                set_={'data_json': json_data}
+            )
+            session.execute(stmt)
 
         session.commit()
     except Exception as e:
@@ -74,6 +77,7 @@ def save_to_db(symbol, years, data):
         raise
     finally:
         session.close()
+
 
 def load_from_db(symbol, years):
     session = Session()
