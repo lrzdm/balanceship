@@ -85,7 +85,7 @@ def load_from_db(symbol, years):
         for year in years:
             year_int = int(year)
             entry = session.query(FinancialCache).filter_by(symbol=symbol, year=year_int).first()
-            if entry:
+            if entry and entry.data_json:
                 result_data.append(json.loads(entry.data_json))
             else:
                 result_data.append(None)
@@ -95,6 +95,7 @@ def load_from_db(symbol, years):
         return [None]*len(years)
     finally:
         session.close()
+
 
 
 def save_kpis_to_db(kpi_df):
