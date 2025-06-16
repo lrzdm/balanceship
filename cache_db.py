@@ -1,31 +1,29 @@
 import os
 import json
-from sqlalchemy import create_engine, Column, String, Text, Integer
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import scoped_session, sessionmaker
+import logging
 import pandas as pd
-import requests
-    
-def download_database_if_missing():
-    db_path = "data/financials_db.db"
-    if not os.path.exists(db_path):
-        print("Scaricamento del database da GitHub...")
-        url = "https://github.com/lrzdm/balanceship/releases/download/1.2/financials_db.db"
-        response = requests.get(url)
-        with open(db_path, "wb") as f:
-            f.write(response.content)
-        print("✅ Database scaricato.")
+from sqlalchemy import create_engine, Column, String, Text, Integer
+from sqlalchemy.orm import declarative_base, scoped_session, sessionmaker
 
-# Scarica il database se non presente
-download_database_if_missing()
+# Logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("cache_db")
 
-# Crea la cartella se non esiste
-os.makedirs("data", exist_ok=True)
-engine = create_engine('sqlite:///data/financials_db.db')
-Session = scoped_session(sessionmaker(bind=engine))
+# Base ORM
 Base = declarative_base()
 
+# Scegli il database in base all'ambiente
+if os.environ.get("STREAMLIT_CLOUD") == "1":
+    DATABASE_URL = os.environ.get("DATABASE_URL")  # Da streamlit secrets
+    engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+else:
+    os.makedirs("data", exist_ok=True)
+    DATABASE_URL = "sqlite:///data/financials_db.db"
+    engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 
+Session = scoped_session(sessionmaker(bind=engine))
+
+# Tabelle
 class FinancialCache(Base):
     __tablename__ = 'cache'
     id = Column(Integer, primary_key=True)
@@ -41,17 +39,13 @@ class KPICache(Base):
     year = Column(Integer, index=True)
     kpi_json = Column(Text)
 
-# CREA LE TABELLE SOLO IN LOCALE
-if os.environ.get("STREAMLIT_CLOUD") != "1":
-    Base.metadata.create_all(engine)
+# Crea le tabelle solo in locale
+def create_tables():
+    if os.environ.get("STREAMLIT_CLOUD") != "1":
+        Base.metadata.create_all(engine)
+        logger.info("✅ Tabelle SQLite create o già esistenti.")
 
-if os.environ.get("STREAMLIT_CLOUD") == "1":
-    import logging
-    logging.disable(logging.CRITICAL)
-    
 def save_to_db(symbol, years, data):
-    if os.environ.get("STREAMLIT_CLOUD") == "1":
-        return  # Disabilita salvataggio su cloud per evitare errori
     session = Session()
     try:
         for i, year in enumerate(years):
@@ -98,8 +92,6 @@ def load_from_db(symbol, years):
         session.close()
 
 def save_kpis_to_db(kpi_df):
-    if os.environ.get("STREAMLIT_CLOUD") == "1":
-        return
     session = Session()
     try:
         for _, row in kpi_df.iterrows():
@@ -160,4 +152,3 @@ def load_kpis_from_db():
         return pd.DataFrame()
     finally:
         session.close()
-
