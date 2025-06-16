@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 from data_utils import read_exchanges, read_companies, get_financial_data, remove_duplicates
-from cache_db import save_to_db
+from cache_db import save_to_db, load_to_db
 import base64
 import os
 import io
@@ -126,9 +126,7 @@ for exchange in selected_exchanges:
 
         if valid_data:
             save_to_db(symbol, selected_years, valid_data)
-
-
-            
+           
 
 financial_data = remove_duplicates(financial_data)
 if selected_sectors:
