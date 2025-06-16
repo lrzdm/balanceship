@@ -9,7 +9,7 @@ from PIL import Image
 #from pages import Graph, Who_we_are
 
 st.set_page_config(page_title="Financials", layout="wide")
-create_tables()
+
 
 def get_base64_of_bin_file(bin_file):
     with open(bin_file, 'rb') as f:
