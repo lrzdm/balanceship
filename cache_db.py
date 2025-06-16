@@ -49,27 +49,31 @@ def create_tables():
         logger.info("✅ Tabelle SQLite create o già esistenti.")
 
 
-from sqlalchemy.exc import IntegrityError
-
-def save_to_db(symbol, year, data):
-    session = SessionLocal()
+def save_to_db(symbol, years, data):
+    session = Session()
     try:
-        if isinstance(data, dict) and data:  # Assicurati che data sia valido
-            data_json = json.dumps(data)
-            existing_entry = session.query(FinancialCache).filter_by(symbol=symbol, year=year).first()
-            if existing_entry:
-                existing_entry.data_json = data_json
-                logger.info(f"Aggiornato FinancialCache per {symbol} anno {year}")
+        for i, year in enumerate(years):
+            year_int = int(year)
+            data_for_year = data[i] if i < len(data) else {}
+            json_data = json.dumps(data_for_year)
+
+            # Cerca record esistente
+            entry = session.query(FinancialCache).filter_by(symbol=symbol, year=year_int).first()
+
+            if entry:
+                if entry.data_json != json_data:
+                    entry.data_json = json_data
+                    logger.info(f"Aggiornato FinancialCache per {symbol} anno {year_int}")
             else:
-                cache_entry = FinancialCache(symbol=symbol, year=year, data_json=data_json)
-                session.add(cache_entry)
-                logger.info(f"Inserito FinancialCache per {symbol} anno {year}")
-            session.commit()
-        else:
-            logger.warning(f"⚠️ Nessun dato valido da salvare per {symbol} anno {year}")
-    except IntegrityError as e:
+                entry = FinancialCache(symbol=symbol, year=year_int, data_json=json_data)
+                session.add(entry)
+                logger.info(f"Inserito FinancialCache per {symbol} anno {year_int}")
+
+        session.commit()
+    except Exception as e:
+        logger.error(f"Errore salvataggio FinancialCache: {e}")
         session.rollback()
-        logger.error(f"❌ Errore di integrità DB: {e}")
+        raise
     finally:
         session.close()
 
