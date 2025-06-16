@@ -114,18 +114,11 @@ for exchange in selected_exchanges:
         description = company['description']
         stock_exchange = exchange
         data_list = get_financial_data(symbol, selected_years)
-
-        # Filtro dei dati validi
-        valid_data = []
-        for data in data_list:
-            if isinstance(data, dict) and data:  # <-- evita None e dizionari vuoti
+        for i, data in enumerate(data_list):
+            if data is not None and isinstance(data, dict):
                 data['description'] = description
                 data['stock_exchange'] = stock_exchange
                 financial_data.append(data)
-                valid_data.append(data)
-
-        if valid_data:
-            save_to_db(symbol, selected_years, valid_data)
            
 
 financial_data = remove_duplicates(financial_data)
