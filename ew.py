@@ -115,17 +115,20 @@ for exchange in selected_exchanges:
         stock_exchange = exchange
         data_list = get_financial_data(symbol, selected_years)
 
-        # Filtro dei dati validi
+        # Filtra i dati validi e crea lista di anni corrispondenti
         valid_data = []
-        for data in data_list:
-            if isinstance(data, dict) and data:  # <-- evita None e dizionari vuoti
+        filtered_years = []
+        for i, data in enumerate(data_list):
+            if isinstance(data, dict) and data:  # Esclude None o dict vuoti
                 data['description'] = description
                 data['stock_exchange'] = stock_exchange
                 financial_data.append(data)
                 valid_data.append(data)
+                filtered_years.append(selected_years[i])  # Allinea anno al dato valido
 
         if valid_data:
-            save_to_db(symbol, selected_years, valid_data)          
+            save_to_db(symbol, filtered_years, valid_data)
+        
 
 financial_data = remove_duplicates(financial_data)
 if selected_sectors:
