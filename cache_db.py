@@ -74,7 +74,6 @@ def save_to_db(symbol, years, data):
         raise
     finally:
         session.close()
-        
 
 def load_from_db(symbol, years):
     session = Session()
