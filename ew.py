@@ -118,7 +118,7 @@ for exchange in selected_exchanges:
                 data['description'] = description
                 data['stock_exchange'] = stock_exchange
                 financial_data.append(data)
-    save_to_db(symbol, selected_years, data_list)
+    #save_to_db(symbol, selected_years, data_list)
 
             
 
