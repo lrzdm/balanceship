@@ -6,6 +6,7 @@ from sqlalchemy import create_engine, Column, String, Text, Integer
 from sqlalchemy.orm import declarative_base, scoped_session, sessionmaker
 import streamlit as st
 import os
+from sqlalchemy.dialects.postgresql import insert
 
 # Logging
 logging.basicConfig(level=logging.INFO)
@@ -47,33 +48,37 @@ def create_tables():
         Base.metadata.create_all(engine)
         logger.info("✅ Tabelle SQLite create o già esistenti.")
 
-def save_to_db(symbol, years, data):
+
+def save_to_db(symbol, years, data_list):
+    from db import Session, cache_table
+    import json
     session = Session()
-    try:
-        for i, year in enumerate(years):
-            year_int = int(year)
-            data_for_year = data[i] if i < len(data) else {}
-            json_data = json.dumps(data_for_year)
 
-            # Cerca record esistente
-            entry = session.query(FinancialCache).filter_by(symbol=symbol, year=year_int).first()
+    for year, data in zip(years, data_list):
+        if data is not None:
+            json_data = json.dumps(data)
+        else:
+            json_data = json.dumps({})
 
-            if entry:
-                if entry.data_json != json_data:
-                    entry.data_json = json_data
-                    logger.info(f"Aggiornato FinancialCache per {symbol} anno {year_int}")
-            else:
-                entry = FinancialCache(symbol=symbol, year=year_int, data_json=json_data)
-                session.add(entry)
-                logger.info(f"Inserito FinancialCache per {symbol} anno {year_int}")
+        stmt = insert(cache_table).values(
+            symbol=symbol,
+            year=int(year),
+            data_json=json_data
+        )
 
-        session.commit()
-    except Exception as e:
-        logger.error(f"Errore salvataggio FinancialCache: {e}")
-        session.rollback()
-        raise
-    finally:
-        session.close()
+        # On conflict: update data_json
+        do_update_stmt = stmt.on_conflict_do_update(
+            index_elements=['symbol', 'year'],  # Assicurati che ci sia un UNIQUE(symbol, year)
+            set_={'data_json': stmt.excluded.data_json}
+        )
+
+        try:
+            session.execute(do_update_stmt)
+        except Exception as e:
+            print(f"Errore nel salvataggio di {symbol} - {year}: {e}")
+
+    session.commit()
+    session.close()
 
 def load_from_db(symbol, years):
     session = Session()
