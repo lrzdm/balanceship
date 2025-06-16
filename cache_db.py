@@ -15,9 +15,8 @@ logger = logging.getLogger("cache_db")
 Base = declarative_base()
 
 # Scegli il database in base all'ambiente
-if "DATABASE_URL" in st.secrets:
-    # Ambiente cloud (Streamlit Cloud)
-    DATABASE_URL = st.secrets["DATABASE_URL"]
+if os.environ.get("STREAMLIT_CLOUD") == "1":
+    DATABASE_URL = os.environ.get("DATABASE_URL")
     engine = create_engine(DATABASE_URL, pool_pre_ping=True)
 else:
     os.makedirs("data", exist_ok=True)
