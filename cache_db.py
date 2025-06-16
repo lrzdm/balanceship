@@ -56,7 +56,23 @@ def save_to_db(symbol, years, data):
         for i, year in enumerate(years):
             year_int = int(year)
             data_for_year = data[i] if i < len(data) else {}
-            json_data = json.dumps(data_for_year, default=lambda o: float(o) if isinstance(o, (np.float32, np.float64)) else str(o))
+            def convert_numpy(obj):
+                if isinstance(obj, dict):
+                    return {k: convert_numpy(v) for k, v in obj.items()}
+                elif isinstance(obj, list):
+                    return [convert_numpy(i) for i in obj]
+                elif isinstance(obj, (np.integer, np.floating)):
+                    return obj.item()
+                elif isinstance(obj, (np.bool_, bool)):
+                    return bool(obj)
+                elif isinstance(obj, (np.datetime64, pd.Timestamp)):
+                    return str(obj)
+                elif pd.isna(obj):
+                    return None
+                return obj
+
+            json_data = json.dumps(convert_numpy(data_for_year))
+
 
             # Cerca record esistente
             entry = session.query(FinancialCache).filter_by(symbol=symbol, year=year_int).first()
