@@ -7,6 +7,7 @@ from sqlalchemy.orm import declarative_base, scoped_session, sessionmaker
 import streamlit as st
 import os
 from sqlalchemy.dialects.postgresql import insert
+import numpy as np
 
 # Logging
 logging.basicConfig(level=logging.INFO)
@@ -55,7 +56,7 @@ def save_to_db(symbol, years, data):
         for i, year in enumerate(years):
             year_int = int(year)
             data_for_year = data[i] if i < len(data) else {}
-            json_data = json.dumps(data_for_year)
+            json_data = json.dumps(data_for_year, default=lambda o: float(o) if isinstance(o, (np.float32, np.float64)) else str(o))
 
             # Cerca record esistente
             entry = session.query(FinancialCache).filter_by(symbol=symbol, year=year_int).first()
