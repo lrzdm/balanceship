@@ -190,12 +190,12 @@ def get_all_financial_data(force_refresh=True):
             )
             print(f"Fetched {len(data_list)} records for {symbol}")
 
-            for data in data_list:
+            for i, data in enumerate(data_list):
                 if data is not None and isinstance(data, dict):
                     data['description'] = description
                     data['stock_exchange'] = stock_exchange
                     financial_data.append(data)
-
+            save_to_db(symbol, selected_years, data_list)
             time.sleep(random.uniform(5, 9))
 
     financial_data = remove_duplicates(financial_data)
