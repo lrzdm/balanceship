@@ -22,7 +22,7 @@ else:
     os.makedirs("data", exist_ok=True)
     DATABASE_URL = "sqlite:///data/financials_db.db"
     engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
-
+print("✅ Database in uso:", DATABASE_URL)
 Session = scoped_session(sessionmaker(bind=engine))
 
 # Tabelle
