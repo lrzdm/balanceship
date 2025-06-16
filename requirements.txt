@@ -8,3 +8,4 @@ Pillow
 plotly
 sqlalchemy
 psycopg2-binary
+numpy
