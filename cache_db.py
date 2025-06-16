@@ -4,6 +4,8 @@ import logging
 import pandas as pd
 from sqlalchemy import create_engine, Column, String, Text, Integer
 from sqlalchemy.orm import declarative_base, scoped_session, sessionmaker
+import streamlit as st
+import os
 
 # Logging
 logging.basicConfig(level=logging.INFO)
@@ -13,8 +15,9 @@ logger = logging.getLogger("cache_db")
 Base = declarative_base()
 
 # Scegli il database in base all'ambiente
-if os.environ.get("STREAMLIT_CLOUD") == "1":
-    DATABASE_URL = os.environ.get("DATABASE_URL")  # Da streamlit secrets
+if "DATABASE_URL" in st.secrets:
+    # Ambiente cloud (Streamlit Cloud)
+    DATABASE_URL = st.secrets["DATABASE_URL"]
     engine = create_engine(DATABASE_URL, pool_pre_ping=True)
 else:
     os.makedirs("data", exist_ok=True)
