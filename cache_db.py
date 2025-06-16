@@ -49,36 +49,29 @@ def create_tables():
         logger.info("✅ Tabelle SQLite create o già esistenti.")
 
 
-def save_to_db(symbol, years, data_list):
-    from db import Session, cache_table
-    import json
-    session = Session()
+from sqlalchemy.exc import IntegrityError
 
-    for year, data in zip(years, data_list):
-        if data is not None:
-            json_data = json.dumps(data)
+def save_to_db(symbol, year, data):
+    session = SessionLocal()
+    try:
+        if isinstance(data, dict) and data:  # Assicurati che data sia valido
+            data_json = json.dumps(data)
+            existing_entry = session.query(FinancialCache).filter_by(symbol=symbol, year=year).first()
+            if existing_entry:
+                existing_entry.data_json = data_json
+                logger.info(f"Aggiornato FinancialCache per {symbol} anno {year}")
+            else:
+                cache_entry = FinancialCache(symbol=symbol, year=year, data_json=data_json)
+                session.add(cache_entry)
+                logger.info(f"Inserito FinancialCache per {symbol} anno {year}")
+            session.commit()
         else:
-            json_data = json.dumps({})
-
-        stmt = insert(cache_table).values(
-            symbol=symbol,
-            year=int(year),
-            data_json=json_data
-        )
-
-        # On conflict: update data_json
-        do_update_stmt = stmt.on_conflict_do_update(
-            index_elements=['symbol', 'year'],  # Assicurati che ci sia un UNIQUE(symbol, year)
-            set_={'data_json': stmt.excluded.data_json}
-        )
-
-        try:
-            session.execute(do_update_stmt)
-        except Exception as e:
-            print(f"Errore nel salvataggio di {symbol} - {year}: {e}")
-
-    session.commit()
-    session.close()
+            logger.warning(f"⚠️ Nessun dato valido da salvare per {symbol} anno {year}")
+    except IntegrityError as e:
+        session.rollback()
+        logger.error(f"❌ Errore di integrità DB: {e}")
+    finally:
+        session.close()
 
 def load_from_db(symbol, years):
     session = Session()
