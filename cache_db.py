@@ -97,9 +97,9 @@ def save_to_db(symbol, years, data_list):
 def load_from_db(symbol, years):
     session = Session()
     try:
-        query = session.query(FinancialData).filter(
-            FinancialData.symbol == symbol,
-            FinancialData.year.in_([int(y) for y in years])
+        query = session.query(FinancialCache).filter(
+            FinancialCache.symbol == symbol,
+            FinancialCache.year.in_([int(y) for y in years])
         )
         results = query.all()
         data = []
@@ -117,6 +117,7 @@ def load_from_db(symbol, years):
         return [None] * len(years)
     finally:
         session.close()
+
 
         
 def save_kpis_to_db(kpi_df):
