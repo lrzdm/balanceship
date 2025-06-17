@@ -120,6 +120,7 @@ for exchange in selected_exchanges:
 
         data_list = get_or_fetch_data(symbol, selected_years, description, stock_exchange)
         financial_data.extend(data_list)
+
         
 
 financial_data = remove_duplicates(financial_data)
