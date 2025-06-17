@@ -93,9 +93,33 @@ def load_financials(symbol, year):
 def render_kpis():
     st.header("📊 Financial KPI Table")
 
-    # Carica KPI
-    df_kpis, df_financials = load_financials(selected_symbols[0], selected_years[0])
+    # Caricamento provvisorio: fallback in caso di errore (inizializzazione)
+    default_desc = ['Apple Inc.']
+    default_years = ['2023']
 
+    # Inizializza lo stato solo se mancante
+    if 'selected_desc' not in st.session_state:
+        st.session_state['selected_desc'] = default_desc
+    if 'selected_years' not in st.session_state:
+        st.session_state['selected_years'] = default_years
+
+    # Valori da sessione
+    selected_desc = st.session_state['selected_desc']
+    selected_years = st.session_state['selected_years']
+
+    # Prima conversione simboli
+    # fallback provvisorio, lo correggeremo appena abbiamo il dict
+    selected_symbols = []
+
+    try:
+        # Fallback provvisorio (uso Apple come default)
+        selected_symbols = ['AAPL'] if selected_desc == ['Apple Inc.'] else []
+        df_kpis, df_financials = load_financials(selected_symbols[0], selected_years[0])
+    except Exception as e:
+        st.error(f"Errore nel caricamento iniziale: {e}")
+        return
+
+    # Ora hai df_kpis e df_financials, puoi usare le colonne
     if 'description' not in df_kpis.columns and df_financials is not None:
         df_kpis = df_kpis.merge(
             pd.DataFrame(df_financials)[['symbol', 'description']].drop_duplicates(),
@@ -107,39 +131,34 @@ def render_kpis():
     descriptions_available = sorted(descriptions_dict.keys())
     years_available = sorted(df_kpis['year'].astype(str).unique())
 
-    # Valori default sicuri
-    default_desc = ['Apple Inc.']
-    default_years = ['2023'] if "2023" in years_available else [years_available[-1]]
-
-    # Inizializza lo stato solo se mancante
-    if 'selected_desc' not in st.session_state:
-        st.session_state['selected_desc'] = default_desc
-    if 'selected_years' not in st.session_state:
-        st.session_state['selected_years'] = default_years
-
-
-
     # LAYOUT FILTRI
     col1, col2 = st.columns(2)
     selected_desc = col1.multiselect(
         "Select Companies",
         descriptions_available,
-        default=st.session_state['selected_desc'],
+        default=selected_desc,
         key="desc_filter"
     )
     selected_years = col2.multiselect(
         "Select Years",
         years_available,
-        default=st.session_state['selected_years'],
+        default=selected_years,
         key="year_filter"
     )
 
-    # Aggiorna stato
+    # Aggiorna sessione
     st.session_state['selected_desc'] = selected_desc
     st.session_state['selected_years'] = selected_years
 
+    if not selected_desc or not selected_years:
+        st.warning("Please select at least one company and one year.")
+        st.stop()
+
     selected_symbols = [descriptions_dict[d] for d in selected_desc]
 
+    # Ricarica i dati finali in base ai filtri aggiornati
+    df_kpis, df_financials = load_financials(selected_symbols[0], selected_years[0])
+  
     # Filtraggio
     if selected_symbols and selected_years:
         df_filtered = df_kpis[
