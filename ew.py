@@ -116,18 +116,10 @@ for exchange in selected_exchanges:
         data_list = get_financial_data(symbol, selected_years)
 
         # Filtra i dati validi e crea lista di anni corrispondenti
-        valid_data = []
-        filtered_years = []
-        for i, data in enumerate(data_list):
-            if isinstance(data, dict) and data:  # Esclude None o dict vuoti
-                data['description'] = description
-                data['stock_exchange'] = stock_exchange
-                financial_data.append(data)
-                valid_data.append(data)
-                filtered_years.append(selected_years[i])  # Allinea anno al dato valido
+        from data_utils import get_or_fetch_data
 
-        if valid_data:
-            save_to_db(symbol, filtered_years, valid_data)
+        data_list = get_or_fetch_data(symbol, selected_years, description, stock_exchange)
+        financial_data.extend(data_list)
         
 
 financial_data = remove_duplicates(financial_data)
