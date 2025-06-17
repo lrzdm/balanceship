@@ -259,6 +259,7 @@ def kpi_chart(df_visible, df_full, metric, title):
 # I grafici ora senza legenda interna (già fatto nel kpi_chart)
 col1, col2 = st.columns(2)
 with col1:
+    st.write(f"📊 {metric} – df_visible:", df_visible[["company_name", metric]])
     st.plotly_chart(kpi_chart(df_visible, df_kpi_all, "EBITDA Margin", "EBITDA Margin"), use_container_width=True)
 with col2:
     st.plotly_chart(kpi_chart(df_visible, df_kpi_all, "Debt to Equity", "Debt/Equity"), use_container_width=True)
