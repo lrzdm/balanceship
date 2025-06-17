@@ -188,7 +188,7 @@ def get_all_financial_data(force_refresh=True):
                 description=description,
                 stock_exchange=stock_exchange
             )
-            print(f"Fetched {len(data_list)} records for {symbol}")
+            #print(f"Fetched {len(data_list)} records for {symbol}")
 
             for data in data_list:
                 if data is not None and isinstance(data, dict):
