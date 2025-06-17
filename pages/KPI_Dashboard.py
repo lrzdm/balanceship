@@ -101,7 +101,12 @@ df_kpi_all = df_kpi_all[df_kpi_all["year"] == selected_year]
 
 # --- EPS e settore dal raw data ---
 df_raw = pd.DataFrame(combined_data)
+st.write("Columns in df_raw:", df_raw.columns.tolist())
+st.write(df_raw.head(3))
+if "ticker" in df_raw.columns and "symbol" not in df_raw.columns:
+    df_raw.rename(columns={"ticker": "symbol"}, inplace=True)
 df_kpi_all = pd.merge(df_kpi_all, df_raw[["symbol", "basic_eps", "sector"]], on="symbol", how="left")
+
 
 # Rinomina chiara
 df_kpi_all.rename(columns={
