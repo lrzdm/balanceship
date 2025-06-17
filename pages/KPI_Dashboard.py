@@ -167,6 +167,8 @@ def kpi_chart(df_visible, df_full, metric, title):
     company_colors = {name: color_palette[i % len(color_palette)] for i, name in enumerate(company_names)}
 
     # BAR per le aziende selezionate
+    st.write("📌 KPI richiesto (metric):", metric)
+    st.write("🧠 Colonne disponibili in df_visible:", df_visible.columns.tolist())
     st.write(f"📊 {metric} – df_visible:", df_visible[["company_name", metric]])
     fig.add_trace(go.Bar(
         x=company_names,
