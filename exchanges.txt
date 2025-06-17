@@ -1,4 +1,2 @@
 NASDAQ,nasdaq_companies.txt
-FTSE MIB,ftsemib_companies.txt
-FTSE 100,lse_companies.txt
 Nikkei 225,japan_companies.txt
