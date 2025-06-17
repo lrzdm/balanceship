@@ -26,13 +26,21 @@ else:
 Session = scoped_session(sessionmaker(bind=engine))
 
 # Modelli tabella
+#class FinancialCache(Base):
+#    __tablename__ = 'cache'
+#    id = Column(Integer, primary_key=True)
+#    symbol = Column(String, index=True)
+#    year = Column(Integer, index=True)
+#    data_json = Column(Text)
+
 class FinancialCache(Base):
     __tablename__ = 'cache'
-    id = Column(Integer, primary_key=True)
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
     symbol = Column(String, index=True)
     year = Column(Integer, index=True)
-    data_json = Column(Text)
-
+    data_json = Column(String)  # o JSON se usi PostgreSQL con JSONB
+    
 class KPICache(Base):
     __tablename__ = 'kpi_cache'
     id = Column(Integer, primary_key=True)
@@ -46,21 +54,6 @@ def create_tables():
         Base.metadata.create_all(engine)
         logger.info("✅ Tabelle create o già esistenti.")
 
-# Convertitore robusto per tipi numpy e date
-def convert_numpy(obj):
-    if isinstance(obj, dict):
-        return {k: convert_numpy(v) for k, v in obj.items()}
-    elif isinstance(obj, list):
-        return [convert_numpy(i) for i in obj]
-    elif isinstance(obj, (np.integer, np.floating)):
-        return obj.item()
-    elif isinstance(obj, (np.bool_, bool)):
-        return bool(obj)
-    elif isinstance(obj, (np.datetime64, pd.Timestamp)):
-        return str(obj)
-    elif pd.isna(obj):
-        return None
-    return obj
 
 def save_to_db(symbol, years, data_list):
     session = Session()
@@ -80,18 +73,23 @@ def save_to_db(symbol, years, data_list):
                 if entry.data_json != json_data:
                     entry.data_json = json_data
                     logger.info(f"Aggiornato FinancialCache per {symbol} anno {year_int}")
+                else:
+                    logger.debug(f"Nessuna modifica per {symbol} anno {year_int}")
             else:
                 entry = FinancialCache(symbol=symbol, year=year_int, data_json=json_data)
                 session.add(entry)
                 logger.info(f"Inserito FinancialCache per {symbol} anno {year_int}")
 
+        logger.info("Prima del commit, oggetti in sessione: %s", session.new)
         session.commit()
+        logger.info("Commit effettuato correttamente")
     except Exception as e:
         logger.error(f"Errore salvataggio FinancialCache: {e}")
         session.rollback()
         raise
     finally:
         session.close()
+
 
 
 def load_from_db(symbol, years):
