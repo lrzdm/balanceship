@@ -326,7 +326,11 @@ def get_or_fetch_data(symbol, years, description, stock_exchange):
 
     # Step 1 – Prova a caricare i dati esistenti dal DB
     db_data = load_from_db(symbol, years)
-    years_in_db = {str(item['year']) for item in db_data}
+    years_in_db = {
+        str(item['year']) for item in db_data
+        if isinstance(item, dict) and 'year' in item
+    }
+
 
     # Anni mancanti
     for year in years:
