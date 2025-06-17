@@ -321,7 +321,7 @@ def compute_kpis(financial_data):
 
 
 def get_or_fetch_data(symbol, years, description, stock_exchange):
-    # Step 1 – Prova a caricare i dati esistenti dal DB
+    print(f"get_or_fetch_data chiamata per {symbol} anni {years}")
     db_data = load_from_db(symbol, years)
 
     final_data = []
@@ -330,29 +330,37 @@ def get_or_fetch_data(symbol, years, description, stock_exchange):
     for i, year in enumerate(years):
         record = db_data[i]
         if isinstance(record, dict) and record:
+            print(f"Dati da DB per {symbol} anno {year} trovati.")
             record['description'] = description
             record['stock_exchange'] = stock_exchange
             final_data.append(record)
         else:
+            print(f"Dati da DB per {symbol} anno {year} MANCANTI, da scaricare.")
             years_to_fetch.append(year)
 
-    # Step 2 – Scarica solo gli anni mancanti
     if years_to_fetch:
+        print(f"Scarico dati per {symbol} anni: {years_to_fetch}")
         fetched_data = get_financial_data(symbol, years_to_fetch, description=description, stock_exchange=stock_exchange)
         valid_data = []
 
         for i, data in enumerate(fetched_data):
             if isinstance(data, dict) and data:
+                print(f"Dati scaricati validi per {symbol} anno {years_to_fetch[i]}")
                 data['description'] = description
                 data['stock_exchange'] = stock_exchange
                 final_data.append(data)
                 valid_data.append(data)
+            else:
+                print(f"Dati scaricati NON validi per {symbol} anno {years_to_fetch[i]}")
 
-        # Step 3 – Salva solo i nuovi dati
         if valid_data:
+            print(f"Salvo dati nuovi nel DB per {symbol} anni {years_to_fetch}")
             save_to_db(symbol, years_to_fetch, valid_data)
+        else:
+            print(f"Nessun dato valido da salvare per {symbol}")
 
     return final_data
+
 
 
 
