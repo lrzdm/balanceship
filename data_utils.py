@@ -137,8 +137,8 @@ def get_financial_data(symbol, years, force_refresh=False, description=None, sto
     missing_years = [year for i, year in enumerate(years) if cached_data[i] is None]
 
     # BLOCCO PER STREAMLIT CLOUD
-    if os.environ.get("STREAMLIT_CLOUD") == "1":
-        return cached_data
+    #if os.environ.get("STREAMLIT_CLOUD") == "1":
+    #    return cached_data
     if missing_years or force_refresh:
         # Scarica dati mancanti
         new_data = get_financial_data_from_source(symbol, missing_years, description=description, stock_exchange=stock_exchange)
