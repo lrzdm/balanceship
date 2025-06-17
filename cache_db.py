@@ -101,7 +101,14 @@ def load_from_db(symbol, years):
             entry = session.query(FinancialCache).filter_by(symbol=symbol, year=year_int).first()
             if entry and entry.data_json:
                 try:
-                    result_data.append(json.loads(entry.data_json))
+                    if isinstance(entry.data_json, str):
+                        result_data.append(json.loads(entry.data_json))
+                    elif isinstance(entry.data_json, dict):
+                        # Già dict, probabilmente salvato male in passato
+                        result_data.append(entry.data_json)
+                    else:
+                        logger.warning(f"Formato inaspettato per {symbol} {year}: {type(entry.data_json)}")
+                        result_data.append(None)
                 except Exception as e:
                     logger.error(f"JSON decode error per {symbol} {year}: {e}")
                     result_data.append(None)
@@ -113,7 +120,7 @@ def load_from_db(symbol, years):
         return [None] * len(years)
     finally:
         session.close()
-
+        
 def save_kpis_to_db(kpi_df):
     session = Session()
     try:
