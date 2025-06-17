@@ -101,7 +101,7 @@ combined_data = financial_data + sector_data
 
 # --- Calcolo KPI ---
 df_kpi_all = compute_kpis(combined_data)
-df_kpi_all = df_kpi_all[df_kpi_all["year"] == selected_year]
+df_kpi_all = df_kpi_all[df_kpi_all["year"] == int(selected_year)]
 
 # --- EPS e settore dal raw data ---
 df_raw = pd.DataFrame(combined_data)
