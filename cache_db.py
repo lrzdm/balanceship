@@ -56,6 +56,8 @@ def create_tables():
 
 
 def save_to_db(symbol, years, data_list):
+    print(f"DEBUG: save_to_db chiamata per {symbol} anni {years}")
+    logger.info(f"save_to_db chiamata per {symbol} anni {years}")
     session = Session()
     try:
         for i, year in enumerate(years):
