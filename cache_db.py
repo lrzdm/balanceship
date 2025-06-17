@@ -102,21 +102,28 @@ def load_from_db(symbol, years):
             FinancialCache.year.in_([int(y) for y in years])
         )
         results = query.all()
-        data = []
+        
+        # Crea dict anno -> dato
+        data_by_year = {}
         for row in results:
             try:
                 parsed = json.loads(row.data_json)
-                parsed['year'] = row.year  # Assicura che l'anno sia presente
-                data.append(parsed)
+                parsed['year'] = row.year
+                data_by_year[row.year] = parsed
             except Exception as e:
                 print(f"Errore nel parsing DB per {symbol} {row.year}: {e}")
-                data.append(None)
+                data_by_year[row.year] = None
+        
+        # Ricostruisci lista allineata con 'years', inserendo None per anni non trovati
+        data = [data_by_year.get(int(year), None) for year in years]
+        
         return data
     except Exception as e:
         print(f"Errore durante il caricamento da DB per {symbol}: {e}")
         return [None] * len(years)
     finally:
         session.close()
+
 
 
         
