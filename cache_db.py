@@ -54,6 +54,18 @@ def create_tables():
         Base.metadata.create_all(engine)
         logger.info("✅ Tabelle create o già esistenti.")
 
+def convert_numpy(obj):
+    if isinstance(obj, dict):
+        return {k: convert_numpy(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [convert_numpy(v) for v in obj]
+    elif isinstance(obj, (np.float64, np.float32, np.float16, np.int64, np.int32, np.int16)):
+        if np.isnan(obj):
+            return None
+        return float(obj)
+    elif isinstance(obj, float) and (obj != obj):  # check for NaN
+        return None
+    return obj
 
 def save_to_db(symbol, years, data_list):
     print(f"DEBUG: save_to_db chiamata per {symbol} anni {years}")
@@ -67,8 +79,8 @@ def save_to_db(symbol, years, data_list):
                 continue
 
             data_for_year = data_list[i]
-            #data_for_year = convert_numpy(data_for_year)
-            json_data = json.dumps(data_for_year, ensure_ascii=False)
+            data_for_year = convert_numpy(data_for_year)
+            json_data = json.dumps(data_for_year, ensure_ascii=False, allow_nan=False)
 
             entry = session.query(FinancialCache).filter_by(symbol=symbol, year=year_int).first()
             if entry:
