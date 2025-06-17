@@ -78,7 +78,7 @@ def render_logos():
 
 # KPI Table e Grafici
 @st.cache_data(show_spinner=False)
-def load_financials():
+def load_financials(symbol, year):
     df_kpi = load_kpis_for_symbol_year(symbol, year)
     if not df_kpis.empty:
         return df_kpis, None
@@ -93,7 +93,7 @@ def render_kpis():
     st.header("📊 Financial KPI Table")
 
     # Carica KPI
-    df_kpis, df_financials = load_financials()
+    df_kpis, df_financials = load_financials(selected_symbols[0], selected_years[0])
 
     if 'description' not in df_kpis.columns and df_financials is not None:
         df_kpis = df_kpis.merge(
