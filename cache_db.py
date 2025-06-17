@@ -67,7 +67,7 @@ def save_to_db(symbol, years, data_list):
                 continue
 
             data_for_year = data_list[i]
-            data_for_year = convert_numpy(data_for_year)
+            #data_for_year = convert_numpy(data_for_year)
             json_data = json.dumps(data_for_year, ensure_ascii=False)
 
             entry = session.query(FinancialCache).filter_by(symbol=symbol, year=year_int).first()
