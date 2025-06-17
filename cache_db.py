@@ -172,20 +172,22 @@ def save_kpis_to_db(kpi_df):
     finally:
         session.close()
 
-def load_kpis_from_db():
+
+def load_kpis_for_symbol_year(symbol, year, description=None):
     session = Session()
     try:
-        records = []
-        for entry in session.query(KPICache).all():
-            try:
-                data = json.loads(entry.kpi_json)
-                data.update({'symbol': entry.symbol, 'year': entry.year, 'description': entry.description})
-                records.append(data)
-            except Exception as e:
-                logger.error(f"Errore JSON decode KPICache {entry.symbol} {entry.year}: {e}")
-        return pd.DataFrame(records)
+        query = session.query(KPICache).filter_by(symbol=symbol, year=year)
+        if description is not None:
+            query = query.filter_by(description=description)
+        entry = query.first()
+        if entry:
+            data = json.loads(entry.kpi_json)
+            data.update({'symbol': entry.symbol, 'year': entry.year, 'description': entry.description})
+            return pd.DataFrame([data])
+        else:
+            return pd.DataFrame()
     except Exception as e:
-        logger.error(f"Errore caricamento KPICache: {e}")
+        logger.error(f"Errore caricamento KPICache per {symbol} {year}: {e}")
         return pd.DataFrame()
     finally:
         session.close()
