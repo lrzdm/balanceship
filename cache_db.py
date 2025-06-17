@@ -59,13 +59,17 @@ def convert_numpy(obj):
         return {k: convert_numpy(v) for k, v in obj.items()}
     elif isinstance(obj, list):
         return [convert_numpy(v) for v in obj]
-    elif isinstance(obj, (np.float64, np.float32, np.float16, np.int64, np.int32, np.int16)):
-        if np.isnan(obj):
+    elif isinstance(obj, (np.floating, float)):
+        if np.isnan(obj) or obj != obj:
             return None
         return float(obj)
-    elif isinstance(obj, float) and (obj != obj):  # check for NaN
+    elif isinstance(obj, (np.integer, int)):
+        return int(obj)
+    elif obj is None:
         return None
-    return obj
+    else:
+        return obj
+
 
 def save_to_db(symbol, years, data_list):
     print(f"DEBUG: save_to_db chiamata per {symbol} anni {years}")
