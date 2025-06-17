@@ -5,6 +5,9 @@ import pandas as pd
 import numpy as np
 from sqlalchemy import create_engine, Column, String, Text, Integer
 from sqlalchemy.orm import declarative_base, scoped_session, sessionmaker
+from sqlalchemy.orm import Session
+from models import FinancialData
+from db_setup import engine
 
 # Logging
 logging.basicConfig(level=logging.INFO)
@@ -92,34 +95,24 @@ def save_to_db(symbol, years, data_list):
     finally:
         session.close()
 
+
 def load_from_db(symbol, years):
-    session = Session()
-    result_data = []
-    try:
-        for year in years:
-            year_int = int(year)
-            entry = session.query(FinancialCache).filter_by(symbol=symbol, year=year_int).first()
-            if entry and entry.data_json:
-                try:
-                    if isinstance(entry.data_json, str):
-                        result_data.append(json.loads(entry.data_json))
-                    elif isinstance(entry.data_json, dict):
-                        # Già dict, probabilmente salvato male in passato
-                        result_data.append(entry.data_json)
-                    else:
-                        logger.warning(f"Formato inaspettato per {symbol} {year}: {type(entry.data_json)}")
-                        result_data.append(None)
-                except Exception as e:
-                    logger.error(f"JSON decode error per {symbol} {year}: {e}")
-                    result_data.append(None)
-            else:
-                result_data.append(None)
-        return result_data
-    except Exception as e:
-        logger.error(f"Errore caricamento FinancialCache: {e}")
-        return [None] * len(years)
-    finally:
-        session.close()
+    with Session(engine) as session:
+        query = session.query(FinancialData).filter(
+            FinancialData.symbol == symbol,
+            FinancialData.year.in_([int(y) for y in years])
+        )
+        results = query.all()
+        data = []
+        for row in results:
+            try:
+                parsed = json.loads(row.data_json)
+                parsed['year'] = row.year  # Assicura il campo anno
+                data.append(parsed)
+            except Exception as e:
+                print(f"Errore nel parsing DB per {symbol} {row.year}: {e}")
+        return data
+
         
 def save_kpis_to_db(kpi_df):
     session = Session()
