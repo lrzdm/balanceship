@@ -6,7 +6,6 @@ import os
 import base64
 
 st.set_page_config(page_title="KPI Dashboard", layout="wide")
-
 st.title("📊 KPI Dashboard")
 
 def get_base64_of_bin_file(bin_file):
