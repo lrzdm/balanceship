@@ -105,8 +105,6 @@ df_kpi_all = df_kpi_all[df_kpi_all["year"] == int(selected_year)]
 
 # --- EPS e settore dal raw data ---
 df_raw = pd.DataFrame(combined_data)
-st.write("Columns in df_raw:", df_raw.columns.tolist())
-st.write(df_raw.head(3))
 if "ticker" in df_raw.columns and "symbol" not in df_raw.columns:
     df_raw.rename(columns={"ticker": "symbol"}, inplace=True)
 df_kpi_all = pd.merge(df_kpi_all, df_raw[["symbol", "basic_eps", "sector"]], on="symbol", how="left")
@@ -167,9 +165,6 @@ def kpi_chart(df_visible, df_full, metric, title):
     company_colors = {name: color_palette[i % len(color_palette)] for i, name in enumerate(company_names)}
 
     # BAR per le aziende selezionate
-    st.write("📌 KPI richiesto (metric):", metric)
-    st.write("🧠 Colonne disponibili in df_visible:", df_visible.columns.tolist())
-    st.write(f"📊 {metric} – df_visible:", df_visible[["company_name", metric]])
     fig.add_trace(go.Bar(
         x=company_names,
         y=df_visible[metric].round(3),
