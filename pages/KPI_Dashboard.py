@@ -76,15 +76,16 @@ with col4:
 # --- Caricamento dati aziende selezionate ---
 financial_data = []
 for symbol in selected_symbols:
-    data = get_financial_data(symbol, [selected_year])
+    data = get_or_fetch_data(symbol, selected_year)
     financial_data.extend(data)
+
 
 # --- Se settore selezionato, carico anche tutti i dati del settore ---
 sector_data = []
 if selected_sector != "All":
     for company in read_companies(exchanges[selected_exchange]):
         if company["ticker"] not in selected_symbols:
-            data = get_financial_data(company["ticker"], [selected_year])
+            data = get_or_fetch_data(company["ticker"], selected_year)
             sector_data.extend(d for d in data if d.get("sector") == selected_sector)
 
 # --- Se non c'è nulla, stop ---
