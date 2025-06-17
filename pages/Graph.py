@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 from data_utils import read_exchanges, read_companies, get_financial_data, remove_duplicates, compute_kpis, get_all_financial_data
-from cache_db import save_kpis_to_db, load_kpis_from_db
+from cache_db import save_kpis_to_db, load_kpis_for_symbol_year
 import os
 import base64
 import io
@@ -79,7 +79,7 @@ def render_logos():
 # KPI Table e Grafici
 @st.cache_data(show_spinner=False)
 def load_financials():
-    df_kpis = load_kpis_from_db()
+    df_kpi = load_kpis_for_symbol_year(symbol, year)
     if not df_kpis.empty:
         return df_kpis, None
     else:
