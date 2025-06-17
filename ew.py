@@ -146,7 +146,7 @@ financial_data.sort(key=lambda x: (x['symbol'], x['year']))
 if financial_data:
     df = pd.DataFrame(financial_data)
     column_order = [
-    'symbol', 'sector', 'industry', 'description', 'stock_exchange', 'year',
+    'symbol', 'description', 'sector', 'industry', 'stock_exchange', 'year',
     'total_revenue', 'operating_revenue', 'cost_of_revenue', 'gross_profit',
     'operating_expense', 'sg_and_a', 'r_and_d', 'operating_income',
     'net_non_operating_interest_income_expense', 'interest_expense_non_operating',
