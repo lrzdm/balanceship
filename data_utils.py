@@ -320,6 +320,39 @@ def compute_kpis(financial_data):
         return pd.DataFrame()
 
 
+def get_or_fetch_data(symbol, years, description, stock_exchange):
+    final_data = []
+    years_to_fetch = []
+
+    # Step 1 – Prova a caricare i dati esistenti dal DB
+    db_data = load_from_db(symbol, years)
+    years_in_db = {str(item['year']) for item in db_data}
+
+    # Anni mancanti
+    for year in years:
+        if str(year) not in years_in_db:
+            years_to_fetch.append(year)
+
+    final_data.extend(db_data)
+
+    # Step 2 – Scarica solo gli anni mancanti
+    if years_to_fetch:
+        fetched_data = get_financial_data(symbol, years_to_fetch)
+        valid_data = []
+
+        for i, data in enumerate(fetched_data):
+            if isinstance(data, dict) and data:
+                data['description'] = description
+                data['stock_exchange'] = stock_exchange
+                final_data.append(data)
+                valid_data.append(data)
+
+        # Step 3 – Salva i nuovi dati nel DB
+        if valid_data:
+            save_to_db(symbol, years_to_fetch, valid_data)
+
+    return final_data_
+
 
 if __name__ == '__main__':
     main()
