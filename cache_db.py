@@ -95,7 +95,8 @@ def save_to_db(symbol, years, data_list):
 
 
 def load_from_db(symbol, years):
-    with Session(engine) as session:
+    session = Session()
+    try:
         query = session.query(FinancialData).filter(
             FinancialData.symbol == symbol,
             FinancialData.year.in_([int(y) for y in years])
@@ -105,11 +106,17 @@ def load_from_db(symbol, years):
         for row in results:
             try:
                 parsed = json.loads(row.data_json)
-                parsed['year'] = row.year  # Assicura il campo anno
+                parsed['year'] = row.year  # Assicura che l'anno sia presente
                 data.append(parsed)
             except Exception as e:
                 print(f"Errore nel parsing DB per {symbol} {row.year}: {e}")
+                data.append(None)
         return data
+    except Exception as e:
+        print(f"Errore durante il caricamento da DB per {symbol}: {e}")
+        return [None] * len(years)
+    finally:
+        session.close()
 
         
 def save_kpis_to_db(kpi_df):
