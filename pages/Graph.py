@@ -166,7 +166,10 @@ def render_kpis():
     #df_pivot = df_melt.pivot(index='KPI', columns='desc_year', values='Value')
         df_pivot = df_pivot.apply(pd.to_numeric, errors='coerce')
         st.subheader("KPIs List")
-        st.dataframe(df_pivot.style.format("{:.2%}"), height=600)
+        df_pivot_display = df_pivot.copy()
+        df_pivot_display = df_pivot_display.fillna("")
+        st.dataframe(df_pivot_display.style.format("{:.2%}"), height=600)
+
 
     
     # Layout bottoni Reset e Download
