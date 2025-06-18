@@ -176,7 +176,7 @@ def render_kpis():
                       labels={'desc_year': 'Company/Year', 'Value': 'Value', 'year': 'Year'})
         st.plotly_chart(fig, use_container_width=True)
     else:
-        st.info("Seleziona almeno un KPI per il grafico.")
+        st.info("Please select at least one company and one year to view KPIs.")
 
         # Bottoni affiancati
         col_reset, col_download = st.columns([1, 1])
@@ -235,9 +235,6 @@ def render_kpis():
         #     fig = px.line(chart_data, x='Company-Year', y='Value', markers=True, title=f'{kpi} over time')
         #     fig.update_layout(xaxis_tickangle=-45, height=400)
         #     st.plotly_chart(fig, use_container_width=True)
-
-    else:
-        st.info("Please select at least one company and one year to view KPIs.")
 
 
 # Grafici Generali
