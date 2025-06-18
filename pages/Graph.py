@@ -212,19 +212,28 @@ def render_kpis(df_all_kpis):
         with col3:
             size_axis = st.selectbox("Bubble Size", bubble_cols, index=2)
     
-        df_plot = df_filtered.dropna(subset=[x_axis, y_axis, size_axis])
+        df_plot = df_filtered.dropna(subset=[x_axis, y_axis, size_axis]).copy()
+        
+        # Assicurati che i valori size siano >= 0 (o > 0)
+        df_plot[size_axis] = df_plot[size_axis].clip(lower=0)
+        
+        # opzionale: se vuoi evitare bolle di dimensione zero (invisibili), puoi fare così:
+        min_size = 0.1
+        df_plot[size_axis] = df_plot[size_axis].apply(lambda x: max(x, min_size))
+        
         df_plot['label'] = df_plot['description'] + ' ' + df_plot['year'].astype(str)
-    
-        fig = px.scatter(df_plot,
-                            x=x_axis,
-                            y=y_axis,
-                            size=size_axis,
-                            color='description',
-                            hover_name='label',
-                            title="KPI Bubble Chart")
+        
+        fig = px.scatter(
+            df_plot,
+            x=x_axis,
+            y=y_axis,
+            size=size_axis,
+            color='description',
+            hover_name='label',
+            title="KPI Bubble Chart"
+        )
         st.plotly_chart(fig, use_container_width=True)
-    else:
-        st.info("Seleziona almeno 3 KPI per creare il grafico a bolle.")
+
 
 
         ## Uncomment for charts
