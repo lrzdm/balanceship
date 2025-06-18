@@ -170,11 +170,10 @@ def render_kpis(df_all_kpis):
 
     df_pivot = df_pivot.apply(pd.to_numeric, errors='coerce')
     st.subheader("KPIs List")
-    df_clean = df_pivot.replace({np.nan: None})  # per evitare problemi serializzazione
-    st.dataframe(df_clean.style.format("{:.2%}"), height=600)
-
-
-
+    df_clean = df_clean.fillna(np.nan)
+    num_cols = df_clean.select_dtypes(include=['number']).columns
+    styled = df_clean.style.format({col: "{:.2%}" for col in num_cols})
+    st.dataframe(styled, height=600)
     
     # Layout bottoni Reset e Download
     col_reset, col_download = st.columns([1, 1])
