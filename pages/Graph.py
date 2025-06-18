@@ -141,6 +141,15 @@ def render_kpis(df_all_kpis):
         key="year_filter"
     )
 
+    # Controlli max 3 elementi
+    if len(selected_desc) > 3:
+        st.warning("Puoi selezionare al massimo 3 aziende.")
+        st.stop()
+    
+    if len(selected_years) > 3:
+        st.warning("Puoi selezionare al massimo 3 anni.")
+        st.stop()
+        
     st.session_state['selected_desc'] = selected_desc
     st.session_state['selected_years'] = selected_years
 
