@@ -340,10 +340,10 @@ st.sidebar.markdown(f"""
 
 def run():
     render_logos()
-    render_kpis()
     st.markdown("---")
     render_general_graphs()
-    #render_sidebar_footer()
+    df_kpis = load_all_kpis()  # carica i dati da DB
+    render_kpis(df_kpis)       # passa il dataframe a render_kpis
 
 if __name__ == "__main__":
     run()
