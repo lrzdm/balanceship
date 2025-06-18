@@ -84,11 +84,13 @@ def load_financials(symbol, year):
     if not df_kpis.empty:
         return df_kpis, None
     else:
-        df_financials = get_all_financial_data()
+        df_financials = get_financial_data(symbol, year)  # ✅ ottieni solo i dati richiesti!
         df_kpis = compute_kpis(df_financials)
         save_kpis_to_db(df_kpis)
         return df_kpis, df_financials
 
+
+df_all_kpis = load_all_kpis()
 
 def render_kpis():
     st.header("📊 Financial KPI Table")
@@ -108,6 +110,7 @@ def render_kpis():
     descriptions_dict = df_all_kpis.drop_duplicates(subset='symbol').set_index('description')['symbol'].to_dict()
     descriptions_available = sorted(descriptions_dict.keys())
     years_available = sorted(df_all_kpis['year'].astype(str).unique())
+
 
     # Inizializza session state solo se manca
     if 'selected_desc' not in st.session_state:
@@ -153,7 +156,7 @@ def render_kpis():
             (df_kpis['year'].astype(str).isin(selected_years))
         ]
         id_vars = ['symbol', 'description', 'year']
-        value_vars = [col for col in df_filtered.columns if col not in id_vars]
+        value_vars = [col for col in df_filtered.columns if col not in id_vars and df_filtered[col].dtype != 'object']
         df_melt = df_filtered.melt(id_vars=id_vars, value_vars=value_vars, var_name='KPI', value_name='Value')
         df_melt['desc_year'] = df_melt['description'] + ' ' + df_melt['year'].astype(str)
         df_pivot = df_melt.pivot(index='KPI', columns='desc_year', values='Value')
