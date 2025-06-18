@@ -156,20 +156,20 @@ def render_kpis(df_all_kpis):
         (df_kpis['symbol'].isin(selected_symbols)) & 
         (df_kpis['year'].astype(str).isin(selected_years))
     ]
-        id_vars = ['symbol', 'description', 'year']
-        value_vars = [col for col in df_filtered.columns if col not in id_vars and df_filtered[col].dtype != 'object']
-        df_melt = df_filtered.melt(id_vars=id_vars, value_vars=value_vars, var_name='KPI', value_name='Value')
-        df_melt['desc_year'] = df_melt['description'] + ' ' + df_melt['year'].astype(str)
-        df_pivot = df_melt.pivot(index='KPI', columns='desc_year', values='Value')
+    id_vars = ['symbol', 'description', 'year']
+    value_vars = [col for col in df_filtered.columns if col not in id_vars and df_filtered[col].dtype != 'object']
+    df_melt = df_filtered.melt(id_vars=id_vars, value_vars=value_vars, var_name='KPI', value_name='Value')
+    df_melt['desc_year'] = df_melt['description'] + ' ' + df_melt['year'].astype(str)
+    df_pivot = df_melt.pivot(index='KPI', columns='desc_year', values='Value')
 
 
 
     #df_pivot = df_melt.pivot(index='KPI', columns='desc_year', values='Value')
-        df_pivot = df_pivot.apply(pd.to_numeric, errors='coerce')
-        st.subheader("KPIs List")
-        df_clean = df_pivot.copy()
-        df_clean = df_clean.replace({np.nan: None})  # per evitare problemi di serializzazione
-        st.dataframe(df_clean.style.format("{:.2%}"), height=600)
+    df_pivot = df_pivot.apply(pd.to_numeric, errors='coerce')
+    st.subheader("KPIs List")
+    df_clean = df_pivot.copy()
+    df_clean = df_clean.replace({np.nan: None})  # per evitare problemi di serializzazione
+    st.dataframe(df_clean.style.format("{:.2%}"), height=600)
 
 
 
