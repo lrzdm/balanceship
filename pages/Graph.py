@@ -105,9 +105,6 @@ def render_kpis():
     descriptions_dict = df_all_kpis.drop_duplicates(subset='symbol').set_index('description')['symbol'].to_dict()
     descriptions_available = sorted(descriptions_dict.keys())
     years_available = sorted(df_all_kpis['year'].astype(str).unique())
-    except Exception as e:
-        st.error(f"Errore nel caricamento iniziale: {e}")
-        return
 
     # Default selection
     default_desc = ['Apple Inc.'] if 'Apple Inc.' in descriptions_dict else [descriptions_available[0]]
