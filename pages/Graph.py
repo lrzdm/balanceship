@@ -96,12 +96,10 @@ df_all_kpis = load_all_kpis()
 def render_kpis(df_all_kpis):
     st.header("📊 Financial KPI Table")
 
-    symbol = 'AAPL'  # oppure un valore di default o preso da st.session_state
+    symbol = 'AAPL'  
     year = 2023
-    #df_all_kpis = load_all_kpis()
     df_kpis, df_financials = load_financials(symbol, year)
-    
-    # Aggiungi la colonna 'description' se mancante
+
     if 'description' not in df_kpis.columns and not df_financials.empty:
         df_kpis = df_kpis.merge(
             df_financials[['symbol', 'description']].drop_duplicates(),
@@ -113,17 +111,21 @@ def render_kpis(df_all_kpis):
     descriptions_available = sorted(k for k in descriptions_dict.keys() if k is not None)
     years_available = sorted(df_all_kpis['year'].astype(str).unique())
 
-    # Valori default sicuri
-    default_desc = ['Apple Inc.']
-    default_years = ['2023'] if "2023" in years_available else [years_available[-1]]
+    # Imposta default sicuri
+    default_desc = ['Apple Inc.'] if 'Apple Inc.' in descriptions_available else (descriptions_available[:1] if descriptions_available else [])
+    default_years = ['2023'] if "2023" in years_available else ([years_available[-1]] if years_available else [])
 
-    # Inizializza session state solo se manca
-    if 'selected_desc' not in st.session_state:
+    # Pulisci la session_state
+    if 'selected_desc' in st.session_state:
+        st.session_state['selected_desc'] = [x for x in st.session_state['selected_desc'] if x in descriptions_available]
+    else:
         st.session_state['selected_desc'] = default_desc
-    if 'selected_years' not in st.session_state:
+
+    if 'selected_years' in st.session_state:
+        st.session_state['selected_years'] = [y for y in st.session_state['selected_years'] if y in years_available]
+    else:
         st.session_state['selected_years'] = default_years
 
-    # UI filtri (multiselect singoli)
     col1, col2 = st.columns(2)
     selected_desc = col1.multiselect(
         "Select Companies",
@@ -138,28 +140,22 @@ def render_kpis(df_all_kpis):
         key="year_filter"
     )
 
-    # Aggiorna session state con la selezione corrente
     st.session_state['selected_desc'] = selected_desc
     st.session_state['selected_years'] = selected_years
 
-    # Controllo che almeno una selezione sia fatta
     if not selected_desc or not selected_years:
         st.warning("Please select at least one company and one year.")
         st.stop()
 
-    # Mappa descrizioni a simboli
     selected_symbols = [descriptions_dict[d] for d in selected_desc if d in descriptions_dict]
-
     if not selected_symbols:
         st.warning("No symbols found for the selected companies.")
         st.stop()
 
-    # Filtraggio dati con le selezioni attive
-    if selected_symbols and selected_years:
-        df_filtered = df_kpis[
-            (df_kpis['symbol'].isin(selected_symbols)) &
-            (df_kpis['year'].astype(str).isin(selected_years))
-        ]
+    df_filtered = df_kpis[
+        (df_kpis['symbol'].isin(selected_symbols)) & 
+        (df_kpis['year'].astype(str).isin(selected_years))
+    ]
         id_vars = ['symbol', 'description', 'year']
         value_vars = [col for col in df_filtered.columns if col not in id_vars and df_filtered[col].dtype != 'object']
         df_melt = df_filtered.melt(id_vars=id_vars, value_vars=value_vars, var_name='KPI', value_name='Value')
