@@ -90,10 +90,12 @@ def load_financials(symbol, year):
 
 def render_kpis():
     st.header("📊 Financial KPI Table & Charts")
+
+    # Funzione per caricare tutti i KPI
     def load_all_kpis():
-    with engine.connect() as conn:
-        df = pd.read_sql("SELECT * FROM kpis", conn)
-    return df
+        with engine.connect() as conn:
+            df = pd.read_sql("SELECT * FROM kpis", conn)
+        return df
 
     # 🔁 Carica dati da DB
     try:
@@ -105,12 +107,22 @@ def render_kpis():
         st.error(f"Errore nel caricamento iniziale: {e}")
         return
 
-    # 🎛️ UI: multiselect
+    # 🎛️ UI: multiselect con limite massimo
     default_desc = ['Apple Inc.'] if 'Apple Inc.' in descriptions_dict else [descriptions_available[0]]
     default_years = ['2023'] if '2023' in years_available else [years_available[-1]]
 
-    selected_desc = st.multiselect("Select Companies", descriptions_available, default=default_desc)
-    selected_years = st.multiselect("Select Years", years_available, default=default_years)
+    selected_desc = st.multiselect(
+        "Select up to 3 Companies",
+        descriptions_available,
+        default=default_desc,
+        max_selections=3
+    )
+    selected_years = st.multiselect(
+        "Select up to 3 Years",
+        years_available,
+        default=default_years,
+        max_selections=3
+    )
 
     if not selected_desc or not selected_years:
         st.warning("Seleziona almeno una azienda e un anno.")
@@ -140,12 +152,14 @@ def render_kpis():
     else:
         df_financials = pd.DataFrame()
 
+    # 🔄 Merge con descrizioni se mancanti
     if 'description' not in df_kpis.columns and not df_financials.empty:
         df_kpis = df_kpis.merge(
             df_financials[['symbol', 'description']].drop_duplicates(),
             on='symbol',
             how='left'
         )
+
 
     # 🎯 Filtro & trasformazione
     df_filtered = df_kpis[
