@@ -200,7 +200,10 @@ def render_kpis():
     )
 
     df_melt['desc_year'] = df_melt['description'] + ' ' + df_melt['year'].astype(str)
-    df_pivot = df_melt.pivot(index='KPI', columns='desc_year', values='Value')
+    df_melt_unique = df_melt.drop_duplicates(subset=['KPI', 'desc_year'])
+    df_pivot = df_melt_unique.pivot(index='KPI', columns='desc_year', values='value')
+
+    #df_pivot = df_melt.pivot(index='KPI', columns='desc_year', values='Value')
     df_pivot = df_pivot.apply(pd.to_numeric, errors='coerce')
 
     # Layout bottoni Reset e Download
