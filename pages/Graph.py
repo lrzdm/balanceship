@@ -97,6 +97,14 @@ import io
 def render_kpis():
     st.header("📊 Financial KPI Table")
 
+    #df_kpis, df_financials = load_financials()
+    # Aggiungi la colonna 'description' se mancante
+    if 'description' not in df_kpis.columns and not df_financials.empty:
+        df_kpis = df_kpis.merge(
+            df_financials[['symbol', 'description']].drop_duplicates(),
+            on='symbol',
+            how='left'
+        )
     # Caricamento dati iniziali da DB per descrizioni e anni disponibili
     try:
         df_all_kpis = load_all_kpis()
@@ -147,14 +155,6 @@ def render_kpis():
     if not selected_symbols:
         st.warning("No symbols found for the selected companies.")
         st.stop()
-
-    # Aggiungi la colonna 'description' se mancante
-    if 'description' not in df_kpis.columns and not df_financials.empty:
-        df_kpis = df_kpis.merge(
-            df_financials[['symbol', 'description']].drop_duplicates(),
-            on='symbol',
-            how='left'
-        )
 
     # Filtraggio dati con le selezioni attive
     if selected_symbols and selected_years:
