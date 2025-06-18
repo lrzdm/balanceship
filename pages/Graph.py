@@ -144,19 +144,12 @@ def render_kpis():
     descriptions_dict = df_kpis.drop_duplicates(subset='symbol').set_index('description')['symbol'].to_dict()
     descriptions_available = sorted(descriptions_dict.keys())
     years_available = sorted(df_kpis['year'].astype(str).unique())
-    # ✅ Inizializza session state
-
-    # Valori default sicuri
-    default_desc = ['Apple Inc.']
-    default_years = ['2023'] if "2023" in years_available else [years_available[-1]]
 
     # Inizializza lo stato solo se mancante
     if 'selected_desc' not in st.session_state:
         st.session_state['selected_desc'] = default_desc
     if 'selected_years' not in st.session_state:
         st.session_state['selected_years'] = default_years
-
-
 
     # LAYOUT FILTRI
     # 🎛️ FILTRI UI
