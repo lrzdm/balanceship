@@ -92,11 +92,28 @@ def load_financials(symbol, year):
         save_kpis_to_db(df_kpis)
         return df_kpis, df_financials
 
-def render_kpis():
-    st.header("📊 Financial KPI Table & Charts")
+@st.cache_data(show_spinner=False)
+def load_financials(symbol, year):
+    df_kpis = load_kpis_for_symbol_year(symbol, year)
+    if not df_kpis.empty:
+        return df_kpis, None
+    else:
+        df_financials = get_all_financial_data()
+        df_kpis = compute_kpis(df_financials)
+        save_kpis_to_db(df_kpis)
+        return df_kpis, df_financials
 
-    # 🔁 Carica dati da DB
+
+def render_kpis():
+    st.header("📊 Financial KPI Table")
+
+    # 🔁 Carica dati da DB solo se necessario
+    df_kpis_list = []
+    df_financials_list = []
+
+    # Safe fallback se i dati sono già precaricati o vuoti
     try:
+        # Descrizioni e anni disponibili nel DB
         df_all_kpis = load_kpis_for_symbol_year()
         descriptions_dict = df_all_kpis.drop_duplicates(subset='symbol').set_index('description')['symbol'].to_dict()
         descriptions_available = sorted(descriptions_dict.keys())
@@ -105,20 +122,28 @@ def render_kpis():
         st.error(f"Errore nel caricamento iniziale: {e}")
         return
 
-    # 🎛️ UI: multiselect
+    # ✅ Default selezione sicura
     default_desc = ['Apple Inc.'] if 'Apple Inc.' in descriptions_dict else [descriptions_available[0]]
     default_years = ['2023'] if '2023' in years_available else [years_available[-1]]
 
-    selected_desc = st.multiselect("Select Companies", descriptions_available, default=default_desc)
-    selected_years = st.multiselect("Select Years", years_available, default=default_years)
+    # ✅ Inizializza session state
+    if 'selected_desc' not in st.session_state:
+        st.session_state['selected_desc'] = default_desc
+    if 'selected_years' not in st.session_state:
+        st.session_state['selected_years'] = default_years
 
-    if not selected_desc or not selected_years:
-        st.warning("Seleziona almeno una azienda e un anno.")
-        return
+    # 🎛️ FILTRI UI
+    col1, col2 = st.columns(2)
+    selected_desc = col1.multiselect("Select Companies", descriptions_available, default=st.session_state['selected_desc'], key="desc_filter")
+    selected_years = col2.multiselect("Select Years", years_available, default=st.session_state['selected_years'], key="year_filter")
+
+    # Aggiorna stato
+    st.session_state['selected_desc'] = selected_desc
+    st.session_state['selected_years'] = selected_years
 
     selected_symbols = [descriptions_dict[d] for d in selected_desc]
-    df_kpis_list, df_financials_list = [], []
 
+    # 🔄 Carica i dati per ogni combinazione
     for symbol in selected_symbols:
         for year in selected_years:
             try:
@@ -130,34 +155,38 @@ def render_kpis():
             except Exception as e:
                 st.warning(f"Errore caricamento {symbol} {year}: {e}")
 
-    if not df_kpis_list:
-        st.info("Nessun KPI disponibile.")
+    # 📦 Concatena i dati
+    if df_kpis_list:
+        df_kpis = pd.concat(df_kpis_list, ignore_index=True)
+    else:
+        st.info("Nessun KPI disponibile per la selezione.")
         return
 
-    df_kpis = pd.concat(df_kpis_list, ignore_index=True)
     if df_financials_list:
         df_financials = pd.concat(df_financials_list, ignore_index=True)
     else:
         df_financials = pd.DataFrame()
 
+    # 🔗 Join descrizioni se mancanti
     if 'description' not in df_kpis.columns and not df_financials.empty:
         df_kpis = df_kpis.merge(
             df_financials[['symbol', 'description']].drop_duplicates(),
             on='symbol',
             how='left'
         )
-
-    # 🎯 Filtro & trasformazione
-    df_filtered = df_kpis[
-        (df_kpis['symbol'].isin(selected_symbols)) &
-        (df_kpis['year'].astype(str).isin(selected_years))
-    ]
-    id_vars = ['symbol', 'description', 'year']
-    value_vars = [col for col in df_filtered.columns if col not in id_vars]
-    df_melt = df_filtered.melt(id_vars=id_vars, value_vars=value_vars, var_name='KPI', value_name='Value')
-    df_melt['desc_year'] = df_melt['description'] + ' ' + df_melt['year'].astype(str)
-    df_pivot = df_melt.pivot(index='KPI', columns='desc_year', values='Value')
-
+  
+    # Filtraggio
+    if selected_symbols and selected_years:
+        df_filtered = df_kpis[
+            (df_kpis['symbol'].isin(selected_symbols)) &
+            (df_kpis['year'].astype(str).isin(selected_years))
+        ]
+        id_vars = ['symbol', 'description', 'year']
+        value_vars = [col for col in df_filtered.columns if col not in id_vars]
+        df_melt = df_filtered.melt(id_vars=id_vars, value_vars=value_vars, var_name='KPI', value_name='Value')
+        df_melt['desc_year'] = df_melt['description'] + ' ' + df_melt['year'].astype(str)
+        df_pivot = df_melt.pivot(index='KPI', columns='desc_year', values='Value')
+        
     # 📋 Mostra tabella KPI pivot
     df_pivot = df_pivot.apply(pd.to_numeric, errors='coerce')
     st.subheader("📋 KPIs List")
