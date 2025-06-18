@@ -154,14 +154,12 @@ def render_kpis():
     selected_desc = col1.multiselect(
         "Select Companies",
         descriptions_available,
-        default=selected_desc,
-        key="desc_filter"
+        default=selected_desc
     )
     selected_years = col2.multiselect(
         "Select Years",
         years_available,
-        default=selected_years,
-        key="year_filter"
+        default=selected_years
     )
     selected_desc = col1.multiselect("Select Companies", descriptions_available, default=st.session_state['selected_desc'], key="desc_filter")
     selected_years = col2.multiselect("Select Years", years_available, default=st.session_state['selected_years'], key="year_filter")
