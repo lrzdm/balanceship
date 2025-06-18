@@ -287,8 +287,6 @@ def render_kpis():
         #     fig.update_layout(xaxis_tickangle=-45, height=400)
         #     st.plotly_chart(fig, use_container_width=True)
 
-    else:
-        st.info("Please select at least one company and one year to view KPIs.")
 
 
 # Grafici Generali
