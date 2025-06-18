@@ -166,9 +166,10 @@ def render_kpis():
     #df_pivot = df_melt.pivot(index='KPI', columns='desc_year', values='Value')
         df_pivot = df_pivot.apply(pd.to_numeric, errors='coerce')
         st.subheader("KPIs List")
-        df_pivot_display = df_pivot.copy()
-        df_pivot_display = df_pivot_display.fillna("")
-        st.dataframe(df_pivot_display.style.format("{:.2%}"), height=600)
+        df_clean = df_pivot.copy()
+        df_clean = df_clean.replace({np.nan: None})  # per evitare problemi di serializzazione
+        st.dataframe(df_clean.style.format("{:.2%}"), height=600)
+
 
 
     
