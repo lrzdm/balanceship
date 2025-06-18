@@ -130,6 +130,8 @@ def get_financial_data_from_source(symbol, years, description=None, stock_exchan
 
 
 def get_financial_data(symbol, years, force_refresh=False, description=None, stock_exchange=None):
+    if not isinstance(years, (list, tuple)):
+        years = [years]
     # Carica dati cached (None se non disponibili)
     cached_data = load_from_db(symbol, years)
 
