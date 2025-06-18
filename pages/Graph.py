@@ -109,7 +109,7 @@ def render_kpis():
         )
 
     descriptions_dict = df_all_kpis.drop_duplicates(subset='symbol').set_index('description')['symbol'].to_dict()
-    descriptions_available = sorted(descriptions_dict.keys())
+    descriptions_available = sorted(k for k in descriptions_dict.keys() if k is not None)
     years_available = sorted(df_all_kpis['year'].astype(str).unique())
 
     # Valori default sicuri
