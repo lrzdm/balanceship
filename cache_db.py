@@ -6,6 +6,7 @@ import numpy as np
 from sqlalchemy import create_engine, Column, String, Text, Integer
 from sqlalchemy.orm import declarative_base, scoped_session, sessionmaker
 from sqlalchemy.orm import Session
+import math
 
 # Logging
 logging.basicConfig(level=logging.INFO)
@@ -142,10 +143,8 @@ def load_from_db(symbol, years):
         session.close()
 
 
-
-        
 def sanitize_for_json(data):
-    """Elimina valori non validi per JSON (es. NaN, Infinity)."""
+    """Sostituisce NaN, inf, -inf con None ricorsivamente."""
     if isinstance(data, dict):
         return {k: sanitize_for_json(v) for k, v in data.items()}
     elif isinstance(data, list):
@@ -153,7 +152,6 @@ def sanitize_for_json(data):
     elif isinstance(data, float):
         if math.isnan(data) or math.isinf(data):
             return None
-        return data
     return data
 
 
@@ -165,11 +163,13 @@ def save_kpis_to_db(kpi_df):
             year = int(row['year'])
             desc = row.get('description', None)
 
-            # Estrai e pulisci i dati KPI
+            # Converti e pulisci
             data = row.drop(['symbol','year','description'], errors='ignore').to_dict()
-            data = convert_numpy(data)                      # <-- se serve a convertire np types
-            data = sanitize_for_json(data)                  # <-- rimuove NaN/Infinity
-            json_data = json.dumps(data, ensure_ascii=False)
+            data = convert_numpy(data)
+            data = sanitize_for_json(data)
+
+            # ⚠️ Forza errore se NaN / inf non sono rimossi
+            json_data = json.dumps(data, ensure_ascii=False, allow_nan=False)
 
             # Inserisci o aggiorna
             entry = session.query(KPICache).filter_by(symbol=symbol, year=year, description=desc).first()
@@ -190,6 +190,8 @@ def save_kpis_to_db(kpi_df):
         raise
     finally:
         session.close()
+
+
 
 def load_kpis_for_symbol_year(symbol, year, description=None):
     session = Session()
