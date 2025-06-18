@@ -90,10 +90,14 @@ def load_financials(symbol, year):
 
 def render_kpis():
     st.header("📊 Financial KPI Table & Charts")
+    def load_all_kpis():
+    with engine.connect() as conn:
+        df = pd.read_sql("SELECT * FROM kpis", conn)
+    return df
 
     # 🔁 Carica dati da DB
     try:
-        df_all_kpis = load_kpis_for_symbol_year(symbol, year)
+        df_all_kpis = load_all_kpis()
         descriptions_dict = df_all_kpis.drop_duplicates(subset='symbol').set_index('description')['symbol'].to_dict()
         descriptions_available = sorted(descriptions_dict.keys())
         years_available = sorted(df_all_kpis['year'].astype(str).unique())
