@@ -3,7 +3,7 @@ import pandas as pd
 import plotly.express as px
 from data_utils import read_exchanges, read_companies, get_financial_data, remove_duplicates, compute_kpis, get_all_financial_data
 from cache_db import save_kpis_to_db
-from cache_db import load_kpis_for_symbol_year
+from cache_db import load_kpis_for_symbol_year, load_all_kpis
 import os
 import base64
 import io
