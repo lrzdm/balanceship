@@ -112,6 +112,9 @@ def render_kpis():
     descriptions_available = sorted(descriptions_dict.keys())
     years_available = sorted(df_all_kpis['year'].astype(str).unique())
 
+    # Valori default sicuri
+    default_desc = ['Apple Inc.']
+    default_years = ['2023'] if "2023" in years_available else [years_available[-1]]
 
     # Inizializza session state solo se manca
     if 'selected_desc' not in st.session_state:
