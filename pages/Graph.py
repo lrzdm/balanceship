@@ -93,7 +93,10 @@ def load_financials(symbol, year):
 def render_kpis():
     st.header("📊 Financial KPI Table")
 
-    df_kpis, df_financials = load_financials()
+    symbol = 'AAPL'  # oppure un valore di default o preso da st.session_state
+    year = 2023
+    
+    df_kpis, df_financials = load_financials(symbol, year)
     # Aggiungi la colonna 'description' se mancante
     if 'description' not in df_kpis.columns and not df_financials.empty:
         df_kpis = df_kpis.merge(
@@ -105,10 +108,6 @@ def render_kpis():
     descriptions_dict = df_all_kpis.drop_duplicates(subset='symbol').set_index('description')['symbol'].to_dict()
     descriptions_available = sorted(descriptions_dict.keys())
     years_available = sorted(df_all_kpis['year'].astype(str).unique())
-
-    # Default selection
-    default_desc = ['Apple Inc.'] if 'Apple Inc.' in descriptions_dict else [descriptions_available[0]]
-    default_years = ['2023'] if '2023' in years_available else [years_available[-1]]
 
     # Inizializza session state solo se manca
     if 'selected_desc' not in st.session_state:
