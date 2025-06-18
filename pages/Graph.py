@@ -226,31 +226,31 @@ def render_kpis():
     st.dataframe(df_pivot.style.format("{:.2%}"), height=600)
 
 
-# 🔵 Bubble Chart
-st.subheader("🔵 Bubble Chart")
-bubble_cols = [col for col in df_filtered.columns if col not in ['symbol', 'description', 'year', 'exchange']]
-if len(bubble_cols) >= 3:
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        x_axis = st.selectbox("X Axis", bubble_cols)
-    with col2:
-        y_axis = st.selectbox("Y Axis", bubble_cols, index=1)
-    with col3:
-        size_axis = st.selectbox("Bubble Size", bubble_cols, index=2)
-
-    df_plot = df_filtered.dropna(subset=[x_axis, y_axis, size_axis])
-    df_plot['label'] = df_plot['description'] + ' ' + df_plot['year'].astype(str)
-
-    fig = px.scatter(df_plot,
-                        x=x_axis,
-                        y=y_axis,
-                        size=size_axis,
-                        color='description',
-                        hover_name='label',
-                        title="KPI Bubble Chart")
-    st.plotly_chart(fig, use_container_width=True)
-else:
-    st.info("Seleziona almeno 3 KPI per creare il grafico a bolle.")
+    # 🔵 Bubble Chart
+    st.subheader("🔵 Bubble Chart")
+    bubble_cols = [col for col in df_filtered.columns if col not in ['symbol', 'description', 'year', 'exchange']]
+    if len(bubble_cols) >= 3:
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            x_axis = st.selectbox("X Axis", bubble_cols)
+        with col2:
+            y_axis = st.selectbox("Y Axis", bubble_cols, index=1)
+        with col3:
+            size_axis = st.selectbox("Bubble Size", bubble_cols, index=2)
+    
+        df_plot = df_filtered.dropna(subset=[x_axis, y_axis, size_axis])
+        df_plot['label'] = df_plot['description'] + ' ' + df_plot['year'].astype(str)
+    
+        fig = px.scatter(df_plot,
+                            x=x_axis,
+                            y=y_axis,
+                            size=size_axis,
+                            color='description',
+                            hover_name='label',
+                            title="KPI Bubble Chart")
+        st.plotly_chart(fig, use_container_width=True)
+    else:
+        st.info("Seleziona almeno 3 KPI per creare il grafico a bolle.")
 
 
         ## Uncomment for charts
