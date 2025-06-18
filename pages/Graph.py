@@ -90,6 +90,7 @@ def load_financials(symbol, year):
 def render_kpis(df_kpis):
     st.header("📊 Financial KPI Table & Charts")
 
+    st.write(f"Dati KPI caricati: {len(df_kpis)} righe")
     if df_kpis.empty:
         st.warning("Nessun dato KPI disponibile nel database.")
         return
@@ -97,6 +98,9 @@ def render_kpis(df_kpis):
     descriptions_dict = df_kpis.drop_duplicates(subset='symbol').set_index('description')['symbol'].to_dict()
     descriptions_available = sorted(descriptions_dict.keys())
     years_available = sorted(df_kpis['year'].astype(str).unique())
+
+    st.write("Descriptions disponibili:", descriptions_available)
+    st.write("Anni disponibili:", years_available)
 
     default_desc = ['Apple Inc.'] if 'Apple Inc.' in descriptions_dict else [descriptions_available[0]]
     default_years = ['2023'] if '2023' in years_available else [years_available[-1]]
@@ -123,7 +127,7 @@ def render_kpis(df_kpis):
                 st.warning(f"Errore caricamento {symbol} {year}: {e}")
 
     if not df_kpis_list:
-        st.info("Nessun KPI disponibile.")
+        st.info("Nessun KPI disponibile dopo caricamento dettagli.")
         return
 
     df_kpis_concat = pd.concat(df_kpis_list, ignore_index=True)
@@ -132,6 +136,9 @@ def render_kpis(df_kpis):
     else:
         df_financials_concat = pd.DataFrame()
 
+    st.write(f"Totale KPI concatenati: {len(df_kpis_concat)}")
+    st.write(f"Totale financials concatenati: {len(df_financials_concat)}")
+
     if 'description' not in df_kpis_concat.columns and not df_financials_concat.empty:
         df_kpis_concat = df_kpis_concat.merge(
             df_financials_concat[['symbol', 'description']].drop_duplicates(),
@@ -139,21 +146,26 @@ def render_kpis(df_kpis):
             how='left'
         )
 
-    # Filtro & trasformazione per visualizzazione
     df_filtered = df_kpis_concat[
         (df_kpis_concat['symbol'].isin(selected_symbols)) &
         (df_kpis_concat['year'].astype(str).isin(selected_years))
     ]
+
+    st.write(f"df_filtered righe: {len(df_filtered)}")
+    if df_filtered.empty:
+        st.warning("Filtro ha prodotto nessun risultato.")
+        return
+
     id_vars = ['symbol', 'description', 'year']
     value_vars = [col for col in df_filtered.columns if col not in id_vars]
     df_melt = df_filtered.melt(id_vars=id_vars, value_vars=value_vars, var_name='KPI', value_name='Value')
     df_melt['desc_year'] = df_melt['description'] + ' ' + df_melt['year'].astype(str)
     df_pivot = df_melt.pivot(index='KPI', columns='desc_year', values='Value')
-
     df_pivot = df_pivot.apply(pd.to_numeric, errors='coerce')
 
     st.subheader("📋 KPIs List")
-    st.dataframe(df_pivot.style.format("{:.2%}"), height=600, use_container_width=True)
+    st.dataframe(df_pivot, height=600, use_container_width=True)
+
 
 
     # Bottoni Reset e Download
