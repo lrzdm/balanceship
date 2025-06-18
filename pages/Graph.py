@@ -76,25 +76,15 @@ def render_logos():
     <div class='logo-container'>{logo_html}</div>
     """, unsafe_allow_html=True)
 
-
-import streamlit as st
-import pandas as pd
-import plotly.express as px
-
-import streamlit as st
-import pandas as pd
-import plotly.express as px
-import io
-
 @st.cache_data(show_spinner=False)
 def load_financials(symbol, year):
     df_kpis = load_kpis_for_symbol_year(symbol, year)
     if not df_kpis.empty:
         return df_kpis, None
     else:
-        df_financials = get_all_financial_data()
-        df_kpis = compute_kpis(df_financials)
-        save_kpis_to_db(df_kpis)
+        df_financials = get_all_financial_data()  # la tua funzione per dati finanziari raw
+        df_kpis = compute_kpis(df_financials)     # calcola KPI dai financials
+        save_kpis_to_db(df_kpis)                   # salva in DB per future richieste
         return df_kpis, df_financials
 
 def render_kpis(df_kpis):
@@ -104,27 +94,15 @@ def render_kpis(df_kpis):
         st.warning("Nessun dato KPI disponibile nel database.")
         return
 
-    # da qui puoi proseguire con la logica del tuo filtro
     descriptions_dict = df_kpis.drop_duplicates(subset='symbol').set_index('description')['symbol'].to_dict()
     descriptions_available = sorted(descriptions_dict.keys())
     years_available = sorted(df_kpis['year'].astype(str).unique())
-    
-    except Exception as e:
-        st.error(f"Errore nel caricamento iniziale: {e}")
-        return
 
-    # 🎛️ UI: multiselect con gestione session state per reset
     default_desc = ['Apple Inc.'] if 'Apple Inc.' in descriptions_dict else [descriptions_available[0]]
     default_years = ['2023'] if '2023' in years_available else [years_available[-1]]
 
-    # Inizializza session_state per selezioni se non esistono
-    if 'selected_desc' not in st.session_state:
-        st.session_state['selected_desc'] = default_desc
-    if 'selected_years' not in st.session_state:
-        st.session_state['selected_years'] = default_years
-
-    selected_desc = st.multiselect("Select Companies", descriptions_available, default=st.session_state['selected_desc'], key="selected_desc")
-    selected_years = st.multiselect("Select Years", years_available, default=st.session_state['selected_years'], key="selected_years")
+    selected_desc = st.multiselect("Select Companies", descriptions_available, default=default_desc)
+    selected_years = st.multiselect("Select Years", years_available, default=default_years)
 
     if not selected_desc or not selected_years:
         st.warning("Seleziona almeno una azienda e un anno.")
@@ -137,7 +115,7 @@ def render_kpis(df_kpis):
         for year in selected_years:
             try:
                 df_kpi, df_financial = load_financials(symbol, year)
-                if df_kpi is not None:
+                if df_kpi is not None and not df_kpi.empty:
                     df_kpis_list.append(df_kpi)
                 if df_financial is not None:
                     df_financials_list.append(df_financial)
@@ -148,23 +126,23 @@ def render_kpis(df_kpis):
         st.info("Nessun KPI disponibile.")
         return
 
-    df_kpis = pd.concat(df_kpis_list, ignore_index=True)
+    df_kpis_concat = pd.concat(df_kpis_list, ignore_index=True)
     if df_financials_list:
-        df_financials = pd.concat(df_financials_list, ignore_index=True)
+        df_financials_concat = pd.concat(df_financials_list, ignore_index=True)
     else:
-        df_financials = pd.DataFrame()
+        df_financials_concat = pd.DataFrame()
 
-    if 'description' not in df_kpis.columns and not df_financials.empty:
-        df_kpis = df_kpis.merge(
-            df_financials[['symbol', 'description']].drop_duplicates(),
+    if 'description' not in df_kpis_concat.columns and not df_financials_concat.empty:
+        df_kpis_concat = df_kpis_concat.merge(
+            df_financials_concat[['symbol', 'description']].drop_duplicates(),
             on='symbol',
             how='left'
         )
 
-    # 🎯 Filtro & trasformazione
-    df_filtered = df_kpis[
-        (df_kpis['symbol'].isin(selected_symbols)) &
-        (df_kpis['year'].astype(str).isin(selected_years))
+    # Filtro & trasformazione per visualizzazione
+    df_filtered = df_kpis_concat[
+        (df_kpis_concat['symbol'].isin(selected_symbols)) &
+        (df_kpis_concat['year'].astype(str).isin(selected_years))
     ]
     id_vars = ['symbol', 'description', 'year']
     value_vars = [col for col in df_filtered.columns if col not in id_vars]
@@ -172,35 +150,26 @@ def render_kpis(df_kpis):
     df_melt['desc_year'] = df_melt['description'] + ' ' + df_melt['year'].astype(str)
     df_pivot = df_melt.pivot(index='KPI', columns='desc_year', values='Value')
 
-    # 📋 Mostra tabella KPI pivot
     df_pivot = df_pivot.apply(pd.to_numeric, errors='coerce')
+
     st.subheader("📋 KPIs List")
     st.dataframe(df_pivot.style.format("{:.2%}"), height=600, use_container_width=True)
 
-    # 📈 Seleziona KPI da visualizzare
     st.subheader("📈 KPI Chart")
     kpi_options = df_pivot.index.tolist()
     selected_kpis = st.multiselect("Select KPIs to visualize", kpi_options, default=kpi_options[:3])
 
     if selected_kpis:
         df_chart = df_melt[df_melt['KPI'].isin(selected_kpis)].dropna(subset=['Value'])
-        fig = px.line(
-            df_chart,
-            x='year',
-            y='Value',
-            color='desc_year',
-            facet_row='KPI',
-            markers=True,
-            height=300 * len(selected_kpis),
-            labels={'desc_year': 'Company/Year', 'Value': 'Value', 'year': 'Year'}
-        )
+        fig = px.line(df_chart, x='year', y='Value', color='desc_year', facet_row='KPI',
+                      markers=True, height=300 * len(selected_kpis),
+                      labels={'desc_year': 'Company/Year', 'Value': 'Value', 'year': 'Year'})
         st.plotly_chart(fig, use_container_width=True)
     else:
-        st.info("Seleziona almeno un KPI per visualizzare i grafici.")
+        st.info("Seleziona almeno un KPI per visualizzare il grafico.")
 
-    # Bottoni Reset e Download affiancati
+    # Bottoni Reset e Download
     col_reset, col_download = st.columns([1, 1])
-
     with col_reset:
         if st.button("Reset Filters"):
             st.session_state['selected_desc'] = default_desc
