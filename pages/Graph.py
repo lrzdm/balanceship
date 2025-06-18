@@ -101,12 +101,10 @@ def render_kpis():
             on='symbol',
             how='left'
         )
-    # Caricamento dati iniziali da DB per descrizioni e anni disponibili
-    try:
-        df_all_kpis = load_all_kpis()
-        descriptions_dict = df_all_kpis.drop_duplicates(subset='symbol').set_index('description')['symbol'].to_dict()
-        descriptions_available = sorted(descriptions_dict.keys())
-        years_available = sorted(df_all_kpis['year'].astype(str).unique())
+
+    descriptions_dict = df_all_kpis.drop_duplicates(subset='symbol').set_index('description')['symbol'].to_dict()
+    descriptions_available = sorted(descriptions_dict.keys())
+    years_available = sorted(df_all_kpis['year'].astype(str).unique())
     except Exception as e:
         st.error(f"Errore nel caricamento iniziale: {e}")
         return
