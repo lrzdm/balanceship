@@ -167,8 +167,9 @@ def render_kpis():
 
     # Aggiorna sessione
     # Aggiorna stato
-    st.session_state['selected_desc'] = selected_desc
-    st.session_state['selected_years'] = selected_years
+    selected_desc = st.session_state.desc_filter
+    selected_years = st.session_state.year_filter
+
 
     if not selected_desc or not selected_years:
         st.warning("Please select at least one company and one year.")
