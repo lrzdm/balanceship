@@ -225,7 +225,14 @@ def load_all_kpis():
             return pd.DataFrame()
         rows = []
         for entry in entries:
-            data = json.loads(entry.kpi_json)
+            try:
+                if isinstance(entry.kpi_json, dict):
+                    data = entry.kpi_json
+                else:
+                    data = json.loads(entry.kpi_json)
+            except Exception as e:
+                logger.error(f"Errore parsing JSON per {entry.symbol} {entry.year}: {e}")
+                continue
             data.update({'symbol': entry.symbol, 'year': entry.year, 'description': entry.description})
             rows.append(data)
         return pd.DataFrame(rows)
@@ -234,3 +241,4 @@ def load_all_kpis():
         return pd.DataFrame()
     finally:
         session.close()
+
