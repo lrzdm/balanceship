@@ -178,28 +178,30 @@ def render_kpis():
     # Ricarica i dati finali in base ai filtri aggiornati
     df_kpis, df_financials = load_financials(selected_symbols[0], selected_years[0])
     # 🔄 Carica i dati per ogni combinazione
+    # 🔄 Carica i dati per ogni combinazione
     for symbol in selected_symbols:
         for year in selected_years:
             try:
                 df_kpi, df_financial = load_financials(symbol, year)
-                if df_kpi is not None:
+                if isinstance(df_kpi, pd.DataFrame):
                     df_kpis_list.append(df_kpi)
-                if df_financial is not None:
+                if isinstance(df_financial, pd.DataFrame):
                     df_financials_list.append(df_financial)
             except Exception as e:
                 st.warning(f"Errore caricamento {symbol} {year}: {e}")
-
+    
     # 📦 Concatena i dati
     if df_kpis_list:
         df_kpis = pd.concat(df_kpis_list, ignore_index=True)
     else:
         st.info("Nessun KPI disponibile per la selezione.")
         return
-
+    
     if df_financials_list:
         df_financials = pd.concat(df_financials_list, ignore_index=True)
     else:
         df_financials = pd.DataFrame()
+
 
     # 🔗 Join descrizioni se mancanti
     if 'description' not in df_kpis.columns and not df_financials.empty:
