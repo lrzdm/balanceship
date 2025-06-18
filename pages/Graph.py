@@ -93,7 +93,7 @@ def load_financials(symbol, year):
 
 df_all_kpis = load_all_kpis()
 
-def render_kpis():
+def render_kpis(df_all_kpis):
     st.header("📊 Financial KPI Table")
 
     symbol = 'AAPL'  # oppure un valore di default o preso da st.session_state
