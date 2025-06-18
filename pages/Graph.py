@@ -93,6 +93,8 @@ def load_financials(symbol, year):
 def render_kpis():
     st.header("📊 Financial KPI Table")
 
+    # Carica KPI
+    df_kpis, df_financials = load_financials(selected_symbols[0], selected_years[0])
     # Caricamento provvisorio: fallback in caso di errore (inizializzazione)
     default_desc = ['Apple Inc.']
     default_years = ['2023']
@@ -110,20 +112,11 @@ def render_kpis():
     # Prima conversione simboli
     # fallback provvisorio, lo correggeremo appena abbiamo il dict
     selected_symbols = []
-    # 🔁 Carica dati da DB solo se necessario
-    df_kpis_list = []
-    df_financials_list = []
 
-    # Safe fallback se i dati sono già precaricati o vuoti
     try:
         # Fallback provvisorio (uso Apple come default)
         selected_symbols = ['AAPL'] if selected_desc == ['Apple Inc.'] else []
         df_kpis, df_financials = load_financials(selected_symbols[0], selected_years[0])
-        # Descrizioni e anni disponibili nel DB
-        df_all_kpis = load_all_kpis()
-        descriptions_dict = df_all_kpis.drop_duplicates(subset='symbol').set_index('description')['symbol'].to_dict()
-        descriptions_available = sorted(descriptions_dict.keys())
-        years_available = sorted(df_all_kpis['year'].astype(str).unique())
     except Exception as e:
         st.error(f"Errore nel caricamento iniziale: {e}")
         return
@@ -135,39 +128,42 @@ def render_kpis():
             on='symbol',
             how='left'
         )
-    # ✅ Default selezione sicura
-    default_desc = ['Apple Inc.'] if 'Apple Inc.' in descriptions_dict else [descriptions_available[0]]
-    default_years = ['2023'] if '2023' in years_available else [years_available[-1]]
 
     descriptions_dict = df_kpis.drop_duplicates(subset='symbol').set_index('description')['symbol'].to_dict()
     descriptions_available = sorted(descriptions_dict.keys())
     years_available = sorted(df_kpis['year'].astype(str).unique())
-    # ✅ Inizializza session state
+
+    # Valori default sicuri
+    default_desc = ['Apple Inc.']
+    default_years = ['2023'] if "2023" in years_available else [years_available[-1]]
+
+    # Inizializza lo stato solo se mancante
     if 'selected_desc' not in st.session_state:
         st.session_state['selected_desc'] = default_desc
     if 'selected_years' not in st.session_state:
         st.session_state['selected_years'] = default_years
 
+
+
     # LAYOUT FILTRI
-    # 🎛️ FILTRI UI
     col1, col2 = st.columns(2)
     selected_desc = col1.multiselect(
         "Select Companies",
         descriptions_available,
+        default=st.session_state['selected_desc'],
         default=selected_desc,
         key="desc_filter"
     )
     selected_years = col2.multiselect(
         "Select Years",
         years_available,
+        default=st.session_state['selected_years'],
         default=selected_years,
         key="year_filter"
     )
-    selected_desc = col1.multiselect("Select Companies", descriptions_available, default=st.session_state['selected_desc'], key="desc_filter")
-    selected_years = col2.multiselect("Select Years", years_available, default=st.session_state['selected_years'], key="year_filter")
 
-    # Aggiorna sessione
     # Aggiorna stato
+    # Aggiorna sessione
     st.session_state['selected_desc'] = selected_desc
     st.session_state['selected_years'] = selected_years
 
@@ -179,41 +175,7 @@ def render_kpis():
 
     # Ricarica i dati finali in base ai filtri aggiornati
     df_kpis, df_financials = load_financials(selected_symbols[0], selected_years[0])
-    # 🔄 Carica i dati per ogni combinazione
-    for symbol in selected_symbols:
-        for year in selected_years:
-            try:
-                df_kpi, df_financial = load_financials(symbol, year)
-                if df_kpi is not None:
-                    df_kpis_list.append(df_kpi)
-                if df_financial is not None:
-                    df_financials_list.append(df_financial)
-            except Exception as e:
-                st.warning(f"Errore caricamento {symbol} {year}: {e}")
-
-    # 📦 Concatena i dati
-    if df_kpis_list:
-        df_kpis = pd.concat(df_kpis_list, ignore_index=True)
-    else:
-        st.info("Nessun KPI disponibile per la selezione.")
-        return
-
-    if df_financials_list:
-        df_financials = pd.concat(df_financials_list, ignore_index=True)
-    else:
-        df_financials = pd.DataFrame()
-
-    # 🔗 Join descrizioni se mancanti
-    if 'description' not in df_kpis.columns and not df_financials.empty:
-        df_kpis = df_kpis.merge(
-            df_financials[['symbol', 'description']].drop_duplicates(),
-            on='symbol',
-            how='left'
-        )
-
-    # ✅ Mostra KPI Table
-    #st.dataframe(df_kpis)
-
+  
     # Filtraggio
     if selected_symbols and selected_years:
         df_filtered = df_kpis[
