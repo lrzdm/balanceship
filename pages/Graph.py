@@ -90,14 +90,10 @@ def load_financials(symbol, year):
         return df_kpis, df_financials
 
 
-import streamlit as st
-import pandas as pd
-import io
-
 def render_kpis():
     st.header("📊 Financial KPI Table")
 
-    #df_kpis, df_financials = load_financials()
+    df_kpis, df_financials = load_financials()
     # Aggiungi la colonna 'description' se mancante
     if 'description' not in df_kpis.columns and not df_financials.empty:
         df_kpis = df_kpis.merge(
