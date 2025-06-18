@@ -3,6 +3,7 @@ import pandas as pd
 import plotly.express as px
 from data_utils import read_exchanges, read_companies, get_financial_data, remove_duplicates, compute_kpis, get_all_financial_data
 from cache_db import save_kpis_to_db
+from cache_db import engine, Session, KPICache
 from cache_db import load_kpis_for_symbol_year
 import os
 import base64
@@ -95,7 +96,9 @@ def render_kpis():
     # Carica tutte le righe KPI da DB (usando la Session SQLAlchemy)
     # Qui devi implementare una funzione che ritorna un DataFrame con tutti i KPI disponibili (symbol, year, description)
     def load_all_kpis():
-        session = Session()
+        with engine.connect() as conn:
+            df = pd.read_sql("SELECT * FROM kpi_cache", conn)
+        return df
         try:
             # Qui devi sostituire con la tua query per estrarre tutti i KPI (symbol, year, description)
             entries = session.query(KPICache).all()
