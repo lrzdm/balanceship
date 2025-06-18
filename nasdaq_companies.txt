@@ -9,3 +9,87 @@ META,Meta Platforms, Inc.
 NVDA,NVIDIA Corporation
 PYPL,PayPal Holdings, Inc.
 INTC,Intel Corporation
+CMCSA,Comcast Corporation
+PEP,PepsiCo, Inc.
+ADBE,Adobe Inc.
+CSCO,Cisco Systems, Inc.
+NFLX,Netflix, Inc.
+AVGO,Broadcom Inc.
+COST,Costco Wholesale Corp.
+AMGN,Amgen Inc.
+CHTR,Charter Communications
+TXN,Texas Instruments Inc.
+QCOM,QUALCOMM Incorporated
+HON,Honeywell International
+AMD,Advanced Micro Devices
+SBUX,Starbucks Corporation
+ISRG,Intuitive Surgical, Inc.
+MDLZ,Mondelez International
+INTU,Intuit Inc.
+AMAT,Applied Materials, Inc.
+MU,Micron Technology, Inc.
+BKNG,Booking Holdings Inc.
+ADP,Automatic Data Processing
+GILD,Gilead Sciences, Inc.
+ADI,Analog Devices, Inc.
+LRCX,Lam Research Corporation
+CSX,CSX Corporation
+MRVL,Marvell Technology, Inc.
+ILMN,Illumina, Inc.
+ORLY,O'Reilly Automotive, Inc.
+KLAC,KLA Corporation
+NXPI,NXP Semiconductors N.V.
+WBA,Walgreens Boots Alliance
+MAR,Marriott International
+EXC,Exelon Corporation
+MNST,Monster Beverage Corp.
+EA,Electronic Arts Inc.
+BIDU,Baidu, Inc.
+SIRI,Sirius XM Holdings Inc.
+VRTX,Vertex Pharmaceuticals
+PCAR,PACCAR Inc
+ALGN,Align Technology, Inc.
+XEL,Xcel Energy Inc.
+MCHP,Microchip Technology Inc.
+CDNS,Cadence Design Systems
+ADNT,Adient plc
+WDAY,Workday, Inc.
+SNPS,Synopsys, Inc.
+PAYX,Paychex, Inc.
+CTAS,Cintas Corporation
+PDD,Pinduoduo Inc.
+NTES,NetEase, Inc.
+MELI,MercadoLibre, Inc.
+ASML,ASML Holding N.V.
+TEAM,Atlassian Corporation Plc
+OKTA,Okta, Inc.
+ZM,Zoom Video Communications
+DOCU,DocuSign, Inc.
+CRWD,CrowdStrike Holdings
+UBER,Uber Technologies, Inc.
+LYFT,Lyft, Inc.
+ZS,Zscaler, Inc.
+DDOG,Datadog, Inc.
+FSLY,Fastly, Inc.
+NET,Cloudflare, Inc.
+PTON,Peloton Interactive, Inc.
+ROKU,Roku, Inc.
+SPOT,Spotify Technology S.A.
+ETSY,Etsy, Inc.
+SHOP,Shopify Inc.
+TWLO,Twilio Inc.
+ZM,Zoom Video Communications
+DOCU,DocuSign, Inc.
+CRWD,CrowdStrike Holdings
+UBER,Uber Technologies, Inc.
+LYFT,Lyft, Inc.
+ZS,Zscaler, Inc.
+DDOG,Datadog, Inc.
+FSLY,Fastly, Inc.
+NET,Cloudflare, Inc.
+PTON,Peloton Interactive, Inc.
+ROKU,Roku, Inc.
+SPOT,Spotify Technology S.A.
+ETSY,Etsy, Inc.
+SHOP,Shopify Inc.
+TWLO,Twilio Inc.
