@@ -289,7 +289,7 @@ def compute_kpis(financial_data):
         df['ROE'] = df['Net Income'] / df['Stockholders Equity']
         df['ROIC'] = df['EBIT'] / df['Invested Capital']
         df['Debt/Equity'] = df['Total Debt'] / df['Stockholders Equity']
-        df['Interest Coverage'] = df['EBIT'] / df['Interest Expense']
+        #df['Interest Coverage'] = df['EBIT'] / df['Interest Expense']
         df['Tax Rate'] = df['Tax Provision'] / df['Pretax Income']
         df['SG&A/Revenue'] = df['SG&A'] / df['Total Revenue']
         df['R&D/Revenue'] = df['R&D'] / df['Total Revenue']
@@ -307,7 +307,7 @@ def compute_kpis(financial_data):
 
         # Restituisco solo le colonne richieste, se esistono
         kpi_cols = ['symbol', 'year', 'description', 'Gross Margin', 'Operating Margin', 'Net Margin', 'EBITDA Margin',
-                    'ROA', 'ROE', 'ROIC', 'Debt/Equity', 'Interest Coverage', 'Tax Rate',
+                    'ROA', 'ROE', 'ROIC', 'Debt/Equity', 'Tax Rate',
                     'SG&A/Revenue', 'R&D/Revenue', 'FCF Margin', 'Working Capital/Revenue', 'Asset Turnover', 'Equity Ratio']
 
         # Per sicurezza, filtriamo solo colonne esistenti
