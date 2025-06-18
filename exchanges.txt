@@ -1,2 +1,1 @@
 NASDAQ,nasdaq_companies.txt
-Nikkei 225,japan_companies.txt
