@@ -171,31 +171,32 @@ def render_kpis():
 
     if selected_kpis:
         df_chart = df_melt[df_melt['KPI'].isin(selected_kpis)].dropna(subset=['Value'])
-        fig = px.line(df_chart, x='year', y='Value', color='desc_year', facet_row='KPI',
-                      markers=True, height=300 * len(selected_kpis),
-                      labels={'desc_year': 'Company/Year', 'Value': 'Value', 'year': 'Year'})
+        fig = px.line(
+            df_chart,
+            x='year', y='Value', color='desc_year',
+            line_group='description',
+            facet_col='KPI', facet_col_wrap=2,
+            markers=True, height=400 * ((len(selected_kpis)+1)//2),
+            labels={'desc_year': 'Company/Year', 'Value': 'Value', 'year': 'Year'}
+        )
         st.plotly_chart(fig, use_container_width=True)
     else:
         st.info("Seleziona almeno un KPI per il grafico.")
 
-        # Bottoni affiancati
-        col_reset, col_download = st.columns([1, 1])
-        with col_reset:
-            if st.button("Reset Filters"):
-                st.session_state['selected_desc'] = default_desc
-                st.session_state['selected_years'] = default_years
-                st.rerun()
+ # Bottoni affiancati
+    col_reset, col_download = st.columns([1, 1])
+    with col_reset:
+        if st.button("Reset Filters"):
+            st.session_state['selected_desc'] = default_desc
+            st.session_state['selected_years'] = default_years
+            st.rerun()
 
-        with col_download:
-            buffer = io.BytesIO()
-            with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
-                df_filtered.to_excel(writer, index=False, sheet_name='KPI')
-            st.download_button(
-                label="Scarica Excel",
-                data=buffer.getvalue(),
-                file_name="kpi_filtered.xlsx",
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            )
+    with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+        df_filtered.to_excel(writer, index=False, sheet_name='KPI')
+        workbook  = writer.book
+        worksheet = writer.sheets['KPI']
+        format1 = workbook.add_format({'num_format': '#,##0.00'})
+        worksheet.set_column('A:Z', 18, format1)
 
 
 
