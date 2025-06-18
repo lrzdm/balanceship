@@ -184,28 +184,25 @@ def render_kpis():
         )
 
     # Filtraggio dati con le selezioni attive
-    df_filtered = df_kpis[
-        (df_kpis['symbol'].isin(selected_symbols)) &
-        (df_kpis['year'].astype(str).isin(selected_years))
-    ]
+    if selected_symbols and selected_years:
+        df_filtered = df_kpis[
+            (df_kpis['symbol'].isin(selected_symbols)) &
+            (df_kpis['year'].astype(str).isin(selected_years))
+        ]
+        id_vars = ['symbol', 'description', 'year']
+        value_vars = [col for col in df_filtered.columns if col not in id_vars]
+        df_melt = df_filtered.melt(id_vars=id_vars, value_vars=value_vars, var_name='KPI', value_name='Value')
+        df_melt['desc_year'] = df_melt['description'] + ' ' + df_melt['year'].astype(str)
+        df_pivot = df_melt.pivot(index='KPI', columns='desc_year', values='Value')
 
-    id_vars = ['symbol', 'description', 'year']
-    value_vars = [col for col in df_filtered.columns if col not in id_vars]
 
-    df_melt = df_filtered.melt(
-        id_vars=id_vars,
-        value_vars=value_vars,
-        var_name='KPI',
-        value_name='Value'
-    )
-
-    df_melt['desc_year'] = df_melt['description'] + ' ' + df_melt['year'].astype(str)
-    df_melt_unique = df_melt.drop_duplicates(subset=['KPI', 'desc_year'])
-    df_pivot = df_melt_unique.pivot(index='KPI', columns='desc_year', values='Value')
 
     #df_pivot = df_melt.pivot(index='KPI', columns='desc_year', values='Value')
-    df_pivot = df_pivot.apply(pd.to_numeric, errors='coerce')
+        df_pivot = df_pivot.apply(pd.to_numeric, errors='coerce')
+        st.subheader("KPIs List")
+        st.dataframe(df_pivot.style.format("{:.2%}"), height=600)
 
+    
     # Layout bottoni Reset e Download
     col_reset, col_download = st.columns([1, 1])
     with col_reset:
@@ -225,8 +222,7 @@ def render_kpis():
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
 
-    st.subheader("KPIs List")
-    st.dataframe(df_pivot.style.format("{:.2%}"), height=600)
+
 
 
     # 🔵 Bubble Chart
