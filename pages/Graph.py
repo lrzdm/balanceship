@@ -98,7 +98,7 @@ def render_kpis():
 
     symbol = 'AAPL'  # oppure un valore di default o preso da st.session_state
     year = 2023
-    
+    df_all_kpis = load_all_kpis()
     df_kpis, df_financials = load_financials(symbol, year)
     # Aggiungi la colonna 'description' se mancante
     if 'description' not in df_kpis.columns and not df_financials.empty:
