@@ -55,22 +55,39 @@ def create_tables():
         Base.metadata.create_all(engine)
         logger.info("✅ Tabelle create o già esistenti.")
 
+#def convert_numpy(obj):
+#    if isinstance(obj, dict):
+#        return {k: convert_numpy(v) for k, v in obj.items()}
+#    elif isinstance(obj, list):
+#        return [convert_numpy(v) for v in obj]
+#    elif isinstance(obj, (np.floating, float)):
+#        if np.isnan(obj) or obj != obj:
+#            return None
+#        return float(obj)
+#    elif isinstance(obj, (np.integer, int)):
+#        return int(obj)
+#    elif obj is None:
+#        return None
+#    else:
+#        return obj
+
 def convert_numpy(obj):
     if isinstance(obj, dict):
         return {k: convert_numpy(v) for k, v in obj.items()}
     elif isinstance(obj, list):
         return [convert_numpy(v) for v in obj]
     elif isinstance(obj, (np.floating, float)):
-        if np.isnan(obj) or obj != obj:
+        if np.isnan(obj) or np.isinf(obj):
             return None
         return float(obj)
     elif isinstance(obj, (np.integer, int)):
         return int(obj)
+    elif isinstance(obj, (np.bool_, bool)):
+        return bool(obj)
     elif obj is None:
         return None
     else:
         return obj
-
 
 def save_to_db(symbol, years, data_list):
     #print(f"DEBUG: save_to_db chiamata per {symbol} anni {years}")
@@ -143,18 +160,6 @@ def load_from_db(symbol, years):
         session.close()
 
 
-def sanitize_for_json(data):
-    """Sostituisce NaN, inf, -inf con None ricorsivamente."""
-    if isinstance(data, dict):
-        return {k: sanitize_for_json(v) for k, v in data.items()}
-    elif isinstance(data, list):
-        return [sanitize_for_json(v) for v in data]
-    elif isinstance(data, float):
-        if math.isnan(data) or math.isinf(data):
-            return None
-    return data
-
-
 def save_kpis_to_db(kpi_df):
     session = Session()
     try:
@@ -166,7 +171,7 @@ def save_kpis_to_db(kpi_df):
             # Converti e pulisci
             data = row.drop(['symbol','year','description'], errors='ignore').to_dict()
             data = convert_numpy(data)
-            data = sanitize_for_json(data)
+            json_data = json.dumps(data, ensure_ascii=False, allow_nan=False)
 
             # ⚠️ Forza errore se NaN / inf non sono rimossi
             json_data = json.dumps(data, ensure_ascii=False, allow_nan=False)
