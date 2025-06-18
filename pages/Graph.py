@@ -81,6 +81,11 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
+import streamlit as st
+import pandas as pd
+import plotly.express as px
+import io
+
 @st.cache_data(show_spinner=False)
 def load_financials(symbol, year):
     df_kpis = load_kpis_for_symbol_year(symbol, year)
@@ -105,12 +110,18 @@ def render_kpis():
         st.error(f"Errore nel caricamento iniziale: {e}")
         return
 
-    # 🎛️ UI: multiselect
+    # 🎛️ UI: multiselect con gestione session state per reset
     default_desc = ['Apple Inc.'] if 'Apple Inc.' in descriptions_dict else [descriptions_available[0]]
     default_years = ['2023'] if '2023' in years_available else [years_available[-1]]
 
-    selected_desc = st.multiselect("Select Companies", descriptions_available, default=default_desc)
-    selected_years = st.multiselect("Select Years", years_available, default=default_years)
+    # Inizializza session_state per selezioni se non esistono
+    if 'selected_desc' not in st.session_state:
+        st.session_state['selected_desc'] = default_desc
+    if 'selected_years' not in st.session_state:
+        st.session_state['selected_years'] = default_years
+
+    selected_desc = st.multiselect("Select Companies", descriptions_available, default=st.session_state['selected_desc'], key="selected_desc")
+    selected_years = st.multiselect("Select Years", years_available, default=st.session_state['selected_years'], key="selected_years")
 
     if not selected_desc or not selected_years:
         st.warning("Seleziona almeno una azienda e un anno.")
@@ -163,7 +174,6 @@ def render_kpis():
     st.subheader("📋 KPIs List")
     st.dataframe(df_pivot.style.format("{:.2%}"), height=600, use_container_width=True)
 
-
     # 📈 Seleziona KPI da visualizzare
     st.subheader("📈 KPI Chart")
     kpi_options = df_pivot.index.tolist()
@@ -171,31 +181,39 @@ def render_kpis():
 
     if selected_kpis:
         df_chart = df_melt[df_melt['KPI'].isin(selected_kpis)].dropna(subset=['Value'])
-        fig = px.line(df_chart, x='year', y='Value', color='desc_year', facet_row='KPI',
-                      markers=True, height=300 * len(selected_kpis),
-                      labels={'desc_year': 'Company/Year', 'Value': 'Value', 'year': 'Year'})
+        fig = px.line(
+            df_chart,
+            x='year',
+            y='Value',
+            color='desc_year',
+            facet_row='KPI',
+            markers=True,
+            height=300 * len(selected_kpis),
+            labels={'desc_year': 'Company/Year', 'Value': 'Value', 'year': 'Year'}
+        )
         st.plotly_chart(fig, use_container_width=True)
     else:
-        st.info("Please select at least one company and one year to view KPIs.")
+        st.info("Seleziona almeno un KPI per visualizzare i grafici.")
 
-        # Bottoni affiancati
-        col_reset, col_download = st.columns([1, 1])
-        with col_reset:
-            if st.button("Reset Filters"):
-                st.session_state['selected_desc'] = default_desc
-                st.session_state['selected_years'] = default_years
-                st.rerun()
+    # Bottoni Reset e Download affiancati
+    col_reset, col_download = st.columns([1, 1])
 
-        with col_download:
-            buffer = io.BytesIO()
-            with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
-                df_filtered.to_excel(writer, index=False, sheet_name='KPI')
-            st.download_button(
-                label="Scarica Excel",
-                data=buffer.getvalue(),
-                file_name="kpi_filtered.xlsx",
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            )
+    with col_reset:
+        if st.button("Reset Filters"):
+            st.session_state['selected_desc'] = default_desc
+            st.session_state['selected_years'] = default_years
+            st.experimental_rerun()
+
+    with col_download:
+        buffer = io.BytesIO()
+        with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+            df_filtered.to_excel(writer, index=False, sheet_name='KPI')
+        st.download_button(
+            label="Scarica Excel",
+            data=buffer.getvalue(),
+            file_name="kpi_filtered.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
 
 
 
