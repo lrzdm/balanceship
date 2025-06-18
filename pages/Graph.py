@@ -97,7 +97,7 @@ def render_kpis():
 
     # 🔁 Carica dati da DB
     try:
-        df_all_kpis = load_kpis_for_symbol_year()
+        df_all_kpis = df_kpis
         descriptions_dict = df_all_kpis.drop_duplicates(subset='symbol').set_index('description')['symbol'].to_dict()
         descriptions_available = sorted(descriptions_dict.keys())
         years_available = sorted(df_all_kpis['year'].astype(str).unique())
