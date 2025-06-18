@@ -216,3 +216,21 @@ def load_kpis_for_symbol_year(symbol, year, description=None):
         return pd.DataFrame()
     finally:
         session.close()
+
+def load_all_kpis():
+    session = Session()
+    try:
+        entries = session.query(KPICache).all()
+        if not entries:
+            return pd.DataFrame()
+        rows = []
+        for entry in entries:
+            data = json.loads(entry.kpi_json)
+            data.update({'symbol': entry.symbol, 'year': entry.year, 'description': entry.description})
+            rows.append(data)
+        return pd.DataFrame(rows)
+    except Exception as e:
+        logger.error(f"Errore caricamento tutti i KPI: {e}")
+        return pd.DataFrame()
+    finally:
+        session.close()
