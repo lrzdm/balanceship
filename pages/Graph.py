@@ -155,18 +155,6 @@ def render_kpis(df_kpis):
     st.subheader("📋 KPIs List")
     st.dataframe(df_pivot.style.format("{:.2%}"), height=600, use_container_width=True)
 
-    st.subheader("📈 KPI Chart")
-    kpi_options = df_pivot.index.tolist()
-    selected_kpis = st.multiselect("Select KPIs to visualize", kpi_options, default=kpi_options[:3])
-
-    if selected_kpis:
-        df_chart = df_melt[df_melt['KPI'].isin(selected_kpis)].dropna(subset=['Value'])
-        fig = px.line(df_chart, x='year', y='Value', color='desc_year', facet_row='KPI',
-                      markers=True, height=300 * len(selected_kpis),
-                      labels={'desc_year': 'Company/Year', 'Value': 'Value', 'year': 'Year'})
-        st.plotly_chart(fig, use_container_width=True)
-    else:
-        st.info("Seleziona almeno un KPI per visualizzare il grafico.")
 
     # Bottoni Reset e Download
     col_reset, col_download = st.columns([1, 1])
