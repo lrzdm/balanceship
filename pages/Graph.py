@@ -88,14 +88,27 @@ def load_financials(symbol, year):
         save_kpis_to_db(df_kpis)
         return df_kpis, df_financials
 
+
 def render_kpis():
     st.header("📊 Financial KPI Table & Charts")
 
-    # Funzione per caricare tutti i KPI
+    # Carica tutte le righe KPI da DB (usando la Session SQLAlchemy)
+    # Qui devi implementare una funzione che ritorna un DataFrame con tutti i KPI disponibili (symbol, year, description)
     def load_all_kpis():
-        with engine.connect() as conn:
-            df = pd.read_sql("SELECT * FROM kpis", conn)
-        return df
+        session = Session()
+        try:
+            # Qui devi sostituire con la tua query per estrarre tutti i KPI (symbol, year, description)
+            entries = session.query(KPICache).all()
+            data = []
+            for e in entries:
+                data.append({
+                    'symbol': e.symbol,
+                    'year': e.year,
+                    'description': e.description
+                })
+            return pd.DataFrame(data)
+        finally:
+            session.close()
 
     # 🔁 Carica dati da DB
     try:
@@ -107,20 +120,20 @@ def render_kpis():
         st.error(f"Errore nel caricamento iniziale: {e}")
         return
 
-    # 🎛️ UI: multiselect con limite massimo
+    # 🎛️ UI: multiselect con massimo 3 selezioni
     default_desc = ['Apple Inc.'] if 'Apple Inc.' in descriptions_dict else [descriptions_available[0]]
     default_years = ['2023'] if '2023' in years_available else [years_available[-1]]
 
     selected_desc = st.multiselect(
-        "Select up to 3 Companies",
-        descriptions_available,
-        default=default_desc,
+        "Select Companies (max 3)", 
+        descriptions_available, 
+        default=default_desc, 
         max_selections=3
     )
     selected_years = st.multiselect(
-        "Select up to 3 Years",
-        years_available,
-        default=default_years,
+        "Select Years (max 3)", 
+        years_available, 
+        default=default_years, 
         max_selections=3
     )
 
@@ -128,17 +141,22 @@ def render_kpis():
         st.warning("Seleziona almeno una azienda e un anno.")
         return
 
+    if len(selected_desc) > 3:
+        st.warning("Puoi selezionare massimo 3 aziende.")
+        return
+    if len(selected_years) > 3:
+        st.warning("Puoi selezionare massimo 3 anni.")
+        return
+
     selected_symbols = [descriptions_dict[d] for d in selected_desc]
-    df_kpis_list, df_financials_list = [], []
+    df_kpis_list = []
 
     for symbol in selected_symbols:
         for year in selected_years:
             try:
-                df_kpi, df_financial = load_financials(symbol, year)
-                if df_kpi is not None:
+                df_kpi = load_kpis_for_symbol_year(symbol, int(year))
+                if not df_kpi.empty:
                     df_kpis_list.append(df_kpi)
-                if df_financial is not None:
-                    df_financials_list.append(df_financial)
             except Exception as e:
                 st.warning(f"Errore caricamento {symbol} {year}: {e}")
 
@@ -147,18 +165,6 @@ def render_kpis():
         return
 
     df_kpis = pd.concat(df_kpis_list, ignore_index=True)
-    if df_financials_list:
-        df_financials = pd.concat(df_financials_list, ignore_index=True)
-    else:
-        df_financials = pd.DataFrame()
-
-    # 🔄 Merge con descrizioni se mancanti
-    if 'description' not in df_kpis.columns and not df_financials.empty:
-        df_kpis = df_kpis.merge(
-            df_financials[['symbol', 'description']].drop_duplicates(),
-            on='symbol',
-            how='left'
-        )
 
 
     # 🎯 Filtro & trasformazione
