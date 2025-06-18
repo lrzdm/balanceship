@@ -144,6 +144,19 @@ def load_from_db(symbol, years):
 
 
         
+def sanitize_for_json(data):
+    """Elimina valori non validi per JSON (es. NaN, Infinity)."""
+    if isinstance(data, dict):
+        return {k: sanitize_for_json(v) for k, v in data.items()}
+    elif isinstance(data, list):
+        return [sanitize_for_json(v) for v in data]
+    elif isinstance(data, float):
+        if math.isnan(data) or math.isinf(data):
+            return None
+        return data
+    return data
+
+
 def save_kpis_to_db(kpi_df):
     session = Session()
     try:
@@ -151,10 +164,14 @@ def save_kpis_to_db(kpi_df):
             symbol = row['symbol']
             year = int(row['year'])
             desc = row.get('description', None)
+
+            # Estrai e pulisci i dati KPI
             data = row.drop(['symbol','year','description'], errors='ignore').to_dict()
-            data = convert_numpy(data)
+            data = convert_numpy(data)                      # <-- se serve a convertire np types
+            data = sanitize_for_json(data)                  # <-- rimuove NaN/Infinity
             json_data = json.dumps(data, ensure_ascii=False)
 
+            # Inserisci o aggiorna
             entry = session.query(KPICache).filter_by(symbol=symbol, year=year, description=desc).first()
             if entry:
                 if entry.kpi_json != json_data:
@@ -164,14 +181,15 @@ def save_kpis_to_db(kpi_df):
                 entry = KPICache(symbol=symbol, year=year, description=desc, kpi_json=json_data)
                 session.add(entry)
                 logger.info(f"Inserito KPICache per {symbol} anno {year}")
+        
         session.commit()
+
     except Exception as e:
         logger.error(f"Errore salvataggio KPICache: {e}")
         session.rollback()
         raise
     finally:
         session.close()
-
 
 def load_kpis_for_symbol_year(symbol, year, description=None):
     session = Session()
