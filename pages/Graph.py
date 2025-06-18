@@ -77,7 +77,10 @@ def render_logos():
     """, unsafe_allow_html=True)
 
 
-# KPI Table e Grafici
+import streamlit as st
+import pandas as pd
+import plotly.express as px
+
 @st.cache_data(show_spinner=False)
 def load_financials(symbol, year):
     df_kpis = load_kpis_for_symbol_year(symbol, year)
@@ -89,17 +92,11 @@ def load_financials(symbol, year):
         save_kpis_to_db(df_kpis)
         return df_kpis, df_financials
 
-
 def render_kpis():
-    st.header("📊 Financial KPI Table")
+    st.header("📊 Financial KPI Table & Charts")
 
-    # 🔁 Carica dati da DB solo se necessario
-    df_kpis_list = []
-    df_financials_list = []
-
-    # Safe fallback se i dati sono già precaricati o vuoti
+    # 🔁 Carica dati da DB
     try:
-        # Descrizioni e anni disponibili nel DB
         df_all_kpis = load_kpis_for_symbol_year()
         descriptions_dict = df_all_kpis.drop_duplicates(subset='symbol').set_index('description')['symbol'].to_dict()
         descriptions_available = sorted(descriptions_dict.keys())
@@ -108,28 +105,20 @@ def render_kpis():
         st.error(f"Errore nel caricamento iniziale: {e}")
         return
 
-    # ✅ Default selezione sicura
+    # 🎛️ UI: multiselect
     default_desc = ['Apple Inc.'] if 'Apple Inc.' in descriptions_dict else [descriptions_available[0]]
     default_years = ['2023'] if '2023' in years_available else [years_available[-1]]
 
-    # ✅ Inizializza session state
-    if 'selected_desc' not in st.session_state:
-        st.session_state['selected_desc'] = default_desc
-    if 'selected_years' not in st.session_state:
-        st.session_state['selected_years'] = default_years
+    selected_desc = st.multiselect("Select Companies", descriptions_available, default=default_desc)
+    selected_years = st.multiselect("Select Years", years_available, default=default_years)
 
-    # 🎛️ FILTRI UI
-    col1, col2 = st.columns(2)
-    selected_desc = col1.multiselect("Select Companies", descriptions_available, default=st.session_state['selected_desc'], key="desc_filter")
-    selected_years = col2.multiselect("Select Years", years_available, default=st.session_state['selected_years'], key="year_filter")
-
-    # Aggiorna stato
-    st.session_state['selected_desc'] = selected_desc
-    st.session_state['selected_years'] = selected_years
+    if not selected_desc or not selected_years:
+        st.warning("Seleziona almeno una azienda e un anno.")
+        return
 
     selected_symbols = [descriptions_dict[d] for d in selected_desc]
+    df_kpis_list, df_financials_list = [], []
 
-    # 🔄 Carica i dati per ogni combinazione
     for symbol in selected_symbols:
         for year in selected_years:
             try:
@@ -141,19 +130,16 @@ def render_kpis():
             except Exception as e:
                 st.warning(f"Errore caricamento {symbol} {year}: {e}")
 
-    # 📦 Concatena i dati
-    if df_kpis_list:
-        df_kpis = pd.concat(df_kpis_list, ignore_index=True)
-    else:
-        st.info("Nessun KPI disponibile per la selezione.")
+    if not df_kpis_list:
+        st.info("Nessun KPI disponibile.")
         return
 
+    df_kpis = pd.concat(df_kpis_list, ignore_index=True)
     if df_financials_list:
         df_financials = pd.concat(df_financials_list, ignore_index=True)
     else:
         df_financials = pd.DataFrame()
 
-    # 🔗 Join descrizioni se mancanti
     if 'description' not in df_kpis.columns and not df_financials.empty:
         df_kpis = df_kpis.merge(
             df_financials[['symbol', 'description']].drop_duplicates(),
@@ -161,20 +147,36 @@ def render_kpis():
             how='left'
         )
 
-    # ✅ Mostra KPI Table
-    #st.dataframe(df_kpis)
-  
-    # Filtraggio
-    if selected_symbols and selected_years:
-        df_filtered = df_kpis[
-            (df_kpis['symbol'].isin(selected_symbols)) &
-            (df_kpis['year'].astype(str).isin(selected_years))
-        ]
-        id_vars = ['symbol', 'description', 'year']
-        value_vars = [col for col in df_filtered.columns if col not in id_vars]
-        df_melt = df_filtered.melt(id_vars=id_vars, value_vars=value_vars, var_name='KPI', value_name='Value')
-        df_melt['desc_year'] = df_melt['description'] + ' ' + df_melt['year'].astype(str)
-        df_pivot = df_melt.pivot(index='KPI', columns='desc_year', values='Value')
+    # 🎯 Filtro & trasformazione
+    df_filtered = df_kpis[
+        (df_kpis['symbol'].isin(selected_symbols)) &
+        (df_kpis['year'].astype(str).isin(selected_years))
+    ]
+    id_vars = ['symbol', 'description', 'year']
+    value_vars = [col for col in df_filtered.columns if col not in id_vars]
+    df_melt = df_filtered.melt(id_vars=id_vars, value_vars=value_vars, var_name='KPI', value_name='Value')
+    df_melt['desc_year'] = df_melt['description'] + ' ' + df_melt['year'].astype(str)
+    df_pivot = df_melt.pivot(index='KPI', columns='desc_year', values='Value')
+
+    # 📋 Mostra tabella KPI pivot
+    df_pivot = df_pivot.apply(pd.to_numeric, errors='coerce')
+    st.subheader("📋 KPIs List")
+    st.dataframe(df_pivot.style.format("{:.2%}"), height=600, use_container_width=True)
+
+
+    # 📈 Seleziona KPI da visualizzare
+    st.subheader("📈 KPI Chart")
+    kpi_options = df_pivot.index.tolist()
+    selected_kpis = st.multiselect("Select KPIs to visualize", kpi_options, default=kpi_options[:3])
+
+    if selected_kpis:
+        df_chart = df_melt[df_melt['KPI'].isin(selected_kpis)].dropna(subset=['Value'])
+        fig = px.line(df_chart, x='year', y='Value', color='desc_year', facet_row='KPI',
+                      markers=True, height=300 * len(selected_kpis),
+                      labels={'desc_year': 'Company/Year', 'Value': 'Value', 'year': 'Year'})
+        st.plotly_chart(fig, use_container_width=True)
+    else:
+        st.info("Seleziona almeno un KPI per il grafico.")
 
         # Bottoni affiancati
         col_reset, col_download = st.columns([1, 1])
@@ -195,9 +197,6 @@ def render_kpis():
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
 
-        df_pivot = df_pivot.apply(pd.to_numeric, errors='coerce')
-        st.subheader("KPIs List")
-        st.dataframe(df_pivot.style.format("{:.2%}"), height=600)
 
 
         # 🔵 Bubble Chart
