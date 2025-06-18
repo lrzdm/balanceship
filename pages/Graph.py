@@ -8,6 +8,7 @@ import os
 import base64
 import io
 import plotly.express as px
+import numpy as np
 
 st.set_page_config(page_title="Graphs", layout="wide")
 
@@ -183,8 +184,9 @@ def render_kpis():
 
     with col_download:
         buffer = io.BytesIO()
+        df_filtered_clean = df_filtered.copy().replace({np.nan: ""})
         with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
-            df_filtered.to_excel(writer, index=False, sheet_name='KPI')
+            df_filtered_clean.to_excel(writer, index=False, sheet_name='KPI')
         st.download_button(
             label="Scarica Excel",
             data=buffer.getvalue(),
