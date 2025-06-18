@@ -96,26 +96,27 @@ df_all_kpis = load_all_kpis()
 def render_kpis(df_all_kpis):
     st.header("📊 Financial KPI Table")
 
-    symbol = 'AAPL'  
-    year = 2023
-    df_kpis, df_financials = load_financials(symbol, year)
+    # Usa df_all_kpis completo per mostrare tutti i dati
+    df_kpis = df_all_kpis.copy()
 
-    if 'description' not in df_kpis.columns and not df_financials.empty:
-        df_kpis = df_kpis.merge(
-            df_financials[['symbol', 'description']].drop_duplicates(),
-            on='symbol',
-            how='left'
-        )
+    # Assicurati che ci sia colonna 'description', aggiungila se manca
+    if 'description' not in df_kpis.columns:
+        # caricamento df_financials che contiene descrizioni per tutti i simboli
+        _, df_financials = load_financials()  # o altra funzione che carica tutte le descrizioni
+        if not df_financials.empty:
+            df_kpis = df_kpis.merge(
+                df_financials[['symbol', 'description']].drop_duplicates(),
+                on='symbol',
+                how='left'
+            )
 
-    descriptions_dict = df_all_kpis.drop_duplicates(subset='symbol').set_index('description')['symbol'].to_dict()
+    descriptions_dict = df_kpis.drop_duplicates(subset='symbol').set_index('description')['symbol'].to_dict()
     descriptions_available = sorted(k for k in descriptions_dict.keys() if k is not None)
-    years_available = sorted(df_all_kpis['year'].astype(str).unique())
+    years_available = sorted(df_kpis['year'].astype(str).unique())
 
-    # Imposta default sicuri
     default_desc = ['Apple Inc.'] if 'Apple Inc.' in descriptions_available else (descriptions_available[:1] if descriptions_available else [])
     default_years = ['2023'] if "2023" in years_available else ([years_available[-1]] if years_available else [])
 
-    # Pulisci la session_state
     if 'selected_desc' in st.session_state:
         st.session_state['selected_desc'] = [x for x in st.session_state['selected_desc'] if x in descriptions_available]
     else:
@@ -153,22 +154,23 @@ def render_kpis(df_all_kpis):
         st.stop()
 
     df_filtered = df_kpis[
-        (df_kpis['symbol'].isin(selected_symbols)) & 
+        (df_kpis['symbol'].isin(selected_symbols)) &
         (df_kpis['year'].astype(str).isin(selected_years))
     ]
+
+    if df_filtered.empty:
+        st.warning("No data found for the selected filters.")
+        st.stop()
+
     id_vars = ['symbol', 'description', 'year']
     value_vars = [col for col in df_filtered.columns if col not in id_vars and df_filtered[col].dtype != 'object']
     df_melt = df_filtered.melt(id_vars=id_vars, value_vars=value_vars, var_name='KPI', value_name='Value')
     df_melt['desc_year'] = df_melt['description'] + ' ' + df_melt['year'].astype(str)
     df_pivot = df_melt.pivot(index='KPI', columns='desc_year', values='Value')
 
-
-
-    #df_pivot = df_melt.pivot(index='KPI', columns='desc_year', values='Value')
     df_pivot = df_pivot.apply(pd.to_numeric, errors='coerce')
     st.subheader("KPIs List")
-    df_clean = df_pivot.copy()
-    df_clean = df_clean.replace({np.nan: None})  # per evitare problemi di serializzazione
+    df_clean = df_pivot.replace({np.nan: None})  # per evitare problemi serializzazione
     st.dataframe(df_clean.style.format("{:.2%}"), height=600)
 
 
