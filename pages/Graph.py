@@ -148,33 +148,6 @@ def render_kpis():
         st.warning("No symbols found for the selected companies.")
         st.stop()
 
-    # Caricamento dati KPI e finanziari per ogni combinazione simbolo+anno
-    df_kpis_list = []
-    df_financials_list = []
-
-    for symbol in selected_symbols:
-        for year in selected_years:
-            try:
-                df_kpi, df_financial = load_financials(symbol, year)
-                if isinstance(df_kpi, pd.DataFrame):
-                    df_kpis_list.append(df_kpi)
-                if isinstance(df_financial, pd.DataFrame):
-                    df_financials_list.append(df_financial)
-            except Exception as e:
-                st.warning(f"Errore caricamento dati per {symbol} anno {year}: {e}")
-
-    # Concatenazione dati caricati
-    if df_kpis_list:
-        df_kpis = pd.concat(df_kpis_list, ignore_index=True)
-    else:
-        st.info("Nessun KPI disponibile per la selezione.")
-        return
-
-    if df_financials_list:
-        df_financials = pd.concat(df_financials_list, ignore_index=True)
-    else:
-        df_financials = pd.DataFrame()
-
     # Aggiungi la colonna 'description' se mancante
     if 'description' not in df_kpis.columns and not df_financials.empty:
         df_kpis = df_kpis.merge(
