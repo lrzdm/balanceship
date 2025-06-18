@@ -97,15 +97,18 @@ def load_financials(symbol, year):
         save_kpis_to_db(df_kpis)
         return df_kpis, df_financials
 
-def render_kpis():
+def render_kpis(df_kpis):
     st.header("📊 Financial KPI Table & Charts")
 
-    # 🔁 Carica dati da DB
-    try:
-        df_all_kpis = df_kpis
-        descriptions_dict = df_all_kpis.drop_duplicates(subset='symbol').set_index('description')['symbol'].to_dict()
-        descriptions_available = sorted(descriptions_dict.keys())
-        years_available = sorted(df_all_kpis['year'].astype(str).unique())
+    if df_kpis.empty:
+        st.warning("Nessun dato KPI disponibile nel database.")
+        return
+
+    # da qui puoi proseguire con la logica del tuo filtro
+    descriptions_dict = df_kpis.drop_duplicates(subset='symbol').set_index('description')['symbol'].to_dict()
+    descriptions_available = sorted(descriptions_dict.keys())
+    years_available = sorted(df_kpis['year'].astype(str).unique())
+    
     except Exception as e:
         st.error(f"Errore nel caricamento iniziale: {e}")
         return
