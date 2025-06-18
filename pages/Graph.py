@@ -151,18 +151,19 @@ def render_kpis():
     # LAYOUT FILTRI
     # 🎛️ FILTRI UI
     col1, col2 = st.columns(2)
+    
     selected_desc = col1.multiselect(
         "Select Companies",
         descriptions_available,
-        default=selected_desc
+        default=st.session_state.get('selected_desc', []),
+        key="desc_filter"
     )
     selected_years = col2.multiselect(
         "Select Years",
         years_available,
-        default=selected_years
+        default=st.session_state.get('selected_years', []),
+        key="year_filter"
     )
-    selected_desc = col1.multiselect("Select Companies", descriptions_available, default=st.session_state['selected_desc'], key="desc_filter")
-    selected_years = col2.multiselect("Select Years", years_available, default=st.session_state['selected_years'], key="year_filter")
 
     # Aggiorna sessione
     # Aggiorna stato
