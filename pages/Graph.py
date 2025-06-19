@@ -258,51 +258,39 @@ def render_kpis(df_all_kpis):
 
 
 # Grafici Generali
-@st.cache_data(show_spinner=False)
-def load_all_data():
-    exchanges = read_exchanges("exchanges.txt")
-    data = []
-    for name in exchanges:
-        for company in read_companies(exchanges[name]):
-            symbol = company['ticker']
-            description = company['description']
-            for entry in get_financial_data(symbol, ['2021', '2022', '2023']):
-                if entry is None:
-                    continue
-                entry['description'] = description
-                entry['stock_exchange'] = name
-                data.append(entry)
-    return remove_duplicates(data)
-
 def render_general_graphs():
     st.header("📈 Interactive Graphs")
     df = pd.DataFrame(load_all_data())
     years = ['2021', '2022', '2023']
-    columns_to_plot = ["total_revenue", "net_income", "ebitda", "gross_profit", "stockholders_equity", "total_assets", "basic_eps", "diluted_eps"]
+    columns_to_plot = ["total_revenue", "net_income", "ebitda", "gross_profit", 
+                       "stockholders_equity", "total_assets", "basic_eps", "diluted_eps"]
     default = ["Apple Inc."] if "Apple Inc." in df['description'].values else []
-##
-##    st.subheader("Graph 1: Metric over Time per Company")
-##    col1, col2 = st.columns(2)
-##    with col1:
-##        metric = st.selectbox("Select Metric", options=columns_to_plot, format_func=lambda x: COLUMN_LABELS.get(x, x), index=0)
-##    with col2:
-##        default = ["Netflix"] if "Netflix" in df['description'].values else []
-##        companies = st.multiselect("Select Companies", sorted(df['description'].unique()), default=default)
-##
-##    if companies:
-##        df1 = df[df['description'].isin(companies)]
-##        df1[metric] = pd.to_numeric(df1[metric], errors='coerce')
-##        df1['year'] = df1['year'].astype(str)
-##        fig = px.line(df1, x='year', y=metric, color='description', markers=True,
-##                      labels={"year": "Year", metric: COLUMN_LABELS.get(metric, metric), "description": "Company"},
-##                      title=COLUMN_LABELS.get(metric, metric) + " Over Time")
-##        fig.update_layout(xaxis=dict(tickmode="array", tickvals=years, ticktext=years))
-##        st.plotly_chart(fig, use_container_width=True)
-##
-    st.subheader("Graph 2: Metric Average per Sector")
+
+    # --- GRAFICO 1 ---
+    st.subheader("📉 Graph 1: Metric over Time per Company")
+    col1, col2 = st.columns(2)
+    with col1:
+        metric = st.selectbox("Select Metric", options=columns_to_plot, 
+                              format_func=lambda x: COLUMN_LABELS.get(x, x), index=0, key="metric1")
+    with col2:
+        companies = st.multiselect("Select Companies", sorted(df['description'].unique()), default=default, key="companies1")
+
+    if companies:
+        df1 = df[df['description'].isin(companies)]
+        df1[metric] = pd.to_numeric(df1[metric], errors='coerce')
+        df1['year'] = df1['year'].astype(str)
+        fig1 = px.line(df1, x='year', y=metric, color='description', markers=True,
+                       labels={"year": "Year", metric: COLUMN_LABELS.get(metric, metric), "description": "Company"},
+                       title=COLUMN_LABELS.get(metric, metric) + " Over Time")
+        fig1.update_layout(xaxis=dict(tickmode="array", tickvals=years, ticktext=years))
+        st.plotly_chart(fig1, use_container_width=True)
+
+    # --- GRAFICO 2 ---
+    st.subheader("📊 Graph 2: Metric Average per Sector")
     col1, col2, col3 = st.columns(3)
     with col1:
-        metric_sector = st.selectbox("Metric", options=columns_to_plot, format_func=lambda x: COLUMN_LABELS.get(x, x), index=0, key="sector")
+        metric_sector = st.selectbox("Metric", options=columns_to_plot, 
+                                     format_func=lambda x: COLUMN_LABELS.get(x, x), index=0, key="sector")
     with col2:
         exchange_names = list(read_exchanges("exchanges.txt").keys())
         selected_exchange = st.selectbox("Stock Exchange", exchange_names)
@@ -313,36 +301,32 @@ def render_general_graphs():
     df_sector[metric_sector] = pd.to_numeric(df_sector[metric_sector], errors='coerce')
     sector_avg = df_sector.groupby("sector")[metric_sector].mean().reset_index()
 
-    fig2 = px.bar(
-    sector_avg,
-    x="sector",
-    y=metric_sector,
-    title=f"Average {COLUMN_LABELS.get(metric_sector, metric_sector)} per Sector in {selected_year} ({selected_exchange})",
-    labels={metric_sector: COLUMN_LABELS.get(metric_sector, metric_sector), "sector": "Sector"}
-    )
+    fig2 = px.bar(sector_avg, x="sector", y=metric_sector,
+                  title=f"Average {COLUMN_LABELS.get(metric_sector, metric_sector)} per Sector in {selected_year} ({selected_exchange})",
+                  labels={metric_sector: COLUMN_LABELS.get(metric_sector, metric_sector), "sector": "Sector"})
     st.plotly_chart(fig2, use_container_width=True)
 
-##    st.subheader("Graph 3: Ratio Over Time")
-##    col1, col2, col3 = st.columns(3)
-##    with col1:
-##        #default = ["Apple Inc."] if "Apple Inc." in df['description'].values else []
-##        ratio_companies = st.multiselect("Select Companies", sorted(df['description'].unique()), default=default, key="ratio")
-##    with col2:
-##        numerator = st.selectbox("Numerator", columns_to_plot, format_func=lambda x: COLUMN_LABELS.get(x, x), key="num")
-##    with col3:
-##        denominator = st.selectbox("Denominator", columns_to_plot, format_func=lambda x: COLUMN_LABELS.get(x, x), key="den")
-##
-##    if ratio_companies and numerator != denominator:
-##        df_ratio = df[df['description'].isin(ratio_companies)].copy()
-##        df_ratio[numerator] = pd.to_numeric(df_ratio[numerator], errors='coerce')
-##        df_ratio[denominator] = pd.to_numeric(df_ratio[denominator], errors='coerce')
-##        df_ratio['ratio'] = df_ratio[numerator] / df_ratio[denominator]
-##        df_ratio['year'] = df_ratio['year'].astype(str)
-##        fig3 = px.line(df_ratio, x='year', y='ratio', color='description', markers=True,
-##                       labels={"year": "Year", "ratio": "Ratio", "description": "Company"},
-##                       title=f"{COLUMN_LABELS.get(numerator, numerator)} / {COLUMN_LABELS.get(denominator, denominator)} Over Time")
-##        fig3.update_layout(xaxis=dict(tickmode="array", tickvals=years, ticktext=years))
-##        st.plotly_chart(fig3, use_container_width=True)
+    # --- GRAFICO 3 ---
+    st.subheader("📐 Graph 3: Custom Ratio Over Time")
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        ratio_companies = st.multiselect("Select Companies", sorted(df['description'].unique()), default=default, key="ratio")
+    with col2:
+        numerator = st.selectbox("Numerator", columns_to_plot, format_func=lambda x: COLUMN_LABELS.get(x, x), key="num")
+    with col3:
+        denominator = st.selectbox("Denominator", columns_to_plot, format_func=lambda x: COLUMN_LABELS.get(x, x), key="den")
+
+    if ratio_companies and numerator != denominator:
+        df_ratio = df[df['description'].isin(ratio_companies)].copy()
+        df_ratio[numerator] = pd.to_numeric(df_ratio[numerator], errors='coerce')
+        df_ratio[denominator] = pd.to_numeric(df_ratio[denominator], errors='coerce')
+        df_ratio['ratio'] = df_ratio[numerator] / df_ratio[denominator]
+        df_ratio['year'] = df_ratio['year'].astype(str)
+        fig3 = px.line(df_ratio, x='year', y='ratio', color='description', markers=True,
+                       labels={"year": "Year", "ratio": "Ratio", "description": "Company"},
+                       title=f"{COLUMN_LABELS.get(numerator, numerator)} / {COLUMN_LABELS.get(denominator, denominator)} Over Time")
+        fig3.update_layout(xaxis=dict(tickmode="array", tickvals=years, ticktext=years))
+        st.plotly_chart(fig3, use_container_width=True)
 
 # --- SIDEBAR ---
 logo_path = os.path.join("images", "logo4.png")
