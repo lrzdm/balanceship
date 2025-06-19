@@ -279,12 +279,13 @@ def load_data_for_selection(selected_symbols, selected_years):
 
     for symbol in selected_symbols:
         records = load_from_db(symbol, selected_years)
-        for i, record in enumerate(records):
+        for record in records:
             if isinstance(record, dict) and record:
-                record['symbol'] = symbol
-                record['year'] = selected_years[i]
+                # Non sovrascrivere l'anno, è già dentro il record
+                record['symbol'] = symbol  # opzionale, se già presente
                 data.append(record)
     return data
+
 
 def render_general_graphs():
     st.header("📈 Interactive Graphs")
