@@ -267,7 +267,6 @@ def load_data_for_selection(selected_symbols, selected_years):
         records = load_from_db(symbol, selected_years)
         for r in records:
             if isinstance(r, dict) and r:
-                print(f"✔️ Caricato {symbol} - {r.get('year')}")  # <-- controllo chiaro
                 r['symbol'] = symbol
                 data.append(r)
             else:
@@ -297,8 +296,6 @@ def render_general_graphs():
     selected_symbols = [descriptions_dict[d] for d in selected_desc]
     selected_years = ['2021', '2022', '2023']
     df = pd.DataFrame(load_data_for_selection(selected_symbols, selected_years))
-    st.write("📊 Anni disponibili nei dati:", df['year'].unique())
-    st.write("📊 Simboli disponibili nei dati:", df['symbol'].unique())
     st.dataframe(df[['symbol', 'year']].drop_duplicates())
 
 
@@ -331,15 +328,34 @@ def render_general_graphs():
     st.plotly_chart(fig1, use_container_width=True)
 
     
-    # --- GRAFICO 3 ---
-    st.subheader("📐 Graph 3: Custom Ratio Over Time")
+    # --- GRAFICO 2 ---
+    st.subheader("📐 Graph 2: Custom Ratio Over Time")
     col2, col3 = st.columns(2)
+
+    # Metti Apple come default nella selectbox, se è presente in columns_to_plot
+    default_numerator = "EBITDA"  # o la chiave esatta corrispondente nel tuo df
+    default_denominator = "Total Revenues"  # idem
+    default_company = "Apple Inc."
+
     with col2:
-        numerator = st.selectbox("Numerator", columns_to_plot,
-                                 format_func=lambda x: COLUMN_LABELS.get(x, x), key="num")
+        numerator = st.selectbox(
+            "Numerator",
+            columns_to_plot,
+            index=columns_to_plot.index(default_numerator) if default_numerator in columns_to_plot else 0,
+            format_func=lambda x: COLUMN_LABELS.get(x, x),
+            key="num"
+        )
     with col3:
-        denominator = st.selectbox("Denominator", columns_to_plot,
-                                   format_func=lambda x: COLUMN_LABELS.get(x, x), key="den")
+        denominator = st.selectbox(
+            "Denominator",
+            columns_to_plot,
+            index=columns_to_plot.index(default_denominator) if default_denominator in columns_to_plot else 0,
+            format_func=lambda x: COLUMN_LABELS.get(x, x),
+            key="den"
+        )
+
+    # Usa Apple di default come descrizione selezionata
+    selected_desc = [default_company]
 
     if numerator != denominator:
         df_ratio = df[df['description'].isin(selected_desc)].copy()
@@ -348,14 +364,21 @@ def render_general_graphs():
         df_ratio['ratio'] = df_ratio[numerator] / df_ratio[denominator]
         df_ratio['year'] = df_ratio['year'].astype(str)
 
-        fig3 = px.line(df_ratio, x='year', y='ratio', color='description', markers=True,
-                       labels={"year": "Year", "ratio": "Ratio", "description": "Company"},
-                       title=f"{COLUMN_LABELS.get(numerator, numerator)} / {COLUMN_LABELS.get(denominator, denominator)} Over Time")
+        fig3 = px.line(
+            df_ratio,
+            x='year',
+            y='ratio',
+            color='description',
+            markers=True,
+            labels={"year": "Year", "ratio": "Ratio", "description": "Company"},
+            title=f"{COLUMN_LABELS.get(numerator, numerator)} / {COLUMN_LABELS.get(denominator, denominator)} Over Time"
+        )
         fig3.update_layout(xaxis=dict(tickmode="array", tickvals=sorted(df_ratio['year'].unique())))
         st.plotly_chart(fig3, use_container_width=True)
+
         
-    # --- GRAFICO 2 ---
-    st.subheader("📊 Graph 2: Metric Average per Sector")
+    # --- GRAFICO 3 ---
+    st.subheader("📊 Graph 3: Metric Average per Sector")
     col1, col2, col3 = st.columns(3)
     with col1:
         metric_sector = st.selectbox("Metric", options=columns_to_plot,
