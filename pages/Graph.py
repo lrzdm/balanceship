@@ -433,7 +433,8 @@ st.sidebar.markdown(f"""
 
 def run():
     render_logos()
-    render_kpis(df_all_kpis)
+    #render_kpis(df_all_kpis)
+    render_kpis()
     st.markdown("---")
     render_general_graphs()
     #render_sidebar_footer()
