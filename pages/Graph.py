@@ -102,9 +102,12 @@ def render_kpis():
     st.header("📊 Financial KPI Table")
 
     if st.button("🔄 Aggiorna KPI dal database"):
-        st.cache_data.clear()
+        st.cache_data.clear()  # Forza aggiornamento cache
+        st.experimental_rerun()
+
+    df_all_kpis = load_all_kpis()
     
-    df_all_kpis = get_cached_kpis()
+    #df_all_kpis = get_cached_kpis()
     # Usa df_all_kpis completo per mostrare tutti i dati
     df_kpis = df_all_kpis.copy()
 
@@ -441,8 +444,8 @@ st.sidebar.markdown(f"""
 
 def run():
     render_logos()
-    render_kpis(df_all_kpis)
-    #render_kpis()
+    #render_kpis(df_all_kpis)
+    render_kpis()
     st.markdown("---")
     render_general_graphs()
     #render_sidebar_footer()
