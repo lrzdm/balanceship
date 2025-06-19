@@ -257,22 +257,6 @@ def render_kpis(df_all_kpis):
         #     st.plotly_chart(fig, use_container_width=True)
 
 
-@st.cache_data(show_spinner=False)
-def load_data_for_selection(selected_symbols, selected_years):
-    from data_utils import load_from_db
-    data = []
-
-    for symbol in selected_symbols:
-        records = load_from_db(symbol, selected_years)
-        for record in records:
-            if isinstance(record, dict) and record:
-                # NON toccare record['year']
-                record['symbol'] = symbol  # opzionale, se già incluso
-                data.append(record)
-    return data
-
-
-
 # Grafici Generali
 @st.cache_data(show_spinner=False)
 def load_data_for_selection(selected_symbols, selected_years):
@@ -281,12 +265,15 @@ def load_data_for_selection(selected_symbols, selected_years):
 
     for symbol in selected_symbols:
         records = load_from_db(symbol, selected_years)
-        for record in records:
-            if isinstance(record, dict) and record:
-                # Non sovrascrivere l'anno, è già dentro il record
-                record['symbol'] = symbol  # opzionale, se già presente
-                data.append(record)
+        for r in records:
+            if isinstance(r, dict) and r:
+                print(f"✔️ Caricato {symbol} - {r.get('year')}")  # <-- controllo chiaro
+                r['symbol'] = symbol
+                data.append(r)
+            else:
+                print(f"⚠️ Record vuoto o non valido per {symbol}")
     return data
+
 
 
 def render_general_graphs():
@@ -310,6 +297,10 @@ def render_general_graphs():
     selected_symbols = [descriptions_dict[d] for d in selected_desc]
     selected_years = ['2021', '2022', '2023']
     df = pd.DataFrame(load_data_for_selection(selected_symbols, selected_years))
+    st.write("📊 Anni disponibili nei dati:", df['year'].unique())
+    st.write("📊 Simboli disponibili nei dati:", df['symbol'].unique())
+    st.dataframe(df[['symbol', 'year']].drop_duplicates())
+
 
     if df.empty:
         st.warning("No data found for the selected companies.")
