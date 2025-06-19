@@ -4,6 +4,7 @@ import plotly.express as px
 from data_utils import read_exchanges, read_companies, get_financial_data, remove_duplicates, compute_kpis, get_all_financial_data
 from cache_db import save_kpis_to_db
 from cache_db import load_kpis_for_symbol_year, load_all_kpis
+from cache_db import load_from_db
 import os
 import base64
 import io
@@ -263,12 +264,13 @@ def load_data_for_selection(selected_symbols, selected_years):
 
     for symbol in selected_symbols:
         records = load_from_db(symbol, selected_years)
-        for i, record in enumerate(records):
+        for record in records:
             if isinstance(record, dict) and record:
-                record['symbol'] = symbol
-                record['year'] = selected_years[i]
+                # NON toccare record['year']
+                record['symbol'] = symbol  # opzionale, se già incluso
                 data.append(record)
     return data
+
 
 
 # Grafici Generali
