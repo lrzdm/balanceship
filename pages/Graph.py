@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from data_utils import read_exchanges, read_companies, get_financial_data, remove_duplicates, compute_kpis, get_all_financial_data
+from data_utils import read_exchanges, read_companies, get_financial_data, remove_duplicates, compute_kpis, get_all_financial_data, get_years_for_symbol, get_all_symbols
 from cache_db import save_kpis_to_db
 from cache_db import load_kpis_for_symbol_year, load_all_kpis
 from cache_db import load_from_db
