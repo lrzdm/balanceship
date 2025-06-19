@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from data_utils import read_exchanges, read_companies, get_financial_data, remove_duplicates, compute_kpis, get_all_financial_data, get_years_for_symbol, get_all_symbols
+from data_utils import read_exchanges, read_companies, get_financial_data, remove_duplicates, compute_kpis, get_all_financial_data
 from cache_db import save_kpis_to_db
 from cache_db import load_kpis_for_symbol_year, load_all_kpis
 from cache_db import load_from_db
@@ -92,36 +92,13 @@ def load_financials(symbol, year):
         return df_kpis, df_financials
 
 
-def update_all_kpis():
-    all_kpis = []
-    symbols = get_all_symbols()  # Funzione che ritorna lista simboli da aggiornare
-    for sym in symbols:
-        years = get_years_for_symbol(sym)  # Funzione che ritorna anni disponibili per quel simbolo
-        for y in years:
-            df_financial = get_financial_data(sym, y)
-            if not df_financial.empty:
-                df_kpis = compute_kpis(df_financial)
-                all_kpis.append(df_kpis)
-    if all_kpis:
-        df_all = pd.concat(all_kpis, ignore_index=True)
-        save_kpis_to_db(df_all)
-        
-#df_all_kpis = load_all_kpis()
-def render_kpis():
+df_all_kpis = load_all_kpis()
+
+def render_kpis(df_all_kpis):
     st.header("📊 Financial KPI Table")
-    
-    if st.button("🔄 Aggiorna KPI dal database"):
-        with st.spinner("Aggiornamento KPI in corso..."):
-            try:
-                update_all_kpis()
-                st.cache_data.clear()
-                st.success("KPI aggiornati correttamente!")
-            except Exception as e:
-                st.error(f"Errore durante aggiornamento KPI: {e}")
-
-    df_all_kpis = load_all_kpis()
+    #df_all_kpis = load_all_kpis()
+    # Usa df_all_kpis completo per mostrare tutti i dati
     df_kpis = df_all_kpis.copy()
-
 
     # Assicurati che ci sia colonna 'description', aggiungila se manca
     if 'description' not in df_kpis.columns:
@@ -456,8 +433,7 @@ st.sidebar.markdown(f"""
 
 def run():
     render_logos()
-    #render_kpis(df_all_kpis)
-    render_kpis()
+    render_kpis(df_all_kpis)
     st.markdown("---")
     render_general_graphs()
     #render_sidebar_footer()
