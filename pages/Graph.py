@@ -92,30 +92,36 @@ def load_financials(symbol, year):
         return df_kpis, df_financials
 
 
+def update_all_kpis():
+    all_kpis = []
+    symbols = get_all_symbols()  # Funzione che ritorna lista simboli da aggiornare
+    for sym in symbols:
+        years = get_years_for_symbol(sym)  # Funzione che ritorna anni disponibili per quel simbolo
+        for y in years:
+            df_financial = get_financial_data(sym, y)
+            if not df_financial.empty:
+                df_kpis = compute_kpis(df_financial)
+                all_kpis.append(df_kpis)
+    if all_kpis:
+        df_all = pd.concat(all_kpis, ignore_index=True)
+        save_kpis_to_db(df_all)
+        
 #df_all_kpis = load_all_kpis()
-
-@st.cache_data
-def get_cached_kpis():
-    return load_all_kpis()  # La tua funzione che carica i dati dal DB
-
 def render_kpis():
     st.header("📊 Financial KPI Table")
-
-    # Inizializza contatore di refresh nella session state
-    if "refresh_kpi" not in st.session_state:
-        st.session_state["refresh_kpi"] = 0
-
-    # Bottone per aggiornare i dati dal DB (pulendo la cache)
-    if st.button("🔄 Aggiorna KPI dal database"):
-        st.cache_data.clear()  # Pulisce cache di @st.cache_data
-        st.session_state["refresh_kpi"] += 1
-
-    # Carica i dati (cache sarà bypassata dopo clear)
-    df_all_kpis = get_cached_kpis()
     
-    #df_all_kpis = get_cached_kpis()
-    # Usa df_all_kpis completo per mostrare tutti i dati
+    if st.button("🔄 Aggiorna KPI dal database"):
+        with st.spinner("Aggiornamento KPI in corso..."):
+            try:
+                update_all_kpis()
+                st.cache_data.clear()
+                st.success("KPI aggiornati correttamente!")
+            except Exception as e:
+                st.error(f"Errore durante aggiornamento KPI: {e}")
+
+    df_all_kpis = load_all_kpis()
     df_kpis = df_all_kpis.copy()
+
 
     # Assicurati che ci sia colonna 'description', aggiungila se manca
     if 'description' not in df_kpis.columns:
