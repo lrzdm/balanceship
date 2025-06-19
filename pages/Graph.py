@@ -96,16 +96,22 @@ def load_financials(symbol, year):
 
 @st.cache_data
 def get_cached_kpis():
-    return load_all_kpis()
+    return load_all_kpis()  # La tua funzione che carica i dati dal DB
 
 def render_kpis():
     st.header("📊 Financial KPI Table")
 
-    if st.button("🔄 Aggiorna KPI dal database"):
-        st.cache_data.clear()  # Forza aggiornamento cache
-        st.experimental_rerun()
+    # Inizializza contatore di refresh nella session state
+    if "refresh_kpi" not in st.session_state:
+        st.session_state["refresh_kpi"] = 0
 
-    df_all_kpis = load_all_kpis()
+    # Bottone per aggiornare i dati dal DB (pulendo la cache)
+    if st.button("🔄 Aggiorna KPI dal database"):
+        st.cache_data.clear()  # Pulisce cache di @st.cache_data
+        st.session_state["refresh_kpi"] += 1
+
+    # Carica i dati (cache sarà bypassata dopo clear)
+    df_all_kpis = get_cached_kpis()
     
     #df_all_kpis = get_cached_kpis()
     # Usa df_all_kpis completo per mostrare tutti i dati
