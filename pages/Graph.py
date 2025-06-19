@@ -92,11 +92,11 @@ def load_financials(symbol, year):
         return df_kpis, df_financials
 
 
-df_all_kpis = load_all_kpis()
+#df_all_kpis = load_all_kpis()
 
 def render_kpis(df_all_kpis):
     st.header("📊 Financial KPI Table")
-
+    df_all_kpis = load_all_kpis()
     # Usa df_all_kpis completo per mostrare tutti i dati
     df_kpis = df_all_kpis.copy()
 
