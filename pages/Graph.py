@@ -94,9 +94,17 @@ def load_financials(symbol, year):
 
 #df_all_kpis = load_all_kpis()
 
-def render_kpis(df_all_kpis):
+@st.cache_data
+def get_cached_kpis():
+    return load_all_kpis()
+
+def render_kpis():
     st.header("📊 Financial KPI Table")
-    df_all_kpis = load_all_kpis()
+
+    if st.button("🔄 Aggiorna KPI dal database"):
+        st.cache_data.clear()
+    
+    df_all_kpis = get_cached_kpis()
     # Usa df_all_kpis completo per mostrare tutti i dati
     df_kpis = df_all_kpis.copy()
 
@@ -433,8 +441,8 @@ st.sidebar.markdown(f"""
 
 def run():
     render_logos()
-    #render_kpis(df_all_kpis)
-    render_kpis()
+    render_kpis(df_all_kpis)
+    #render_kpis()
     st.markdown("---")
     render_general_graphs()
     #render_sidebar_footer()
