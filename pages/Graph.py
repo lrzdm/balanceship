@@ -331,8 +331,8 @@ def render_general_graphs():
     col2, col3 = st.columns(2)
 
     # Metti Apple come default nella selectbox, se è presente in columns_to_plot
-    default_numerator = "EBITDA"  # o la chiave esatta corrispondente nel tuo df
-    default_denominator = "Total Revenue"  # idem
+    default_numerator = "ebitda"  # o la chiave esatta corrispondente nel tuo df
+    default_denominator = "total_revenue"  # idem
     default_company = "Apple Inc."
 
     with col2:
