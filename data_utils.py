@@ -29,6 +29,20 @@ def read_companies(filename):
             companies.append(row)
     return companies
 
+def get_all_symbols():
+    exchanges = read_exchanges('exchanges.txt')
+    symbols = set()
+    for exchange_file in exchanges.values():
+        companies = read_companies(exchange_file)
+        for company in companies:
+            symbols.add(company['ticker'])
+    return list(symbols)
+
+
+def get_years_for_symbol(symbol):
+    # Per semplicità usiamo anni fissi, puoi personalizzare se vuoi
+    return ['2021', '2022', '2023']
+    
 ##def format_to_billions(value):
 ##    try:
 ##        value_in_billions = value / 1_000_000_000
