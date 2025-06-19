@@ -296,8 +296,6 @@ def render_general_graphs():
     selected_symbols = [descriptions_dict[d] for d in selected_desc]
     selected_years = ['2021', '2022', '2023']
     df = pd.DataFrame(load_data_for_selection(selected_symbols, selected_years))
-    st.dataframe(df[['symbol', 'year']].drop_duplicates())
-
 
     if df.empty:
         st.warning("No data found for the selected companies.")
@@ -334,7 +332,7 @@ def render_general_graphs():
 
     # Metti Apple come default nella selectbox, se è presente in columns_to_plot
     default_numerator = "EBITDA"  # o la chiave esatta corrispondente nel tuo df
-    default_denominator = "Total Revenues"  # idem
+    default_denominator = "Total Revenue"  # idem
     default_company = "Apple Inc."
 
     with col2:
