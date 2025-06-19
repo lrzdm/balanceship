@@ -256,15 +256,51 @@ def render_kpis(df_all_kpis):
         #     st.plotly_chart(fig, use_container_width=True)
 
 
+@st.cache_data(show_spinner=False)
+def load_data_for_selection(selected_symbols, selected_years):
+    from data_utils import load_from_db
+    data = []
+
+    for symbol in selected_symbols:
+        records = load_from_db(symbol, selected_years)
+        for i, record in enumerate(records):
+            if isinstance(record, dict) and record:
+                record['symbol'] = symbol
+                record['year'] = selected_years[i]
+                data.append(record)
+    return data
+
 
 # Grafici Generali
 def render_general_graphs():
     st.header("📈 Interactive Graphs")
-    df = pd.DataFrame(load_all_data())
-    years = ['2021', '2022', '2023']
-    columns_to_plot = ["total_revenue", "net_income", "ebitda", "gross_profit", 
-                       "stockholders_equity", "total_assets", "basic_eps", "diluted_eps"]
-    default = ["Apple Inc."] if "Apple Inc." in df['description'].values else []
+
+    # Prepara filtro aziende e anni
+    exchanges = read_exchanges("exchanges.txt")
+    companies_all = []
+    for path in exchanges.values():
+        companies_all += read_companies(path)
+
+    descriptions_dict = {c['description']: c['ticker'] for c in companies_all if 'description' in c and 'ticker' in c}
+    descriptions_available = sorted(descriptions_dict.keys())
+    years_available = ['2021', '2022', '2023']
+
+    # Default se esistono
+    default_desc = ['Apple Inc.'] if 'Apple Inc.' in descriptions_available else (descriptions_available[:1] if descriptions_available else [])
+    default_years = ['2023'] if "2023" in years_available else years_available[:1]
+
+    # Filtri
+    col1, col2 = st.columns(2)
+    selected_desc = col1.multiselect("Select Companies", descriptions_available, default=default_desc)
+    selected_years = col2.multiselect("Select Years", years_available, default=default_years)
+
+    if not selected_desc or not selected_years:
+        st.warning("Please select at least one company and one year.")
+        return
+
+    selected_symbols = [descriptions_dict[d] for d in selected_desc]
+    df = pd.DataFrame(load_data_for_selection(selected_symbols, selected_years))
+
 
     # --- GRAFICO 1 ---
     st.subheader("📉 Graph 1: Metric over Time per Company")
