@@ -388,11 +388,17 @@ def render_general_graphs():
         selected_year = st.selectbox("Year", selected_years, index=2)
 
     df_sector = df[(df['stock_exchange'] == selected_exchange) & (df['year'] == str(selected_year))].copy()
-    df_sector[metric_sector] = pd.to_numeric(df_sector[metric_sector], errors='coerce')
+    
+    # Pulizia dati
     df_sector["sector"] = df_sector["sector"].replace("null", np.nan)
-    df_sector = df_sector.dropna(subset=["sector"])
-    df_sector = df_sector.dropna(subset=[metric_sector])
+    df_sector[metric_sector] = pd.to_numeric(df_sector[metric_sector], errors='coerce')
+    
+    # Rimozione righe con valori mancanti
+    df_sector = df_sector.dropna(subset=["sector", metric_sector])
+    
+    # Calcolo media per settore
     sector_avg = df_sector.groupby("sector")[metric_sector].mean().reset_index()
+
 
     fig2 = px.bar(sector_avg, x="sector", y=metric_sector,
                   title=f"Average {COLUMN_LABELS.get(metric_sector, metric_sector)} per Sector in {selected_year} ({selected_exchange})",
