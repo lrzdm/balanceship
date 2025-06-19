@@ -311,6 +311,9 @@ def render_general_graphs():
     if df.empty:
         st.warning("No data found for the selected companies.")
         return
+    
+    # 🔧 Fix tipi
+    df['year'] = df['year'].astype(str)
 
     columns_to_plot = [
         "total_revenue", "net_income", "ebitda", "gross_profit",
@@ -330,7 +333,7 @@ def render_general_graphs():
     fig1 = px.line(df1, x='year', y=metric, color='description', markers=True,
                    labels={"year": "Year", metric: COLUMN_LABELS.get(metric, metric), "description": "Company"},
                    title=COLUMN_LABELS.get(metric, metric) + " Over Time")
-    fig1.update_layout(xaxis=dict(tickmode="array", tickvals=selected_years, ticktext=selected_years))
+    fig1.update_layout(xaxis=dict(tickmode="array", tickvals=sorted(df1['year'].unique())))
     st.plotly_chart(fig1, use_container_width=True)
 
     
@@ -354,7 +357,7 @@ def render_general_graphs():
         fig3 = px.line(df_ratio, x='year', y='ratio', color='description', markers=True,
                        labels={"year": "Year", "ratio": "Ratio", "description": "Company"},
                        title=f"{COLUMN_LABELS.get(numerator, numerator)} / {COLUMN_LABELS.get(denominator, denominator)} Over Time")
-        fig3.update_layout(xaxis=dict(tickmode="array", tickvals=selected_years, ticktext=selected_years))
+        fig3.update_layout(xaxis=dict(tickmode="array", tickvals=sorted(df_ratio['year'].unique())))
         st.plotly_chart(fig3, use_container_width=True)
         
     # --- GRAFICO 2 ---
@@ -369,7 +372,7 @@ def render_general_graphs():
     with col3:
         selected_year = st.selectbox("Year", selected_years, index=2)
 
-    df_sector = df[(df['stock_exchange'] == selected_exchange) & (df['year'] == selected_year)].copy()
+    df_sector = df[(df['stock_exchange'] == selected_exchange) & (df['year'] == str(selected_year))].copy()
     df_sector[metric_sector] = pd.to_numeric(df_sector[metric_sector], errors='coerce')
     sector_avg = df_sector.groupby("sector")[metric_sector].mean().reset_index()
 
