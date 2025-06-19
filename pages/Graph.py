@@ -328,9 +328,9 @@ def render_general_graphs():
         metric = st.selectbox("Select Metric", options=columns_to_plot,
                               format_func=lambda x: COLUMN_LABELS.get(x, x), index=0, key="metric1")
     with col2:
-        companies = st.multiselect("Select Companies", sorted(df['description'].unique()),
-                                   default=selected_desc, key="companies1")
-
+        available_companies = sorted(df['description'].dropna().unique())
+        safe_default = [d for d in selected_desc if d in available_companies]
+        companies = st.multiselect("Select Companies", available_companies, default=safe_default, key="companies1")
     if companies:
         df1 = df[df['description'].isin(companies)].copy()
         df1[metric] = pd.to_numeric(df1[metric], errors='coerce')
