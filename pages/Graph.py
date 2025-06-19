@@ -376,6 +376,9 @@ def render_general_graphs():
         st.plotly_chart(fig3, use_container_width=True) 
         
     # --- GRAFICO 3 ---
+    import numpy as np
+
+    # --- GRAFICO 3 ---
     st.subheader("📊 Graph 3: Metric Average per Sector")
     col1, col2, col3 = st.columns(3)
     with col1:
@@ -386,15 +389,24 @@ def render_general_graphs():
         selected_exchange = st.selectbox("Stock Exchange", exchange_names)
     with col3:
         selected_year = st.selectbox("Year", selected_years, index=2)
-
+    
     df_sector = df[(df['stock_exchange'] == selected_exchange) & (df['year'] == str(selected_year))].copy()
     df_sector[metric_sector] = pd.to_numeric(df_sector[metric_sector], errors='coerce')
+    df_sector["sector"] = df_sector["sector"].replace("null", np.nan)
+    
+    # Debug temporaneo
+    # st.write(df_sector[[metric_sector, "sector"]].dropna())
+    
     sector_avg = df_sector.groupby("sector")[metric_sector].mean().reset_index()
+    
+    if not sector_avg.empty:
+        fig2 = px.bar(sector_avg, x="sector", y=metric_sector,
+                      title=f"Average {COLUMN_LABELS.get(metric_sector, metric_sector)} per Sector in {selected_year} ({selected_exchange})",
+                      labels={metric_sector: COLUMN_LABELS.get(metric_sector, metric_sector), "sector": "Sector"})
+        st.plotly_chart(fig2, use_container_width=True)
+    else:
+        st.warning("⚠️ Nessun dato disponibile per la combinazione selezionata.")
 
-    fig2 = px.bar(sector_avg, x="sector", y=metric_sector,
-                  title=f"Average {COLUMN_LABELS.get(metric_sector, metric_sector)} per Sector in {selected_year} ({selected_exchange})",
-                  labels={metric_sector: COLUMN_LABELS.get(metric_sector, metric_sector), "sector": "Sector"})
-    st.plotly_chart(fig2, use_container_width=True)
 
 
 # --- SIDEBAR ---
