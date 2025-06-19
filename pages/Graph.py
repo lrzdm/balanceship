@@ -309,13 +309,22 @@ def render_general_graphs():
         "stockholders_equity", "total_assets", "basic_eps", "diluted_eps"
     ]
 
+    # Selezione aziende (descrizioni) in un filtro multiselect
+    all_companies = sorted(df['description'].unique())
+    default_company = "Apple Inc."
+    selected_desc = st.multiselect(
+        "Select companies to plot",
+        options=all_companies,
+        default=[default_company]
+    )
+    
     # --- GRAFICO 1 ---
     st.subheader("📉 Graph 1: Metric over Time per Company")
     col1, _ = st.columns(2)
     with col1:
         metric = st.selectbox("Select Metric", options=columns_to_plot,
                               format_func=lambda x: COLUMN_LABELS.get(x, x), index=0, key="metric1")
-
+    
     df1 = df[df['description'].isin(selected_desc)].copy()
     df1[metric] = pd.to_numeric(df1[metric], errors='coerce')
     df1['year'] = df1['year'].astype(str)
@@ -324,17 +333,15 @@ def render_general_graphs():
                    title=COLUMN_LABELS.get(metric, metric) + " Over Time")
     fig1.update_layout(xaxis=dict(tickmode="array", tickvals=sorted(df1['year'].unique())))
     st.plotly_chart(fig1, use_container_width=True)
-
+    
     
     # --- GRAFICO 2 ---
     st.subheader("📐 Graph 2: Custom Ratio Over Time")
     col2, col3 = st.columns(2)
-
-    # Metti Apple come default nella selectbox, se è presente in columns_to_plot
-    default_numerator = "ebitda"  # o la chiave esatta corrispondente nel tuo df
-    default_denominator = "total_revenue"  # idem
-    default_company = "Apple Inc."
-
+    
+    default_numerator = "ebitda"
+    default_denominator = "total_revenue"
+    
     with col2:
         numerator = st.selectbox(
             "Numerator",
@@ -351,17 +358,14 @@ def render_general_graphs():
             format_func=lambda x: COLUMN_LABELS.get(x, x),
             key="den"
         )
-
-    # Usa Apple di default come descrizione selezionata
-    selected_desc = [default_company]
-
-    if numerator != denominator:
+    
+    if numerator != denominator and selected_desc:
         df_ratio = df[df['description'].isin(selected_desc)].copy()
         df_ratio[numerator] = pd.to_numeric(df_ratio[numerator], errors='coerce')
         df_ratio[denominator] = pd.to_numeric(df_ratio[denominator], errors='coerce')
         df_ratio['ratio'] = df_ratio[numerator] / df_ratio[denominator]
         df_ratio['year'] = df_ratio['year'].astype(str)
-
+    
         fig3 = px.line(
             df_ratio,
             x='year',
@@ -373,6 +377,8 @@ def render_general_graphs():
         )
         fig3.update_layout(xaxis=dict(tickmode="array", tickvals=sorted(df_ratio['year'].unique())))
         st.plotly_chart(fig3, use_container_width=True)
+    else:
+        st.info("Seleziona almeno una compagnia e un rapporto valido.")
 
         
     # --- GRAFICO 3 ---
