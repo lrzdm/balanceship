@@ -1,1 +1,2 @@
 NASDAQ,nasdaq_companies.txt
+FTSE MIB,ftsemib_companies.txt
