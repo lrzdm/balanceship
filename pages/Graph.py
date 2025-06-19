@@ -272,10 +272,24 @@ def load_data_for_selection(selected_symbols, selected_years):
 
 
 # Grafici Generali
+@st.cache_data(show_spinner=False)
+def load_data_for_selection(selected_symbols, selected_years):
+    from data_utils import load_from_db
+    data = []
+
+    for symbol in selected_symbols:
+        records = load_from_db(symbol, selected_years)
+        for i, record in enumerate(records):
+            if isinstance(record, dict) and record:
+                record['symbol'] = symbol
+                record['year'] = selected_years[i]
+                data.append(record)
+    return data
+
 def render_general_graphs():
     st.header("📈 Interactive Graphs")
 
-    # Prepara filtro aziende e anni
+    # --- Selettori dinamici ---
     exchanges = read_exchanges("exchanges.txt")
     companies_all = []
     for path in exchanges.values():
@@ -285,11 +299,9 @@ def render_general_graphs():
     descriptions_available = sorted(descriptions_dict.keys())
     years_available = ['2021', '2022', '2023']
 
-    # Default se esistono
-    default_desc = ['Apple Inc.'] if 'Apple Inc.' in descriptions_available else (descriptions_available[:1] if descriptions_available else [])
-    default_years = ['2023'] if "2023" in years_available else years_available[:1]
+    default_desc = ['Apple Inc.'] if 'Apple Inc.' in descriptions_available else descriptions_available[:1]
+    default_years = ['2023'] if '2023' in years_available else years_available[:1]
 
-    # Filtri
     col1, col2 = st.columns(2)
     selected_desc = col1.multiselect("Select Companies", descriptions_available, default=default_desc)
     selected_years = col2.multiselect("Select Years", years_available, default=default_years)
@@ -300,40 +312,48 @@ def render_general_graphs():
 
     selected_symbols = [descriptions_dict[d] for d in selected_desc]
     df = pd.DataFrame(load_data_for_selection(selected_symbols, selected_years))
+    if df.empty:
+        st.warning("No data found for the selected filters.")
+        return
 
+    columns_to_plot = [
+        "total_revenue", "net_income", "ebitda", "gross_profit",
+        "stockholders_equity", "total_assets", "basic_eps", "diluted_eps"
+    ]
 
     # --- GRAFICO 1 ---
     st.subheader("📉 Graph 1: Metric over Time per Company")
     col1, col2 = st.columns(2)
     with col1:
-        metric = st.selectbox("Select Metric", options=columns_to_plot, 
+        metric = st.selectbox("Select Metric", options=columns_to_plot,
                               format_func=lambda x: COLUMN_LABELS.get(x, x), index=0, key="metric1")
     with col2:
-        companies = st.multiselect("Select Companies", sorted(df['description'].unique()), default=default, key="companies1")
+        companies = st.multiselect("Select Companies", sorted(df['description'].unique()),
+                                   default=selected_desc, key="companies1")
 
     if companies:
-        df1 = df[df['description'].isin(companies)]
+        df1 = df[df['description'].isin(companies)].copy()
         df1[metric] = pd.to_numeric(df1[metric], errors='coerce')
         df1['year'] = df1['year'].astype(str)
         fig1 = px.line(df1, x='year', y=metric, color='description', markers=True,
                        labels={"year": "Year", metric: COLUMN_LABELS.get(metric, metric), "description": "Company"},
                        title=COLUMN_LABELS.get(metric, metric) + " Over Time")
-        fig1.update_layout(xaxis=dict(tickmode="array", tickvals=years, ticktext=years))
+        fig1.update_layout(xaxis=dict(tickmode="array", tickvals=years_available, ticktext=years_available))
         st.plotly_chart(fig1, use_container_width=True)
 
     # --- GRAFICO 2 ---
     st.subheader("📊 Graph 2: Metric Average per Sector")
     col1, col2, col3 = st.columns(3)
     with col1:
-        metric_sector = st.selectbox("Metric", options=columns_to_plot, 
+        metric_sector = st.selectbox("Metric", options=columns_to_plot,
                                      format_func=lambda x: COLUMN_LABELS.get(x, x), index=0, key="sector")
     with col2:
-        exchange_names = list(read_exchanges("exchanges.txt").keys())
+        exchange_names = list(exchanges.keys())
         selected_exchange = st.selectbox("Stock Exchange", exchange_names)
     with col3:
-        selected_year = st.selectbox("Year", years, index=2)
+        selected_year = st.selectbox("Year", years_available, index=2)
 
-    df_sector = df[(df['stock_exchange'] == selected_exchange) & (df['year'] == selected_year)]
+    df_sector = df[(df['stock_exchange'] == selected_exchange) & (df['year'] == selected_year)].copy()
     df_sector[metric_sector] = pd.to_numeric(df_sector[metric_sector], errors='coerce')
     sector_avg = df_sector.groupby("sector")[metric_sector].mean().reset_index()
 
@@ -346,11 +366,14 @@ def render_general_graphs():
     st.subheader("📐 Graph 3: Custom Ratio Over Time")
     col1, col2, col3 = st.columns(3)
     with col1:
-        ratio_companies = st.multiselect("Select Companies", sorted(df['description'].unique()), default=default, key="ratio")
+        ratio_companies = st.multiselect("Select Companies", sorted(df['description'].unique()),
+                                         default=selected_desc, key="ratio")
     with col2:
-        numerator = st.selectbox("Numerator", columns_to_plot, format_func=lambda x: COLUMN_LABELS.get(x, x), key="num")
+        numerator = st.selectbox("Numerator", columns_to_plot,
+                                 format_func=lambda x: COLUMN_LABELS.get(x, x), key="num")
     with col3:
-        denominator = st.selectbox("Denominator", columns_to_plot, format_func=lambda x: COLUMN_LABELS.get(x, x), key="den")
+        denominator = st.selectbox("Denominator", columns_to_plot,
+                                   format_func=lambda x: COLUMN_LABELS.get(x, x), key="den")
 
     if ratio_companies and numerator != denominator:
         df_ratio = df[df['description'].isin(ratio_companies)].copy()
@@ -361,7 +384,7 @@ def render_general_graphs():
         fig3 = px.line(df_ratio, x='year', y='ratio', color='description', markers=True,
                        labels={"year": "Year", "ratio": "Ratio", "description": "Company"},
                        title=f"{COLUMN_LABELS.get(numerator, numerator)} / {COLUMN_LABELS.get(denominator, denominator)} Over Time")
-        fig3.update_layout(xaxis=dict(tickmode="array", tickvals=years, ticktext=years))
+        fig3.update_layout(xaxis=dict(tickmode="array", tickvals=years_available, ticktext=years_available))
         st.plotly_chart(fig3, use_container_width=True)
 
 # --- SIDEBAR ---
