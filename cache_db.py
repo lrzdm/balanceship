@@ -252,10 +252,18 @@ def load_all_kpis():
         rows = []
         for entry in entries:
             try:
-                if isinstance(entry.kpi_json, dict):
+                if isinstance(entry.kpi_json, str):
+                    data = json.loads(entry.kpi_json)
+                elif isinstance(entry.kpi_json, dict):
                     data = entry.kpi_json
                 else:
-                    data = json.loads(entry.kpi_json)
+                    # Prova a convertire a stringa prima di json.loads
+                    try:
+                        json_str = str(entry.kpi_json)
+                        data = json.loads(json_str)
+                    except Exception:
+                        raise ValueError(f"Formato inatteso in kpi_json: {type(entry.kpi_json)}")
+
             except Exception as e:
                 logger.error(f"Errore parsing JSON per {entry.symbol} {entry.year}: {e}")
                 continue
