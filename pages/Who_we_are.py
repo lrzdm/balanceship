@@ -15,21 +15,27 @@ body { background-color: #eceff1; color: #263238; }
 .logo-container { display: flex; justify-content: center; gap: 30px; margin: 30px auto; flex-wrap: wrap; }
 .logo-large { height: 90px; }
 .logo-small { height: 60px; }
-.startup-box { background: #f5f5f5; border-left: 6px solid #0288d1; border-radius: 10px; padding: 30px; margin: 30px; }
+.startup-video-container { display: flex; justify-content: center; align-items: stretch; gap: 30px; margin: 40px auto; max-width: 1200px; }
+.startup-box { background: #f5f5f5; border-left: 6px solid #0288d1; border-radius: 10px; padding: 30px; flex: 1; }
+.video-box { flex: 2; }
 .description-block { background: #fff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); padding: 40px; margin: 20px; }
-.profile-grid { display: flex; justify-content: center; gap: 30px; margin: 30px; }
+.profile-grid { display: flex; justify-content: center; gap: 30px; margin: 30px; flex-wrap: wrap; }
 .profile-card { background: #fff; width: 260px; height: 360px; border-radius: 12px; perspective: 1000px; }
 .profile-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.8s; transform-style: preserve-3d; }
 .profile-card:hover .profile-inner { transform: rotateY(180deg); }
 .profile-front, .profile-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
-.profile-front { background: #0288d1; color: #fff; }
+.profile-front { background: #81d4fa; color: #fff; }
 .profile-back { background: #fff; color: #263238; transform: rotateY(180deg); }
-.profile-front img { border-radius: 50%; width: 120px; height: 120px; object-fit: cover; margin-bottom: 20px; }
-.timeline-block { background-color: #fff; border-radius: 12px; padding: 40px; margin: 40px auto; max-width: 800px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-.timeline-block h2 { text-align: center; margin-bottom: 40px; }
-.timeline-item { display: flex; align-items: flex-start; margin-bottom: 30px; }
-.timeline-year { background: #0288d1; color: #fff; padding: 10px 20px; border-radius: 20px; margin-right: 20px; font-weight: bold; min-width: 80px; text-align: center; }
-.video-container { display: flex; justify-content: center; margin: 30px; }
+.profile-front img { border-radius: 50%; width: 120px; height: 120px; object-fit: cover; margin-bottom: 30px; }
+.timeline { position: relative; max-width: 800px; margin: 60px auto; }
+.timeline::after { content: ''; position: absolute; width: 6px; background-color: #0288d1; top: 0; bottom: 0; left: 50%; margin-left: -3px; }
+.timeline-box { padding: 20px 40px; position: relative; width: 50%; }
+.timeline-box.left { left: 0; }
+.timeline-box.right { left: 50%; }
+.timeline-box::after { content: ''; position: absolute; width: 20px; height: 20px; right: -10px; background-color: #0288d1; border: 4px solid #fff; top: 15px; border-radius: 50%; z-index: 1; }
+.timeline-box.right::after { left: -10px; }
+.timeline-content { background-color: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+.timeline-content h4 { margin-top: 0; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -40,26 +46,24 @@ for path, cls in [("images/logo1.png","logo-large"),("images/logo2.png","logo-sm
         logo_html += f'<img src="data:image/png;base64,{get_base64(path)}" class="{cls}">'
 st.markdown(f"<div class='logo-container'>{logo_html}</div>", unsafe_allow_html=True)
 
-# --- Startup Info ---
+# --- Startup Info + Video Side by Side ---
 st.markdown("""
-<div class='startup-box'>
-  <h2>🚀 Our Startup</h2>
-  <ul style='list-style:none; padding-left:0'>
-    <li><strong>Founded:</strong> 2025</li>
-    <li><strong>Sector:</strong> Finance & Data Analytics</li>
-    <li><strong>HQ:</strong> Rome, Italy</li>
-    <li><strong>Mission:</strong> Empower businesses with intelligent financial tools</li>
-  </ul>
-</div>
-""", unsafe_allow_html=True)
-
-# --- Embedded Video ---
-st.markdown("""
-<div class='video-container'>
-  <iframe width="800" height="450" src="https://www.youtube.com/embed/YOUR_VIDEO_ID"
-    title="Balanceship Presentation" frameborder="0"
-    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-    allowfullscreen></iframe>
+<div class='startup-video-container'>
+  <div class='startup-box'>
+    <h2>🚀 Our Startup</h2>
+    <ul style='list-style:none; padding-left:0'>
+      <li><strong>Founded:</strong> 2025</li>
+      <li><strong>Sector:</strong> Finance & Data Analytics</li>
+      <li><strong>HQ:</strong> Rome, Italy</li>
+      <li><strong>Mission:</strong> Empower businesses with intelligent financial tools</li>
+    </ul>
+  </div>
+  <div class='video-box'>
+    <iframe width="100%" height="315" src="https://www.youtube.com/embed/YOUR_VIDEO_ID"
+      title="Balanceship Presentation" frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowfullscreen></iframe>
+  </div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -125,7 +129,6 @@ st.markdown("""
     </div>
 </div>
 """, unsafe_allow_html=True)
-
 
 # --- Contacts ---
 insta, lin = get_base64("images/IG.png"), get_base64("images/LIN.png")
