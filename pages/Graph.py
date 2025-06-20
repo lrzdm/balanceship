@@ -103,31 +103,33 @@ def load_financials(symbol, year):
 
 def load_all_kpis_with_auto_update():
     try:
+        # --- Leggi i KPI già salvati ---
         session = Session()
+        existing = {}
         try:
             entries = session.query(KPICache).all()
-            existing = {}
-            if isinstance(e.kpi_json, str):
+            for e in entries:
                 try:
-                    val = json.loads(e.kpi_json)
+                    val = e.kpi_json
+                    if isinstance(val, str):
+                        val = json.loads(val)
+                    elif not isinstance(val, dict):
+                        raise TypeError(f"Tipo inatteso in kpi_json: {type(val)}")
+                    existing[(e.symbol, e.year, e.description or None)] = val
                 except Exception as exc:
-                    logger.error(f"JSON malformato in stringa per {e.symbol} {e.year}: {exc}")
-                    val = None
-            elif isinstance(e.kpi_json, dict):
-                val = e.kpi_json
-            else:
-                logger.warning(f"Formato inatteso in kpi_json per {e.symbol} {e.year}: {type(e.kpi_json)}")
-                val = None
-
+                    logger.error(f"Errore parsing JSON in kpi_json per {e.symbol} {e.year}: {exc}")
+                    existing[(e.symbol, e.year, e.description or None)] = None
         finally:
             session.close()
 
+        # --- Carica tutti i financial salvati ---
         session = Session()
         try:
             financial_entries = session.query(FinancialCache).all()
         finally:
             session.close()
 
+        # --- Per ogni financial, calcola i KPI e aggiorna se necessario ---
         for entry in financial_entries:
             key = (entry.symbol, entry.year, None)
             try:
@@ -149,14 +151,17 @@ def load_all_kpis_with_auto_update():
                     existing_val = None
 
                 if key not in existing or existing_val != kpi_dict:
+                    logger.info(f"KPI aggiornati o mancanti per {entry.symbol} {entry.year}: salvataggio...")
                     save_kpis_to_db(df_kpis)
+                else:
+                    logger.info(f"KPI già presenti e identici per {entry.symbol} {entry.year}")
             except Exception as e:
                 logger.error(f"Errore nel calcolo/salvataggio KPI per {entry.symbol} {entry.year}: {e}")
 
+        # --- Ritorna tutto ---
         return load_all_kpis()
 
     except Exception as e:
-        # Qui mostriamo a schermo e logghiamo l'errore finale
         import traceback
         tb = traceback.format_exc()
         logger.error(f"Errore FATALE in load_all_kpis_with_auto_update:\n{tb}")
