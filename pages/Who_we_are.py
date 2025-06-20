@@ -74,7 +74,7 @@ st.markdown("""
     <h2 style='text-align: center;'>🏢 About Us</h2>
     <p><strong>Balanceship</strong> means clarity and control over financial data. Just like steering a well-balanced ship, our tools help you navigate company financials with ease and confidence.</p>
     <p>We believe financial analysis should be intuitive, actionable, and beautiful. That’s why we design tools that speak the language of business professionals—clear dashboards, strong KPIs, and powerful benchmarking.</p>
-    <div style='margin-top: 30px; font-weight: bold; text-align: center; color: #2575fc;'>
+    <div style='margin-top: 30px; font-weight: bold; text-align: center; color: #0173C4;'>
         Navigate the financial sea with clarity ⚓
     </div>
 </div>
