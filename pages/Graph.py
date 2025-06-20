@@ -166,10 +166,47 @@ def load_all_kpis_with_auto_update():
         st.error(f"Errore fatale durante il caricamento KPI: {e}\n{tb}")
         return pd.DataFrame()
 
+def load_all_kpis_read_only():
+    try:
+        with Session() as session:
+            entries = session.query(KPICache).all()
+            kpi_data = []
+            for e in entries:
+                try:
+                    if isinstance(e.kpi_json, str):
+                        val = json.loads(e.kpi_json)
+                    elif isinstance(e.kpi_json, dict):
+                        val = e.kpi_json
+                    else:
+                        logger.warning(f"Formato inatteso in kpi_json per {e.symbol} {e.year}: {type(e.kpi_json)}")
+                        continue
+
+                    val['symbol'] = e.symbol
+                    val['year'] = e.year
+                    val['description'] = e.description
+                    kpi_data.append(val)
+
+                except Exception as exc:
+                    logger.error(f"Errore parsing JSON per {e.symbol} {e.year}: {exc}")
+
+        df_kpis = pd.DataFrame(kpi_data)
+        return df_kpis
+
+    except Exception as e:
+        import traceback
+        tb = traceback.format_exc()
+        logger.error(f"Errore nel caricamento dei KPI dal database:\n{tb}")
+        st.error(f"Errore durante il caricamento KPI: {e}")
+        return pd.DataFrame()
+
+USE_READ_ONLY = True
+
+if USE_READ_ONLY:
+    df_all_kpis = load_all_kpis_read_only()
+else:
+    df_all_kpis = load_all_kpis_with_auto_update()
 
 
-
-df_all_kpis = load_all_kpis_with_auto_update()
 # 2. Leggi exchanges (una sola volta)
 exchanges = read_exchanges("exchanges.txt")
 
