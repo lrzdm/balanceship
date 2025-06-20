@@ -470,6 +470,28 @@ def render_general_graphs():
                   labels={metric_sector: COLUMN_LABELS.get(metric_sector, metric_sector), "sector": "Sector"})
     st.plotly_chart(fig2, use_container_width=True)
 
+def migrate_kpi_cache_dict_to_json():
+    session = Session()
+    try:
+        entries = session.query(KPICache).all()
+        fixed_count = 0
+        for entry in entries:
+            if isinstance(entry.kpi_json, dict):
+                try:
+                    entry.kpi_json = json.dumps(entry.kpi_json, ensure_ascii=False, allow_nan=False, sort_keys=True)
+                    fixed_count += 1
+                except Exception as e:
+                    logger.error(f"Errore nel convertire dict in JSON per {entry.symbol} {entry.year}: {e}")
+        if fixed_count > 0:
+            session.commit()
+            logger.info(f"✅ Migrazione completata: {fixed_count} record corretti.")
+        else:
+            logger.info("ℹ️ Nessun record da correggere.")
+    except Exception as e:
+        logger.error(f"Errore nella migrazione kpi_cache: {e}")
+        session.rollback()
+    finally:
+        session.close()
 
 
 # --- SIDEBAR ---
@@ -505,3 +527,5 @@ def run():
 
 if __name__ == "__main__":
     run()
+    create_tables()
+    migrate_kpi_cache_dict_to_json()
