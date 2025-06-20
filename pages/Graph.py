@@ -14,6 +14,10 @@ from sqlalchemy import create_engine, Column, String, Text, Integer
 from sqlalchemy.orm import declarative_base, scoped_session, sessionmaker
 from cache_db import Session
 from cache_db import create_tables
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("Graph.py")
 
 
 st.set_page_config(page_title="Graphs", layout="wide")
