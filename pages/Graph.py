@@ -107,8 +107,8 @@ def load_all_kpis_with_auto_update():
         try:
             entries = session.query(KPICache).all()
             existing = {}
-        for e in entries:
-            if isinstance(e.kpi_json, str):
+
+            for e in entries:
                 try:
                     if isinstance(e.kpi_json, str):
                         val = json.loads(e.kpi_json)
@@ -116,20 +116,9 @@ def load_all_kpis_with_auto_update():
                         val = e.kpi_json
                     else:
                         val = None
-                    existing[(e.symbol, e.year, e.description or None)] = val
-                    val = json.loads(e.kpi_json)
                         logger.warning(f"Formato inatteso in kpi_json per {e.symbol} {e.year}: {type(e.kpi_json)}")
-
                 except Exception as exc:
-                    logger.error(f"Errore parsing JSON in kpi_json per {e.symbol} {e.year}: {exc}")
-                    existing[(e.symbol, e.year, e.description or None)] = None
-                    logger.error(f"JSON malformato in stringa per {e.symbol} {e.year}: {exc}")
                     val = None
-            elif isinstance(e.kpi_json, dict):
-                val = e.kpi_json
-            else:
-                logger.warning(f"Formato inatteso in kpi_json per {e.symbol} {e.year}: {type(e.kpi_json)}")
-                val = None
                     logger.error(f"Errore parsing JSON in kpi_json per {e.symbol} {e.year}: {exc}")
 
                 existing[(e.symbol, e.year, e.description or None)] = val
@@ -156,6 +145,7 @@ def load_all_kpis_with_auto_update():
                 df_financial = pd.DataFrame([data])
                 df_kpis = compute_kpis(df_financial)
                 df_kpis["description"] = None
+
                 kpi_dict = df_kpis.drop(columns=["symbol", "year", "description"], errors="ignore").iloc[0].to_dict()
                 kpi_dict = convert_numpy(kpi_dict)
 
@@ -170,14 +160,6 @@ def load_all_kpis_with_auto_update():
                 logger.error(f"Errore nel calcolo/salvataggio KPI per {entry.symbol} {entry.year}: {e}")
 
         return load_all_kpis()
-
-    except Exception as e:
-        # Qui mostriamo a schermo e logghiamo l'errore finale
-        import traceback
-        tb = traceback.format_exc()
-        logger.error(f"Errore FATALE in load_all_kpis_with_auto_update:\n{tb}")
-        st.error(f"Errore fatale durante il caricamento KPI: {e}\n{tb}")
-        return pd.DataFrame()
 
 
 
