@@ -107,18 +107,18 @@ def load_all_kpis_with_auto_update():
         try:
             entries = session.query(KPICache).all()
             existing = {}
-            for e in entries:
+            if isinstance(e.kpi_json, str):
                 try:
-                    if isinstance(e.kpi_json, str):
-                        val = json.loads(e.kpi_json)
-                    elif isinstance(e.kpi_json, dict):
-                        val = e.kpi_json
-                    else:
-                        val = None
-                    existing[(e.symbol, e.year, e.description or None)] = val
+                    val = json.loads(e.kpi_json)
                 except Exception as exc:
-                    logger.error(f"Errore parsing JSON in kpi_json per {e.symbol} {e.year}: {exc}")
-                    existing[(e.symbol, e.year, e.description or None)] = None
+                    logger.error(f"JSON malformato in stringa per {e.symbol} {e.year}: {exc}")
+                    val = None
+            elif isinstance(e.kpi_json, dict):
+                val = e.kpi_json
+            else:
+                logger.warning(f"Formato inatteso in kpi_json per {e.symbol} {e.year}: {type(e.kpi_json)}")
+                val = None
+
         finally:
             session.close()
 
