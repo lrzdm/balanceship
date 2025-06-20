@@ -127,6 +127,12 @@ st.markdown("""
             <p>Onboarded early enterprise clients and improved benchmarking features.</p>
         </div>
     </div>
+    <div class='timeline-box right'>
+        <div class='timeline-content'>
+            <h4>2028 – Team Expansion</h4>
+            <p>We expanded our core team with experts in AI, engineering, and finance.</p>
+        </div>
+    </div>
 </div>
 """, unsafe_allow_html=True)
 
