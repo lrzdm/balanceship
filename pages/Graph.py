@@ -106,7 +106,21 @@ def load_all_kpis_with_auto_update():
     session = Session()
     try:
         entries = session.query(KPICache).all()
-        existing = {(e.symbol, e.year, e.description or None): json.loads(e.kpi_json) for e in entries}
+        #existing = {(e.symbol, e.year, e.description or None): json.loads(e.kpi_json) for e in entries}
+        existing = {}
+        for e in entries:
+            try:
+                if isinstance(e.kpi_json, str):
+                    val = json.loads(e.kpi_json)
+                elif isinstance(e.kpi_json, dict):
+                    val = e.kpi_json
+                else:
+                    logger.error(f"Formato inatteso in kpi_json per {e.symbol} {e.year}: {type(e.kpi_json)}")
+                    val = None
+                existing[(e.symbol, e.year, e.description or None)] = val
+            except Exception as exc:
+                logger.error(f"Errore parsing JSON in kpi_json per {e.symbol} {e.year}: {exc}")
+                existing[(e.symbol, e.year, e.description or None)] = None
     except Exception as e:
         st.error(f"Errore caricamento KPI esistenti: {e}")
         return pd.DataFrame()
