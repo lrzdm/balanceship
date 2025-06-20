@@ -6,6 +6,7 @@ from cache_db import save_kpis_to_db, FinancialCache, KPICache
 from cache_db import load_kpis_for_symbol_year, load_all_kpis
 from cache_db import load_from_db
 import os
+import json
 import base64
 import io
 import plotly.express as px
