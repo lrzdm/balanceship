@@ -101,7 +101,7 @@ def load_all_kpis_with_auto_update():
         entries = session.query(KPICache).all()
         existing = {(e.symbol, e.year, e.description) for e in entries}
     except Exception as e:
-        logger.error(f"Errore caricamento KPI esistenti: {e}")
+        st.error(f"Errore caricamento KPI esistenti: {e}")
         return pd.DataFrame()
     finally:
         session.close()
