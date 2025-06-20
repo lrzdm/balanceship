@@ -107,8 +107,7 @@ def load_all_kpis_with_auto_update():
         try:
             entries = session.query(KPICache).all()
             existing = {}
-
-            for e in entries:
+        for e in entries:
             if isinstance(e.kpi_json, str):
                 try:
                     if isinstance(e.kpi_json, str):
