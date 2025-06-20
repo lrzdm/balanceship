@@ -91,7 +91,7 @@ Python for data-driven insights.","images/Lorenzo De Meo_01.jpg"),
   ("William Herbert Gazzo","Professional with a solid business background and a professional training from SDA Bocconi. \
 Specializing in project management and business planning. He boasts extensive experience in consulting firms \
 and multinational companies, where he has held managerial roles.","images/William H Gazzo_01.jpg"),
-  ("Gabriele Schinina'","Professional with a solid economic and financial background and training from SDA Bocconi. Specializing in financial modelling, \
+  ("Gabriele Schininà","Professional with a solid financial background and training from SDA Bocconi. Specializing in financial modelling, \
 strategic planning, and budget management. He boasts extensive experience in listed and non-listed multinational companies, where he has held roles in \
 business controlling.","images/Gabriele Schinina_01.jpg"),
   ("Giovanni Serusi","Professional with a solid scientific background, specializing in clinical and cognitive neuroscience and with economic training\
