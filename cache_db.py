@@ -168,32 +168,33 @@ def save_kpis_to_db(kpi_df):
         for _, row in kpi_df.iterrows():
             symbol = row['symbol']
             year = int(row['year'])
+
+            # Controlla solo su symbol + year, IGNORA description per decidere se esiste
+            exists = session.query(KPICache).filter_by(symbol=symbol, year=year).first()
+            if exists:
+                # La combinazione esiste già, NON FARE NULLA
+                logger.info(f"Record già esistente per {symbol} anno {year}, salto inserimento")
+                continue
+
+            # Se non esiste, inserisci nuova riga (con description anche se è NULL)
             desc = row.get('description', None)
 
-            # Converti e pulisci i dati per JSON
             data = row.drop(['symbol','year','description'], errors='ignore').to_dict()
             data = convert_numpy(data)
             json_data = json.dumps(data, ensure_ascii=False, allow_nan=False, sort_keys=True)
 
-            # Cerca entry esistente
-            entry = session.query(KPICache).filter_by(symbol=symbol, year=year, description=desc).first()
-
-            if not entry:
-                # Inserisci solo se NON esiste già
-                entry = KPICache(symbol=symbol, year=year, description=desc, kpi_json=json_data)
-                session.add(entry)
-                logger.info(f"Inserito KPICache per {symbol} anno {year} desc {desc}")
-            else:
-                logger.info(f"Entry già esistente per {symbol} anno {year} desc {desc}, skip inserimento")
+            entry = KPICache(symbol=symbol, year=year, description=desc, kpi_json=json_data)
+            session.add(entry)
+            logger.info(f"Inserito KPICache per {symbol} anno {year}")
 
         session.commit()
-
     except Exception as e:
         logger.error(f"Errore salvataggio KPICache: {e}")
         session.rollback()
         raise
     finally:
         session.close()
+
 
 
 def load_kpis_for_symbol_year(symbol, year, description=None):
