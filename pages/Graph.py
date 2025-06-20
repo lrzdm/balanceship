@@ -102,8 +102,9 @@ def load_financials(symbol, year):
         return df_kpis, df_financials
 
 def load_all_kpis_with_auto_update():
+    st.write("Entrato in load_all_kpis_with_auto_update()")
     try:
-        # --- Leggi i KPI già salvati ---
+        # --- Lettura KPI già salvati ---
         session = Session()
         existing = {}
         try:
