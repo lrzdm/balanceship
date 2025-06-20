@@ -103,10 +103,11 @@ def load_financials(symbol, year):
 
 def load_all_kpis_with_auto_update():
     try:
-        session = Session()
-        try:
+        existing = {}
+
+        # Prima lettura dei KPI esistenti
+        with Session() as session:
             entries = session.query(KPICache).all()
-            existing = {}
 
             for e in entries:
                 try:
@@ -123,14 +124,9 @@ def load_all_kpis_with_auto_update():
 
                 existing[(e.symbol, e.year, e.description or None)] = val
 
-        finally:
-            session.close()
-
-        session = Session()
-        try:
+        # Lettura dei financial cache
+        with Session() as session:
             financial_entries = session.query(FinancialCache).all()
-        finally:
-            session.close()
 
         for entry in financial_entries:
             key = (entry.symbol, entry.year, None)
@@ -160,6 +156,14 @@ def load_all_kpis_with_auto_update():
                 logger.error(f"Errore nel calcolo/salvataggio KPI per {entry.symbol} {entry.year}: {e}")
 
         return load_all_kpis()
+
+    except Exception as e:
+        import traceback
+        tb = traceback.format_exc()
+        logger.error(f"Errore FATALE in load_all_kpis_with_auto_update:\n{tb}")
+        st.error(f"Errore fatale durante il caricamento KPI: {e}\n{tb}")
+        return pd.DataFrame()
+
 
 
 
