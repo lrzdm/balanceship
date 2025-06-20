@@ -129,8 +129,10 @@ def load_all_kpis_with_auto_update():
         try:
             if isinstance(entry.data_json, str):
                 data = json.loads(entry.data_json)
-            else:
+            elif isinstance(entry.data_json, dict):
                 data = entry.data_json
+            else:
+                raise ValueError(f"Formato sconosciuto in entry.data_json: {type(entry.data_json)}")
             df_financial = pd.DataFrame([data])
             df_kpis = compute_kpis(df_financial)
             df_kpis["description"] = None  # Assicurati che ci sia
