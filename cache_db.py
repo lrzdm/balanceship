@@ -8,23 +8,61 @@ from sqlalchemy.orm import declarative_base, scoped_session, sessionmaker
 from sqlalchemy.orm import Session
 import math
 
+print("DEBUG 1: Inizio cache_db.py")
+
+try:
+    from sqlalchemy import create_engine, Column, String, Text, Integer
+    from sqlalchemy.orm import declarative_base, scoped_session, sessionmaker
+    print("DEBUG 2: Import SQLAlchemy OK")
+except Exception as e:
+    print("ERRORE import sqlalchemy:", e)
+
+try:
+    Base = declarative_base()
+    print("DEBUG 3: declarative_base OK")
+except Exception as e:
+    print("ERRORE declarative_base:", e)
+
+try:
+    if os.environ.get("STREAMLIT_CLOUD") == "1":
+        print("DEBUG 4a: Cloud mode")
+        DATABASE_URL = os.environ.get("DATABASE_URL")
+        print("DEBUG 5a: DATABASE_URL =", DATABASE_URL)
+        engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+    else:
+        print("DEBUG 4b: Local mode")
+        os.makedirs("data", exist_ok=True)
+        DATABASE_URL = "sqlite:///data/financials_db.db"
+        print("DEBUG 5b: DATABASE_URL =", DATABASE_URL)
+        engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+    print("DEBUG 6: create_engine OK")
+except Exception as e:
+    print("ERRORE creazione engine:", e)
+
+try:
+    Session = scoped_session(sessionmaker(bind=engine))
+    print("DEBUG 7: scoped_session OK")
+except Exception as e:
+    print("ERRORE scoped_session:", e)
+
+
 # Logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("cache_db")
 
 # Base ORM
-Base = declarative_base()
+#Base = declarative_base()
 
 # Engine di DB
-if os.environ.get("STREAMLIT_CLOUD") == "1":
-    DATABASE_URL = os.environ.get("DATABASE_URL")
-    engine = create_engine(DATABASE_URL, pool_pre_ping=True)
-else:
-    os.makedirs("data", exist_ok=True)
-    DATABASE_URL = "sqlite:///data/financials_db.db"
-    engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+#if os.environ.get("STREAMLIT_CLOUD") == "1":
+#    DATABASE_URL = os.environ.get("DATABASE_URL")
+#    engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+#else:
+#    os.makedirs("data", exist_ok=True)
+#    DATABASE_URL = "sqlite:///data/financials_db.db"
+#    engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 
-Session = scoped_session(sessionmaker(bind=engine))
+#Session = scoped_session(sessionmaker(bind=engine))
 
 # Modelli tabella
 #class FinancialCache(Base):
