@@ -90,7 +90,7 @@ def render_logos():
 
 
 # KPI Table e Grafici
-
+@st.cache_data(show_spinner=False)
 def load_financials(symbol, year):
     df_kpis = load_kpis_for_symbol_year(symbol, year)
     if not df_kpis.empty:
