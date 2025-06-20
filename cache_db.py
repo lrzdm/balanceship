@@ -51,10 +51,10 @@ class KPICache(Base):
     kpi_json = Column(Text)
 
 def create_tables():
-    if os.environ.get("STREAMLIT_CLOUD") != "1":
-        Base.metadata.bind = engine
-        Base.metadata.create_all(engine)
-        logger.info("✅ Tabelle create o già esistenti.")
+    Base.metadata.bind = engine
+    Base.metadata.create_all(engine)
+    logger.info("✅ Tabelle create o già esistenti.")
+
 
 #def convert_numpy(obj):
 #    if isinstance(obj, dict):
