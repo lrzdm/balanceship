@@ -108,9 +108,13 @@ def load_all_kpis_with_auto_update():
         existing = {}
         for e in entries:
             try:
-                logger.info(f"Tipo kpi_json per {e.symbol} {e.year} = {type(e.kpi_json)}")
+                logger.info(f"Tipo kpi_json per {e.symbol} {e.year}: {type(e.kpi_json)}")
                 if isinstance(e.kpi_json, str):
-                    val = json.loads(e.kpi_json)
+                    try:
+                        val = json.loads(e.kpi_json)
+                    except Exception as json_exc:
+                        logger.error(f"Errore json.loads per {e.symbol} {e.year} su stringa: {e.kpi_json[:100]}... - {json_exc}")
+                        raise
                 elif isinstance(e.kpi_json, dict):
                     val = e.kpi_json
                 else:
@@ -139,7 +143,11 @@ def load_all_kpis_with_auto_update():
         key = (entry.symbol, entry.year, None)
         try:
             if isinstance(entry.data_json, str):
-                data = json.loads(entry.data_json)
+                try:
+                    data = json.loads(entry.data_json)
+                except Exception as json_exc:
+                    logger.error(f"Errore json.loads su data_json per {entry.symbol} {entry.year}: {entry.data_json[:100]}... - {json_exc}")
+                    raise
             elif isinstance(entry.data_json, dict):
                 data = entry.data_json
             else:
@@ -151,7 +159,6 @@ def load_all_kpis_with_auto_update():
             kpi_dict = df_kpis.drop(columns=["symbol", "year", "description"], errors="ignore").iloc[0].to_dict()
             kpi_dict = convert_numpy(kpi_dict)
 
-            # Controllo robusto sul confronto per evitare errori
             existing_val = existing.get(key)
             if not isinstance(existing_val, dict):
                 existing_val = None
@@ -165,6 +172,7 @@ def load_all_kpis_with_auto_update():
             logger.error(f"Errore nel calcolo/salvataggio KPI per {entry.symbol} {entry.year}: {e}")
 
     return load_all_kpis()
+
 
 
 df_all_kpis = load_all_kpis_with_auto_update()
