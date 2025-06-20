@@ -152,7 +152,7 @@ def load_all_kpis_with_auto_update():
 df_all_kpis = load_all_kpis_with_auto_update()
 
 
-def render_kpis():
+def render_kpis(df_all_kpis):
     st.header("📊 KPI Dashboard")
 
     # 1. Caricamento KPI e aggiornamento automatico se mancanti
