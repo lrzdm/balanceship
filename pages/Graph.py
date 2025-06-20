@@ -91,12 +91,14 @@ def render_logos():
 
 # KPI Table e Grafici
 @st.cache_data(show_spinner=False)
-def load_financials(symbol, year):
-    df_kpis = load_kpis_for_symbol_year(symbol, year)
+def load_financials(symbol, year, description=None):
+    df_kpis = load_kpis_for_symbol_year(symbol, year, description=description)
     if not df_kpis.empty:
+        # Se esistono dati nel DB per questa combinazione, ritorna quelli senza chiamare API
         return df_kpis, None
     else:
-        df_financials = get_financial_data(symbol, year)  # ✅ ottieni solo i dati richiesti!
+        # Altrimenti chiama API, calcola KPI e salva solo nuovi record senza update
+        df_financials = get_financial_data(symbol, year)
         df_kpis = compute_kpis(df_financials)
         save_kpis_to_db(df_kpis)
         return df_kpis, df_financials
