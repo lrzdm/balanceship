@@ -215,7 +215,10 @@ def render_kpis(df_all_kpis, exchanges_dict):
 
     # 1. Caricamento KPI e aggiornamento automatico se mancanti
     with st.spinner("Caricamento KPI in corso..."):
-        df_all_kpis = load_all_kpis_with_auto_update()
+        if USE_READ_ONLY:
+            df_all_kpis = load_all_kpis_read_only()
+        else:
+            df_all_kpis = load_all_kpis_with_auto_update()
 
     if df_all_kpis.empty:
         st.warning("Nessun KPI disponibile. Carica prima i dati finanziari.")
