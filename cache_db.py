@@ -174,6 +174,7 @@ def save_kpis_to_db(kpi_df, max_no_update_in_row=10):
             # Converti e pulisci i dati per JSON
             data = row.drop(['symbol','year','description'], errors='ignore').to_dict()
             data = convert_numpy(data)
+            print("DEBUG data prima di json.dumps:", data)
             json_data = json.dumps(data, ensure_ascii=False, allow_nan=False, sort_keys=True)
 
             # Cerca entry esistente
