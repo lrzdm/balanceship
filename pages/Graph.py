@@ -90,7 +90,7 @@ def render_logos():
 
 
 # KPI Table e Grafici
-@st.cache_data(show_spinner=False)
+
 def load_financials(symbol, year):
     df_kpis = load_kpis_for_symbol_year(symbol, year)
     if not df_kpis.empty:
@@ -102,71 +102,53 @@ def load_financials(symbol, year):
         return df_kpis, df_financials
 
 def load_all_kpis_with_auto_update():
+    # Recupera i KPI già presenti nel DB
+    session = Session()
     try:
-        session = Session()
-        try:
-            entries = session.query(KPICache).all()
-            existing = {}
-
-            for e in entries:
-                try:
-                    if isinstance(e.kpi_json, str):
-                        val = json.loads(e.kpi_json)
-                    elif isinstance(e.kpi_json, dict):
-                        val = e.kpi_json
-                    else:
-                        val = None
-                        logger.warning(f"Formato inatteso in kpi_json per {e.symbol} {e.year}: {type(e.kpi_json)}")
-
-                except Exception as exc:
-                    val = None
-                    logger.error(f"Errore parsing JSON in kpi_json per {e.symbol} {e.year}: {exc}")
-
-                existing[(e.symbol, e.year, e.description or None)] = val
-
-        finally:
-            session.close()
-
-        session = Session()
-        try:
-            financial_entries = session.query(FinancialCache).all()
-        finally:
-            session.close()
-
-        for entry in financial_entries:
-            key = (entry.symbol, entry.year, None)
-            try:
-                if isinstance(entry.data_json, str):
-                    data = json.loads(entry.data_json)
-                elif isinstance(entry.data_json, dict):
-                    data = entry.data_json
-                else:
-                    raise ValueError(f"Formato sconosciuto in entry.data_json: {type(entry.data_json)}")
-
-                df_financial = pd.DataFrame([data])
-                df_kpis = compute_kpis(df_financial)
-                df_kpis["description"] = None
-                kpi_dict = df_kpis.drop(columns=["symbol", "year", "description"], errors="ignore").iloc[0].to_dict()
-                kpi_dict = convert_numpy(kpi_dict)
-
-                existing_val = existing.get(key)
-                if not isinstance(existing_val, dict):
-                    existing_val = None
-
-                if key not in existing or existing_val != kpi_dict:
-                    save_kpis_to_db(df_kpis)
-
-            except Exception as e:
-                logger.error(f"Errore nel calcolo/salvataggio KPI per {entry.symbol} {entry.year}: {e}")
-
-        return load_all_kpis()
-
+        entries = session.query(KPICache).all()
+        existing = {(e.symbol, e.year, e.description or None): json.loads(e.kpi_json) for e in entries}
     except Exception as e:
-        import traceback
-        tb = traceback.format_exc()
-        logger.error(f"Errore FATALE in load_all_kpis_with_auto_update:\n{tb}")
-        st.error(f"Errore fatale durante il caricamento KPI: {e}\n{tb}")
+        st.error(f"Errore caricamento KPI esistenti: {e}")
         return pd.DataFrame()
+    finally:
+        session.close()
+
+    # Recupera i bilanci
+    session = Session()
+    try:
+        financial_entries = session.query(FinancialCache).all()
+    except Exception as e:
+        logger.error(f"Errore caricamento dati finanziari: {e}")
+        return pd.DataFrame()
+    finally:
+        session.close()
+
+    # Calcola solo se mancano o sono effettivamente diversi
+    for entry in financial_entries:
+        key = (entry.symbol, entry.year, None)
+        try:
+            if isinstance(entry.data_json, str):
+                data = json.loads(entry.data_json)
+            elif isinstance(entry.data_json, dict):
+                data = entry.data_json
+            else:
+                raise ValueError(f"Formato sconosciuto in entry.data_json: {type(entry.data_json)}")
+            df_financial = pd.DataFrame([data])
+            df_kpis = compute_kpis(df_financial)
+            df_kpis["description"] = None  # Assicurati che ci sia
+            kpi_dict = df_kpis.drop(columns=["symbol", "year", "description"], errors="ignore").iloc[0].to_dict()
+            kpi_dict = convert_numpy(kpi_dict)
+
+            # Confronto oggetti (più robusto del confronto stringhe JSON)
+            if key not in existing or existing[key] != kpi_dict:
+                logger.info(f"Calcolo o aggiornamento KPI per {entry.symbol} {entry.year}")
+                save_kpis_to_db(df_kpis)
+            else:
+                logger.info(f"KPI per {entry.symbol} {entry.year} già presenti e identici, nessun update.")
+        except Exception as e:
+            logger.error(f"Errore nel calcolo/salvataggio KPI per {entry.symbol} {entry.year}: {e}")
+
+    return load_all_kpis()
 
 
 df_all_kpis = load_all_kpis_with_auto_update()
@@ -487,7 +469,6 @@ def render_general_graphs():
                   title=f"Average {COLUMN_LABELS.get(metric_sector, metric_sector)} per Sector in {selected_year} ({selected_exchange})",
                   labels={metric_sector: COLUMN_LABELS.get(metric_sector, metric_sector), "sector": "Sector"})
     st.plotly_chart(fig2, use_container_width=True)
-
 
 
 # --- SIDEBAR ---
