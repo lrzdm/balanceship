@@ -102,14 +102,13 @@ def load_financials(symbol, year):
         return df_kpis, df_financials
 
 def load_all_kpis_with_auto_update():
-    # Recupera i KPI già presenti nel DB
     session = Session()
     try:
         entries = session.query(KPICache).all()
-        #existing = {(e.symbol, e.year, e.description or None): json.loads(e.kpi_json) for e in entries}
         existing = {}
         for e in entries:
             try:
+                logger.info(f"Tipo kpi_json per {e.symbol} {e.year} = {type(e.kpi_json)}")
                 if isinstance(e.kpi_json, str):
                     val = json.loads(e.kpi_json)
                 elif isinstance(e.kpi_json, dict):
@@ -127,7 +126,6 @@ def load_all_kpis_with_auto_update():
     finally:
         session.close()
 
-    # Recupera i bilanci
     session = Session()
     try:
         financial_entries = session.query(FinancialCache).all()
@@ -137,7 +135,6 @@ def load_all_kpis_with_auto_update():
     finally:
         session.close()
 
-    # Calcola solo se mancano o sono effettivamente diversi
     for entry in financial_entries:
         key = (entry.symbol, entry.year, None)
         try:
@@ -147,14 +144,19 @@ def load_all_kpis_with_auto_update():
                 data = entry.data_json
             else:
                 raise ValueError(f"Formato sconosciuto in entry.data_json: {type(entry.data_json)}")
+
             df_financial = pd.DataFrame([data])
             df_kpis = compute_kpis(df_financial)
             df_kpis["description"] = None  # Assicurati che ci sia
             kpi_dict = df_kpis.drop(columns=["symbol", "year", "description"], errors="ignore").iloc[0].to_dict()
             kpi_dict = convert_numpy(kpi_dict)
 
-            # Confronto oggetti (più robusto del confronto stringhe JSON)
-            if key not in existing or existing[key] != kpi_dict:
+            # Controllo robusto sul confronto per evitare errori
+            existing_val = existing.get(key)
+            if not isinstance(existing_val, dict):
+                existing_val = None
+
+            if key not in existing or existing_val != kpi_dict:
                 logger.info(f"Calcolo o aggiornamento KPI per {entry.symbol} {entry.year}")
                 save_kpis_to_db(df_kpis)
             else:
