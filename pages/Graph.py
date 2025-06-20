@@ -170,9 +170,10 @@ def load_all_kpis_with_auto_update():
 
 
 df_all_kpis = load_all_kpis_with_auto_update()
+# 2. Leggi exchanges (una sola volta)
+exchanges = read_exchanges("exchanges.txt")
 
-
-def render_kpis(df_all_kpis):
+def render_kpis(df_all_kpis, exchanges_dict):
     st.header("📊 KPI Dashboard")
 
     # 1. Caricamento KPI e aggiornamento automatico se mancanti
@@ -183,16 +184,31 @@ def render_kpis(df_all_kpis):
         st.warning("Nessun KPI disponibile. Carica prima i dati finanziari.")
         return
 
-    # 2. Preparazione dizionario e liste dinamiche
+    # 2. Aggiungi filtro Exchange: lista exchange da dizionario esterno (passato a questa funzione)
+    exchange_names = list(exchanges_dict.keys())
+    selected_exchange = st.selectbox("Seleziona Exchange", ["All"] + exchange_names, index=0)
+
+    # 3. Filtra df_all_kpis per exchange (se non "All")
+    if selected_exchange != "All":
+        # Ottieni simboli appartenenti all'exchange selezionato
+        companies_exchange = read_companies(exchanges_dict[selected_exchange])
+        symbols_for_exchange = {c["ticker"] for c in companies_exchange}
+        df_all_kpis = df_all_kpis[df_all_kpis["symbol"].isin(symbols_for_exchange)]
+
+    if df_all_kpis.empty:
+        st.warning(f"Nessun KPI disponibile per l'exchange selezionato: {selected_exchange}")
+        st.stop()
+
+    # 4. Preparazione dizionario descrizioni → simboli
     descriptions_dict = df_all_kpis.groupby("description")["symbol"].apply(lambda x: list(sorted(set(x)))).to_dict()
     descriptions_available = sorted(k for k in descriptions_dict if k is not None)
     years_available = sorted(df_all_kpis["year"].astype(str).unique())
 
-    # 3. Default filters
+    # 5. Default filters
     default_desc = ['Apple Inc.'] if 'Apple Inc.' in descriptions_available else (descriptions_available[:1] if descriptions_available else [])
     default_years = ['2023'] if "2023" in years_available else ([years_available[-1]] if years_available else [])
 
-    # 4. Gestione session state
+    # 6. Gestione session state
     if 'selected_desc' in st.session_state:
         st.session_state['selected_desc'] = [x for x in st.session_state['selected_desc'] if x in descriptions_available]
     else:
@@ -203,7 +219,7 @@ def render_kpis(df_all_kpis):
     else:
         st.session_state['selected_years'] = default_years
 
-    # 5. Filtri UI
+    # 7. Filtri UI
     col1, col2 = st.columns(2)
     selected_desc = col1.multiselect(
         "Seleziona aziende",
@@ -218,7 +234,7 @@ def render_kpis(df_all_kpis):
         key="year_filter"
     )
 
-    # 6. Limiti
+    # 8. Limiti e controlli
     if len(selected_desc) > 3:
         st.warning("Puoi selezionare al massimo 3 aziende.")
         st.stop()
@@ -233,7 +249,7 @@ def render_kpis(df_all_kpis):
         st.warning("Seleziona almeno un'azienda e un anno.")
         st.stop()
 
-    # 7. Estrazione simboli
+    # 9. Estrazione simboli selezionati
     selected_symbols = []
     for d in selected_desc:
         selected_symbols.extend(descriptions_dict.get(d, []))
@@ -242,12 +258,11 @@ def render_kpis(df_all_kpis):
         st.warning("Nessun simbolo trovato per le aziende selezionate.")
         st.stop()
 
-    # 8. Filtro sui dati
-    df_kpis = df_all_kpis.copy()
-    df_filtered = df_kpis[
-        (df_kpis['symbol'].isin(selected_symbols)) &
-        (df_kpis['year'].astype(str).isin(selected_years)) &
-        (df_kpis['description'].isin(selected_desc))
+    # 10. Filtro finale sui dati
+    df_filtered = df_all_kpis[
+        (df_all_kpis['symbol'].isin(selected_symbols)) &
+        (df_all_kpis['year'].astype(str).isin(selected_years)) &
+        (df_all_kpis['description'].isin(selected_desc))
     ]
 
     if df_filtered.empty:
@@ -516,7 +531,8 @@ st.sidebar.markdown(f"""
 
 def run():
     render_logos()
-    render_kpis(df_all_kpis)
+    render_kpis(df_all_kpis, exchanges)
+    #render_kpis(df_all_kpis)
     st.markdown("---")
     render_general_graphs()
     #render_sidebar_footer()
