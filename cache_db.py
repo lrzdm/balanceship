@@ -227,7 +227,12 @@ def load_kpis_for_symbol_year(symbol, year, description=None):
             query = query.filter_by(description=description)
         entry = query.first()
         if entry:
-            data = json.loads(entry.kpi_json)
+            if isinstance(entry.kpi_json, str):
+                data = json.loads(entry.kpi_json)
+            elif isinstance(entry.kpi_json, dict):
+                data = entry.kpi_json
+            else:
+                raise ValueError(f"Formato inatteso in kpi_json: {type(entry.kpi_json)}")
             data.update({'symbol': entry.symbol, 'year': entry.year, 'description': entry.description})
             return pd.DataFrame([data])
         else:
