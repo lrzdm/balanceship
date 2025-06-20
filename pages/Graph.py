@@ -1,8 +1,8 @@
-import streamlit as st
+import streamlit as stMore actions
 import pandas as pd
 import plotly.express as px
 from data_utils import read_exchanges, read_companies, get_financial_data, remove_duplicates, compute_kpis, get_all_financial_data
-from cache_db import save_kpis_to_db, FinancialCache, KPICache, convert_numpy
+from cache_db import save_kpis_to_db, FinancialCache, KPICache
 from cache_db import load_kpis_for_symbol_year, load_all_kpis
 from cache_db import load_from_db
 import os
@@ -102,35 +102,42 @@ def load_financials(symbol, year):
         return df_kpis, df_financials
 
 def load_all_kpis_with_auto_update():
-    st.write("Entrato in load_all_kpis_with_auto_update()")
     try:
-        # --- Lettura KPI già salvati ---
         session = Session()
-        existing = {}
         try:
             entries = session.query(KPICache).all()
+            existing = {}
             for e in entries:
+            if isinstance(e.kpi_json, str):
                 try:
-                    val = e.kpi_json
-                    if isinstance(val, str):
-                        val = json.loads(val)
-                    elif not isinstance(val, dict):
-                        raise TypeError(f"Tipo inatteso in kpi_json: {type(val)}")
+                    if isinstance(e.kpi_json, str):
+                        val = json.loads(e.kpi_json)
+                    elif isinstance(e.kpi_json, dict):
+                        val = e.kpi_json
+                    else:
+                        val = None
                     existing[(e.symbol, e.year, e.description or None)] = val
+                    val = json.loads(e.kpi_json)
                 except Exception as exc:
                     logger.error(f"Errore parsing JSON in kpi_json per {e.symbol} {e.year}: {exc}")
                     existing[(e.symbol, e.year, e.description or None)] = None
+                    logger.error(f"JSON malformato in stringa per {e.symbol} {e.year}: {exc}")
+                    val = None
+            elif isinstance(e.kpi_json, dict):
+                val = e.kpi_json
+            else:
+                logger.warning(f"Formato inatteso in kpi_json per {e.symbol} {e.year}: {type(e.kpi_json)}")
+                val = None
+
         finally:
             session.close()
 
-        # --- Carica tutti i financial salvati ---
         session = Session()
         try:
             financial_entries = session.query(FinancialCache).all()
         finally:
             session.close()
 
-        # --- Per ogni financial, calcola i KPI e aggiorna se necessario ---
         for entry in financial_entries:
             key = (entry.symbol, entry.year, None)
             try:
@@ -152,17 +159,14 @@ def load_all_kpis_with_auto_update():
                     existing_val = None
 
                 if key not in existing or existing_val != kpi_dict:
-                    logger.info(f"KPI aggiornati o mancanti per {entry.symbol} {entry.year}: salvataggio...")
                     save_kpis_to_db(df_kpis)
-                else:
-                    logger.info(f"KPI già presenti e identici per {entry.symbol} {entry.year}")
             except Exception as e:
                 logger.error(f"Errore nel calcolo/salvataggio KPI per {entry.symbol} {entry.year}: {e}")
 
-        # --- Ritorna tutto ---
         return load_all_kpis()
 
     except Exception as e:
+        # Qui mostriamo a schermo e logghiamo l'errore finale
         import traceback
         tb = traceback.format_exc()
         logger.error(f"Errore FATALE in load_all_kpis_with_auto_update:\n{tb}")
@@ -271,7 +275,7 @@ def render_kpis(df_all_kpis):
     num_cols = df_clean.select_dtypes(include=['number']).columns
     styled = df_clean.style.format({col: "{:.2%}" for col in num_cols})
     st.dataframe(styled, height=600)
-    
+
     # Layout bottoni Reset e Download
     col_reset, col_download = st.columns([1, 1])
     with col_reset:
@@ -306,18 +310,18 @@ def render_kpis(df_all_kpis):
             y_axis = st.selectbox("Y Axis", bubble_cols, index=1)
         with col3:
             size_axis = st.selectbox("Bubble Size", bubble_cols, index=2)
-    
+
         df_plot = df_filtered.dropna(subset=[x_axis, y_axis, size_axis]).copy()
-        
+
         # Assicurati che i valori size siano >= 0 (o > 0)
         df_plot[size_axis] = df_plot[size_axis].clip(lower=0)
-        
+
         # opzionale: se vuoi evitare bolle di dimensione zero (invisibili), puoi fare così:
         min_size = 0.1
         df_plot[size_axis] = df_plot[size_axis].apply(lambda x: max(x, min_size))
-        
+
         df_plot['label'] = df_plot['description'] + ' ' + df_plot['year'].astype(str)
-        
+
         fig = px.scatter(
             df_plot,
             x=x_axis,
@@ -385,7 +389,7 @@ def render_general_graphs():
     if df.empty:
         st.warning("No data found for the selected companies.")
         return
-    
+
     # 🔧 Fix tipi
     df['year'] = df['year'].astype(str)
 
@@ -394,7 +398,7 @@ def render_general_graphs():
         "stockholders_equity", "total_assets", "basic_eps", "diluted_eps"
     ]
 
-    
+
      # --- GRAFICO 1 ---
     st.subheader("📉 Graph 1: Metric over Time per Company")
     col1, _ = st.columns(2)
@@ -411,7 +415,7 @@ def render_general_graphs():
     fig1.update_layout(xaxis=dict(tickmode="array", tickvals=sorted(df1['year'].unique())))
     st.plotly_chart(fig1, use_container_width=True)
 
-    
+
     # --- GRAFICO 2 ---
     st.subheader("📐 Graph 2: Custom Ratio Over Time")
     col2, col3 = st.columns(2)
@@ -459,7 +463,7 @@ def render_general_graphs():
         )
         fig3.update_layout(xaxis=dict(tickmode="array", tickvals=sorted(df_ratio['year'].unique())))
         st.plotly_chart(fig3, use_container_width=True) 
-        
+
     # --- GRAFICO 3 ---
     st.subheader("📊 Graph 3: Metric Average per Sector")
     col1, col2, col3 = st.columns(3)
@@ -473,14 +477,14 @@ def render_general_graphs():
         selected_year = st.selectbox("Year", selected_years, index=2)
 
     df_sector = df[(df['stock_exchange'] == selected_exchange) & (df['year'] == str(selected_year))].copy()
-    
+
     # Pulizia dati
     df_sector["sector"] = df_sector["sector"].replace("null", np.nan)
     df_sector[metric_sector] = pd.to_numeric(df_sector[metric_sector], errors='coerce')
-    
+
     # Rimozione righe con valori mancanti
     df_sector = df_sector.dropna(subset=["sector", metric_sector])
-    
+
     # Calcolo media per settore
     sector_avg = df_sector.groupby("sector")[metric_sector].mean().reset_index()
 
