@@ -92,7 +92,7 @@ Python for data-driven insights.","images/Lorenzo De Meo_01.jpg"),
 Specializing in project management and business planning. He boasts extensive experience in consulting firms \
 and multinational companies, where he has held managerial roles.","images/William H Gazzo_01.jpg"),
   ("Gabriele Schininà","Professional with a solid financial background and training from SDA Bocconi. Specializing in financial modelling, \
-  strategic planning, and budget management. He boasts extensive experience in listed and non-listed multinational companies, where he held roles in \
+  strategic planning, and budget management. He boasts extensive experience in listed and non-listed multinational companies, with roles in \
 business controlling.","images/Gabriele Schinina_01.jpg"),
   ("Giovanni Serusi","Professional with a solid scientific background, specializing in clinical and cognitive neuroscience and with economic training\
 from SDA Bocconi. Specializing in competitive intelligence and scouting new investment opportunities with a focus on the life-science sector.","images/Giovanni Serusi_01.jpg"),
