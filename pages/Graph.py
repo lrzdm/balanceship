@@ -10,6 +10,9 @@ import base64
 import io
 import plotly.express as px
 import numpy as np
+from sqlalchemy import create_engine, Column, String, Text, Integer
+from sqlalchemy.orm import declarative_base, scoped_session, sessionmaker
+from sqlalchemy.orm import Session
 
 st.set_page_config(page_title="Graphs", layout="wide")
 
@@ -91,8 +94,46 @@ def load_financials(symbol, year):
         save_kpis_to_db(df_kpis)
         return df_kpis, df_financials
 
+def load_all_kpis_with_auto_update():
+    session = Session()
+    try:
+        entries = session.query(KPICache).all()
+        existing = {(e.symbol, e.year) for e in entries}
+    except Exception as e:
+        logger.error(f"Errore caricamento esistente KPI: {e}")
+        return pd.DataFrame()
+    finally:
+        session.close()
 
-df_all_kpis = load_all_kpis()
+    # Carica tutti i dati finanziari esistenti
+    financial_session = Session()
+    try:
+        financial_entries = financial_session.query(FinancialCache).all()
+        new_kpi_rows = []
+        for entry in financial_entries:
+            key = (entry.symbol, entry.year)
+            if key not in existing:
+                try:
+                    data = json.loads(entry.data_json)
+                    df_financial = pd.DataFrame([data])
+                    df_kpis = compute_kpis(df_financial)
+                    if 'description' not in df_kpis.columns:
+                        df_kpis['description'] = data.get('description')
+                    save_kpis_to_db(df_kpis)
+                    new_kpi_rows.append(df_kpis)
+                except Exception as e:
+                    logger.error(f"Errore nel calcolo/salvataggio KPI per {entry.symbol} {entry.year}: {e}")
+        if new_kpi_rows:
+            logger.info(f"KPI calcolati e salvati per {len(new_kpi_rows)} nuovi simboli/anni")
+    finally:
+        financial_session.close()
+
+    # Ora ricarica tutti i KPI (compresi quelli appena aggiunti)
+    return load_all_kpis()
+
+
+df_all_kpis = load_all_kpis_with_auto_update()
+
 
 def render_kpis(df_all_kpis):
     st.header("📊 Financial KPI Table")
