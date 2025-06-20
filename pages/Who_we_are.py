@@ -67,7 +67,12 @@ st.markdown("""
 st.markdown("""
 <div class='description-block'>
   <h2>🏢 About Us</h2>
-  <p>At <strong>Balanceship</strong>, we bring clarity and simplicity to financial data...
+  <p>At <strong>Balanceship</strong>, we’re on a mission to bring clarity and simplicity to financial data.\
+    Navigating financial information should be like sailing a well-balanced ship—steady, reliable, and easy to steer.\
+    In a world full of complex numbers and overwhelming reports, Balance-ship provides a calm, clear view. We help users compare and benchmark\
+    company financials in a straightforward, visually intuitive way. Our platform is designed to give you trustworthy insights-fast.\
+    Whether you're exploring markets, tracking competitors, or making strategic decisions, Balanceship offers a streamlined way to compare\
+    financials across companies-with accuracy, transparency, and ease. We’re here to be the go-to source for smart, simple financial comparison.
     Navigate the financial sea with clarity ⚓</p>
 </div>
 """, unsafe_allow_html=True)
@@ -98,14 +103,28 @@ for name, desc, img in profiles:
     </div>"""
 st.markdown(f"<div class='profile-grid'>{cards}</div>", unsafe_allow_html=True)
 
-# --- Timeline ---
+# --- TIMELINE ---
+st.markdown("<h2 style='text-align: center;'>📈 Our Journey</h2>", unsafe_allow_html=True)
 st.markdown("""
-<div class='timeline-block'>
-  <h2>🏛️ Company Timeline</h2>
-  <div class='timeline-item'><div class='timeline-year'>2022</div><div>Concept ideation & prototype development</div></div>
-  <div class='timeline-item'><div class='timeline-year'>2023</div><div>Alpha release & early adopters</div></div>
-  <div class='timeline-item'><div class='timeline-year'>2024</div><div>Official product launch</div></div>
-  <div class='timeline-item'><div class='timeline-year'>2025</div><div>Expansion in EU & roadmap planning</div></div>
+<div class='timeline'>
+    <div class='timeline-box left'>
+        <div class='timeline-content'>
+            <h4>2025 – Foundation</h4>
+            <p>Balanceship is born in Rome with the goal of making financial insights accessible.</p>
+        </div>
+    </div>
+    <div class='timeline-box right'>
+        <div class='timeline-content'>
+            <h4>2026 – MVP Launch</h4>
+            <p>Released the first version of our data platform for financial ratio visualization.</p>
+        </div>
+    </div>
+    <div class='timeline-box left'>
+        <div class='timeline-content'>
+            <h4>2027 – Strategic Clients</h4>
+            <p>Onboarded early enterprise clients and improved benchmarking features.</p>
+        </div>
+    </div>
 </div>
 """, unsafe_allow_html=True)
 
