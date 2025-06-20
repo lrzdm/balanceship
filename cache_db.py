@@ -180,8 +180,12 @@ def save_kpis_to_db(kpi_df, max_no_update_in_row=10):
             entry = session.query(KPICache).filter_by(symbol=symbol, year=year, description=desc).first()
             if entry:
                 try:
-                    old_data = json.loads(entry.kpi_json)
-                    new_data = json.loads(json_data)
+                    old_data = json.loads(entry.kpi_json) if isinstance(entry.kpi_json, str) else entry.kpi_json
+                    new_data = json.loads(json_data) if isinstance(json_data, str) else json_data
+                except Exception as e:
+                    logger.error(f"Errore parsing JSON per {entry.symbol} {entry.year}: {e}")
+                    continue
+
                 except Exception as e:
                     logger.error(f"Errore parsing JSON durante confronto per {symbol} {year}: {e}")
                     old_data = None
