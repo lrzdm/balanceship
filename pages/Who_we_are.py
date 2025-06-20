@@ -17,18 +17,18 @@ body { background-color: #eceff1; color: #263238; }
 .logo-small { height: 60px; }
 .startup-box { background: #f5f5f5; border-left: 6px solid #0288d1; border-radius: 10px; padding: 30px; margin: 30px; }
 .description-block { background: #fff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); padding: 40px; margin: 20px; }
-.profile-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; margin: 30px; }
+.profile-grid { display: flex; justify-content: center; gap: 30px; margin: 30px; }
 .profile-card { background: #fff; width: 260px; height: 360px; border-radius: 12px; perspective: 1000px; }
 .profile-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.8s; transform-style: preserve-3d; }
 .profile-card:hover .profile-inner { transform: rotateY(180deg); }
-.profile-front, .profile-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-.profile-front { background: #fff; }
-.profile-back { background: #0288d1; color: #fff; transform: rotateY(180deg); padding: 20px; }
-.profile-front img { border-radius: 50%; margin-top: 20px; width: 120px; height: 120px; object-fit: cover; }
-.timeline { background: #fff; border-radius: 10px; padding: 30px; margin: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-.timeline h2 { text-align: center; }
-.timeline .event { margin: 20px 0; position: relative; }
-.timeline .event::before { content: ''; position: absolute; left: -15px; top: 5px; width: 10px; height: 10px; background: #0288d1; border-radius: 50%; }
+.profile-front, .profile-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+.profile-front { background: #0288d1; color: #fff; }
+.profile-back { background: #fff; color: #263238; transform: rotateY(180deg); }
+.profile-front img { border-radius: 50%; width: 120px; height: 120px; object-fit: cover; margin-bottom: 20px; }
+.timeline-block { background-color: #fff; border-radius: 12px; padding: 40px; margin: 40px auto; max-width: 800px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+.timeline-block h2 { text-align: center; margin-bottom: 40px; }
+.timeline-item { display: flex; align-items: flex-start; margin-bottom: 30px; }
+.timeline-year { background: #0288d1; color: #fff; padding: 10px 20px; border-radius: 20px; margin-right: 20px; font-weight: bold; min-width: 80px; text-align: center; }
 .video-container { display: flex; justify-content: center; margin: 30px; }
 </style>
 """, unsafe_allow_html=True)
@@ -100,12 +100,12 @@ st.markdown(f"<div class='profile-grid'>{cards}</div>", unsafe_allow_html=True)
 
 # --- Timeline ---
 st.markdown("""
-<div class='timeline'>
+<div class='timeline-block'>
   <h2>🏛️ Company Timeline</h2>
-  <div class='event'><strong>2022:</strong> Concept ideation & prototype development</div>
-  <div class='event'><strong>2023:</strong> Alpha release & early adopters</div>
-  <div class='event'><strong>2024:</strong> Official product launch</div>
-  <div class='event'><strong>2025:</strong> Expansion in EU & roadmap planning</div>
+  <div class='timeline-item'><div class='timeline-year'>2022</div><div>Concept ideation & prototype development</div></div>
+  <div class='timeline-item'><div class='timeline-year'>2023</div><div>Alpha release & early adopters</div></div>
+  <div class='timeline-item'><div class='timeline-year'>2024</div><div>Official product launch</div></div>
+  <div class='timeline-item'><div class='timeline-year'>2025</div><div>Expansion in EU & roadmap planning</div></div>
 </div>
 """, unsafe_allow_html=True)
 
