@@ -12,9 +12,9 @@ import plotly.express as px
 import numpy as np
 from sqlalchemy import create_engine, Column, String, Text, Integer
 from sqlalchemy.orm import declarative_base, scoped_session, sessionmaker
-from sqlalchemy.orm import Session
+from cache_db import Session
 from cache_db import create_tables
-create_tables()
+
 
 st.set_page_config(page_title="Graphs", layout="wide")
 
