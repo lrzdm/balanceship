@@ -98,67 +98,68 @@ def load_all_kpis_with_auto_update():
     session = Session()
     try:
         entries = session.query(KPICache).all()
-        existing = {(e.symbol, e.year) for e in entries}
+        existing = {(e.symbol, e.year, e.description) for e in entries}
     except Exception as e:
-        logger.error(f"Errore caricamento esistente KPI: {e}")
+        logger.error(f"Errore caricamento KPI esistenti: {e}")
         return pd.DataFrame()
     finally:
         session.close()
 
-    # Carica tutti i dati finanziari esistenti
-    financial_session = Session()
+    # Recupera i dati finanziari
+    session = Session()
     try:
-        financial_entries = financial_session.query(FinancialCache).all()
-        new_kpi_rows = []
-        for entry in financial_entries:
-            key = (entry.symbol, entry.year)
-            if key not in existing:
-                try:
-                    data = json.loads(entry.data_json)
-                    df_financial = pd.DataFrame([data])
-                    df_kpis = compute_kpis(df_financial)
-                    if 'description' not in df_kpis.columns:
-                        df_kpis['description'] = data.get('description')
-                    save_kpis_to_db(df_kpis)
-                    new_kpi_rows.append(df_kpis)
-                except Exception as e:
-                    logger.error(f"Errore nel calcolo/salvataggio KPI per {entry.symbol} {entry.year}: {e}")
-        if new_kpi_rows:
-            logger.info(f"KPI calcolati e salvati per {len(new_kpi_rows)} nuovi simboli/anni")
+        financial_entries = session.query(FinancialCache).all()
+    except Exception as e:
+        logger.error(f"Errore caricamento dati finanziari: {e}")
+        return pd.DataFrame()
     finally:
-        financial_session.close()
+        session.close()
 
-    # Ora ricarica tutti i KPI (compresi quelli appena aggiunti)
+    # Calcolo KPI mancanti
+    new_kpi_rows = []
+    for entry in financial_entries:
+        key = (entry.symbol, entry.year, None)  # None = descrizione di default
+        if key not in existing:
+            try:
+                data = json.loads(entry.data_json)
+                df_financial = pd.DataFrame([data])
+                df_kpis = compute_kpis(df_financial)
+                if "description" not in df_kpis.columns:
+                    df_kpis["description"] = None
+                save_kpis_to_db(df_kpis)
+                new_kpi_rows.append(df_kpis)
+            except Exception as e:
+                logger.error(f"Errore nel calcolo/salvataggio KPI per {entry.symbol} {entry.year}: {e}")
+
+    # Ritorna tutti i KPI aggiornati
     return load_all_kpis()
+
 
 
 df_all_kpis = load_all_kpis_with_auto_update()
 
 
-def render_kpis(df_all_kpis):
-    st.header("📊 Financial KPI Table")
-    #df_all_kpis = load_all_kpis()
-    # Usa df_all_kpis completo per mostrare tutti i dati
-    df_kpis = df_all_kpis.copy()
+def render_kpis():
+    st.header("📊 KPI Dashboard")
 
-    # Assicurati che ci sia colonna 'description', aggiungila se manca
-    if 'description' not in df_kpis.columns:
-        # caricamento df_financials che contiene descrizioni per tutti i simboli
-        _, df_financials = load_financials()  # o altra funzione che carica tutte le descrizioni
-        if not df_financials.empty:
-            df_kpis = df_kpis.merge(
-                df_financials[['symbol', 'description']].drop_duplicates(),
-                on='symbol',
-                how='left'
-            )
+    # 1. Caricamento KPI e aggiornamento automatico se mancanti
+    with st.spinner("Caricamento KPI in corso..."):
+        df_all_kpis = load_all_kpis_with_auto_update()
 
-    descriptions_dict = df_kpis.drop_duplicates(subset='symbol').set_index('description')['symbol'].to_dict()
-    descriptions_available = sorted(k for k in descriptions_dict.keys() if k is not None)
-    years_available = sorted(df_kpis['year'].astype(str).unique())
+    if df_all_kpis.empty:
+        st.warning("Nessun KPI disponibile. Carica prima i dati finanziari.")
+        return
 
+    # 2. Preparazione dizionario e liste dinamiche
+    descriptions_dict = df_all_kpis.groupby("description")["symbol"].apply(lambda x: list(sorted(set(x)))).to_dict()
+    descriptions_available = sorted(k for k in descriptions_dict if k is not None)
+    years_available = sorted(df_all_kpis["year"].astype(str).unique())
+
+    # 3. Default filters
     default_desc = ['Apple Inc.'] if 'Apple Inc.' in descriptions_available else (descriptions_available[:1] if descriptions_available else [])
     default_years = ['2023'] if "2023" in years_available else ([years_available[-1]] if years_available else [])
 
+    # 4. Gestione session state
     if 'selected_desc' in st.session_state:
         st.session_state['selected_desc'] = [x for x in st.session_state['selected_desc'] if x in descriptions_available]
     else:
@@ -169,50 +170,58 @@ def render_kpis(df_all_kpis):
     else:
         st.session_state['selected_years'] = default_years
 
+    # 5. Filtri UI
     col1, col2 = st.columns(2)
     selected_desc = col1.multiselect(
-        "Select Companies",
+        "Seleziona aziende",
         descriptions_available,
         default=st.session_state['selected_desc'],
         key="desc_filter"
     )
     selected_years = col2.multiselect(
-        "Select Years",
+        "Seleziona anni",
         years_available,
         default=st.session_state['selected_years'],
         key="year_filter"
     )
 
-    # Controlli max 3 elementi
+    # 6. Limiti
     if len(selected_desc) > 3:
         st.warning("Puoi selezionare al massimo 3 aziende.")
         st.stop()
-    
     if len(selected_years) > 3:
         st.warning("Puoi selezionare al massimo 3 anni.")
         st.stop()
-        
+
     st.session_state['selected_desc'] = selected_desc
     st.session_state['selected_years'] = selected_years
 
     if not selected_desc or not selected_years:
-        st.warning("Please select at least one company and one year.")
+        st.warning("Seleziona almeno un'azienda e un anno.")
         st.stop()
 
-    selected_symbols = [descriptions_dict[d] for d in selected_desc if d in descriptions_dict]
+    # 7. Estrazione simboli
+    selected_symbols = []
+    for d in selected_desc:
+        selected_symbols.extend(descriptions_dict.get(d, []))
+
     if not selected_symbols:
-        st.warning("No symbols found for the selected companies.")
+        st.warning("Nessun simbolo trovato per le aziende selezionate.")
         st.stop()
 
+    # 8. Filtro sui dati
+    df_kpis = df_all_kpis.copy()
     df_filtered = df_kpis[
         (df_kpis['symbol'].isin(selected_symbols)) &
-        (df_kpis['year'].astype(str).isin(selected_years))
+        (df_kpis['year'].astype(str).isin(selected_years)) &
+        (df_kpis['description'].isin(selected_desc))
     ]
 
     if df_filtered.empty:
-        st.warning("No data found for the selected filters.")
+        st.warning("Nessun dato trovato per i filtri selezionati.")
         st.stop()
 
+    # 9. Preparazione tabella pivot
     id_vars = ['symbol', 'description', 'year']
     value_vars = [col for col in df_filtered.columns if col not in id_vars and df_filtered[col].dtype != 'object']
     df_melt = df_filtered.melt(id_vars=id_vars, value_vars=value_vars, var_name='KPI', value_name='Value')
@@ -220,13 +229,13 @@ def render_kpis(df_all_kpis):
     df_pivot = df_melt.pivot(index='KPI', columns='desc_year', values='Value')
 
     df_pivot = df_pivot.apply(pd.to_numeric, errors='coerce')
-    st.subheader("KPIs List")
-    df_clean = df_pivot.copy()  # <-- qui definisci df_clean prima di usarlo
-    df_clean = df_clean.fillna(np.nan)
+    df_clean = df_pivot.fillna(np.nan)
+
+    # 10. Visualizzazione
+    st.subheader("📋 Elenco KPI")
     num_cols = df_clean.select_dtypes(include=['number']).columns
     styled = df_clean.style.format({col: "{:.2%}" for col in num_cols})
     st.dataframe(styled, height=600)
-
     
     # Layout bottoni Reset e Download
     col_reset, col_download = st.columns([1, 1])
