@@ -83,7 +83,9 @@ st.markdown("""
 # --- Team Profiles ---
 st.markdown("<h2 style='text-align:center; margin-top:40px;'>👥 Our Team</h2>", unsafe_allow_html=True)
 profiles = [
-  ("Lorenzo De Meo","Engineer + MBA…","images/Lorenzo De Meo_01.jpg"),
+  ("Lorenzo De Meo","Professional with an engineering background and an MBA, specializing in financial reporting, internal audit, and risk management.\
+Experienced in financial analysis, accounting, and managing financial risks to support strategic decision-making. Proficient in leveraging Power BI and \
+Python for data-driven insights.","images/Lorenzo De Meo_01.jpg"),
   ("William H Gazzo","Business strategist…","images/William H Gazzo_01.jpg"),
   ("Gabriele Schininà","Finance expert…","images/Gabriele Schinina_01.jpg"),
   ("Giovanni Serusi","Neuroscientist + economist…","images/Giovanni Serusi_01.jpg"),
