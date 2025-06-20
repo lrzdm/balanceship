@@ -126,6 +126,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
+
 # --- Contacts ---
 insta, lin = get_base64("images/IG.png"), get_base64("images/LIN.png")
 st.markdown(f"""
