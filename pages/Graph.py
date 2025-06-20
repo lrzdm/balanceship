@@ -128,7 +128,10 @@ def load_all_kpis_with_auto_update():
         key = (entry.symbol, entry.year, None)  # None = descrizione di default
         if key not in existing:
             try:
-                data = json.loads(entry.data_json)
+                if isinstance(entry.data_json, str):
+                    data = json.loads(entry.data_json)
+                else:
+                    data = entry.data_json
                 df_financial = pd.DataFrame([data])
                 df_kpis = compute_kpis(df_financial)
                 if "description" not in df_kpis.columns:
