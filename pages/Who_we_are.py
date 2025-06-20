@@ -26,7 +26,9 @@ body { background-color: #eceff1; color: #263238; }
 .profile-card:hover .profile-inner { transform: rotateY(180deg); }
 .profile-front, .profile-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
 .profile-front { background: #0173C4; color: #fff; box-shadow: 0 4px 12px rgba(1, 115, 196, 0.7); }
-.profile-back { background: #fff; color: #263238; transform: rotateY(180deg); box-shadow: 0 4px 12px rgba(1, 115, 196, 0.3); }
+.profile-back { background: #fff; color: #263238; transform: rotateY(180deg); box-shadow: 0 4px 12px rgba(1, 115, 196, 0.3); display: flex; flex-direction: column; align-items: flex-end; padding: 20px; text-align: left; gap: 12px; height: 100%; box-sizing: border-box; }
+.profile-back h4 { margin: 0; margin-bottom: 10px; flex-shrink: 0; }
+.profile-back p { font-size: 14px; margin: 0; overflow-y: auto; max-height: calc(100% - 40px); }
 .profile-front img { border-radius: 50%; width: 120px; height: 120px; object-fit: cover; margin-bottom: 30px; }
 .timeline { position: relative; max-width: 800px; margin: 60px auto; }
 .timeline::after { content: ''; position: absolute; width: 6px; background-color: #0173C4; top: 0; bottom: 0; left: 50%; margin-left: -3px; }
