@@ -138,13 +138,15 @@ def load_all_kpis_with_auto_update():
                     df_kpis["description"] = None
                 save_kpis_to_db(df_kpis)
                 new_kpi_rows.append(df_kpis)
+                
+                # Aggiorna il set existing per non ricreare lo stesso KPI
+                existing.add(key)
+
             except Exception as e:
                 logger.error(f"Errore nel calcolo/salvataggio KPI per {entry.symbol} {entry.year}: {e}")
 
     # Ritorna tutti i KPI aggiornati
     return load_all_kpis()
-
-
 
 df_all_kpis = load_all_kpis_with_auto_update()
 
