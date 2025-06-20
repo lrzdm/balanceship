@@ -161,36 +161,48 @@ def load_from_db(symbol, years):
         session.close()
 
 
-def save_kpis_to_db(kpi_df):
+def save_kpis_to_db(kpi_df, max_no_update_in_row=10):
     session = Session()
+    no_update_count = 0  # Conta record consecutivi senza modifica
+    
     try:
         for _, row in kpi_df.iterrows():
             symbol = row['symbol']
             year = int(row['year'])
             desc = row.get('description', None)
 
-            # Converti e pulisci
+            # Converti e pulisci i dati per JSON
             data = row.drop(['symbol','year','description'], errors='ignore').to_dict()
             data = convert_numpy(data)
-            
-            if isinstance(data, dict):
-                # ok, dovrebbe andare bene
-                pass
-            else:
-                logger.error(f"Data non è dict ma {type(data)}: {data}")
-            
-            json_data = json.dumps(data, ensure_ascii=False, allow_nan=False)
+            json_data = json.dumps(data, ensure_ascii=False, allow_nan=False, sort_keys=True)
 
-            # Inserisci o aggiorna
+            # Cerca entry esistente
             entry = session.query(KPICache).filter_by(symbol=symbol, year=year, description=desc).first()
             if entry:
-                if entry.kpi_json != json_data:
+                try:
+                    old_data = json.loads(entry.kpi_json)
+                    new_data = json.loads(json_data)
+                except Exception as e:
+                    logger.error(f"Errore parsing JSON durante confronto per {symbol} {year}: {e}")
+                    old_data = None
+
+                if old_data != new_data:
                     entry.kpi_json = json_data
                     logger.info(f"Aggiornato KPICache per {symbol} anno {year}")
+                    no_update_count = 0  # reset contatore aggiornamenti
+                else:
+                    logger.info(f"Nessuna modifica per {symbol} anno {year}, skip aggiornamento")
+                    no_update_count += 1
             else:
                 entry = KPICache(symbol=symbol, year=year, description=desc, kpi_json=json_data)
                 session.add(entry)
                 logger.info(f"Inserito KPICache per {symbol} anno {year}")
+                no_update_count = 0
+
+            # Se troppi record consecutivi senza modifiche, interrompi (opzionale)
+            if no_update_count >= max_no_update_in_row:
+                logger.info(f"Interrotta aggiornamento dopo {no_update_count} record senza modifiche consecutive")
+                break
         
         session.commit()
 
@@ -200,6 +212,7 @@ def save_kpis_to_db(kpi_df):
         raise
     finally:
         session.close()
+
 
 def load_kpis_for_symbol_year(symbol, year, description=None):
     session = Session()
