@@ -90,16 +90,16 @@ def render_logos():
 
 
 # KPI Table e Grafici
-#@st.cache_data(show_spinner=False)
-#def load_financials(symbol, year):
-#    df_kpis = load_kpis_for_symbol_year(symbol, year)
-#    if not df_kpis.empty:
-#        return df_kpis, None
-#    else:
-#        df_financials = get_financial_data(symbol, year)  # ✅ ottieni solo i dati richiesti!
-#        df_kpis = compute_kpis(df_financials)
-#        save_kpis_to_db(df_kpis)
-#        return df_kpis, df_financials
+@st.cache_data(show_spinner=False)
+def load_financials(symbol, year):
+    df_kpis = load_kpis_for_symbol_year(symbol, year)
+    if not df_kpis.empty:
+        return df_kpis, None
+    else:
+        df_financials = get_financial_data(symbol, year)  # ✅ ottieni solo i dati richiesti!
+        df_kpis = compute_kpis(df_financials)
+        save_kpis_to_db(df_kpis)
+        return df_kpis, df_financials
 
 def load_all_kpis_with_auto_update():
     st.write("Entrato in load_all_kpis_with_auto_update()")
@@ -171,7 +171,7 @@ def load_all_kpis_with_auto_update():
 
 
 
-df_all_kpis = load_all_kpis_with_auto_update()
+#df_all_kpis = load_all_kpis_with_auto_update()
 
 
 def render_kpis(df_all_kpis):
