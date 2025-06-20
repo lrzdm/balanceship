@@ -161,9 +161,6 @@ def load_from_db(symbol, years):
         session.close()
 
 
-import json
-import difflib
-
 def save_kpis_to_db(kpi_df):
     session = Session()
     try:
@@ -175,32 +172,19 @@ def save_kpis_to_db(kpi_df):
             # Converti e pulisci
             data = row.drop(['symbol','year','description'], errors='ignore').to_dict()
             data = convert_numpy(data)
-            json_data = json.dumps(data, ensure_ascii=False, allow_nan=False, sort_keys=True)
+            json_data = json.dumps(data, ensure_ascii=False, allow_nan=False)
 
-            # Cerca entry
+            # Inserisci o aggiorna
             entry = session.query(KPICache).filter_by(symbol=symbol, year=year, description=desc).first()
             if entry:
                 if entry.kpi_json != json_data:
-                    old_json_obj = json.loads(entry.kpi_json)
-                    new_json_obj = json.loads(json_data)
-
-                    old_str = json.dumps(old_json_obj, sort_keys=True, ensure_ascii=False)
-                    new_str = json.dumps(new_json_obj, sort_keys=True, ensure_ascii=False)
-
-                    diff = difflib.unified_diff(
-                        old_str.splitlines(), new_str.splitlines(),
-                        fromfile='old_kpi_json', tofile='new_kpi_json', lineterm=''
-                    )
-                    diff_text = '\n'.join(list(diff))
-                    logger.info(f"Differenze JSON per {symbol} {year}:\n{diff_text}")
-
                     entry.kpi_json = json_data
                     logger.info(f"Aggiornato KPICache per {symbol} anno {year}")
             else:
                 entry = KPICache(symbol=symbol, year=year, description=desc, kpi_json=json_data)
                 session.add(entry)
                 logger.info(f"Inserito KPICache per {symbol} anno {year}")
-
+        
         session.commit()
 
     except Exception as e:
@@ -209,7 +193,6 @@ def save_kpis_to_db(kpi_df):
         raise
     finally:
         session.close()
-
 
 def load_kpis_for_symbol_year(symbol, year, description=None):
     session = Session()
