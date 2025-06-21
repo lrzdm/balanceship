@@ -369,13 +369,12 @@ cards = """
 
 # Mostra le card
 st.markdown(cards, unsafe_allow_html=True)
-
-
+st.markdown("<div style='height: 50px;'></div>", unsafe_allow_html=True)
 
 # Map section
 st.markdown(f"""
 <div class='map-box'>
-  <h3>🌍 Stock Exchanges on our Databases</h3>
+  <h3> "<h3 style='text-align:center; color:#0173C4;'> 🌍 Stock Exchanges on our Databases</h3>"
   <img src="data:image/png;base64,{map_base64}" class="map-img"/>
 </div>
 """, unsafe_allow_html=True)
