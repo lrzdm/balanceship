@@ -2,25 +2,82 @@ import streamlit as st
 import random
 import time
 from streamlit.components.v1 import html
+import datetime
+from cache_db import load_from_db
 
 st.set_page_config(layout="wide")
 
-# Sample data for the ticker
-sample_data = [
-    ("AAPL", "+1.2%"),
-    ("TSLA", "-2.5%"),
-    ("MSFT", "+0.8%"),
-    ("GOOGL", "+1.0%"),
-    ("AMZN", "-0.3%"),
-    ("NVDA", "+2.3%"),
-    ("META", "-1.4%")
+# ---- KPI & AI PHRASE CONFIG ----
+kpi_fields = [
+    ("total_revenue", "revenue", "reported a revenue of {val}B USD"),
+    ("ebit", "EBIT", "had an EBIT of {val}B USD"),
+    ("ebitda", "EBITDA", "posted an EBITDA of {val}B USD"),
+    ("free_cash_flow", "Free Cash Flow", "generated Free Cash Flow of {val}B USD"),
+    ("net_income", "net profit", "achieved a net profit of {val}B USD"),
+    ("basic_eps", "EPS", "had an EPS of {val}"),
+    ("cost_of_revenue", "COGS", "reported COGS of {val}B USD"),
+    ("total_debt", "total debt", "closed the year with total debt of {val}B"),
+    ("total_assets", "total assets", "held total assets worth {val}B"),
+    ("operating_income", "operating income", "reached operating income of {val}B"),
+    ("gross_profit", "gross profit", "achieved gross profit of {val}B"),
+    ("pretax_income", "pre-tax income", "earned pre-tax income of {val}B")
 ]
 
-# Randomize colors
+# ---- LOAD RANDOM SNAPSHOT PHRASE ----
+def load_random_snapshot():
+    today = datetime.datetime.utcnow()
+    ticker = st.session_state.get("snapshot_ticker")
+    all_tickers = ["AAPL", "TSLA", "MSFT", "GOOGL", "AMZN", "NVDA", "META"]
+    ticker = random.choice(all_tickers)
+    year = random.choice(["2021", "2022", "2023"])
+
+    data = load_from_db(ticker, [year])
+    if not data or not data[0]:
+        return "Data not available."
+
+    d = data[0]
+    random.shuffle(kpi_fields)
+    for key, label, phrase in kpi_fields:
+        val = d.get(key)
+        if val and isinstance(val, (int, float)) and val != 0:
+            val_fmt = f"{val:.2f}"
+            return f"In {year}, {ticker} {phrase.format(val=val_fmt)}."
+    return "Data incomplete for insight."
+
+if "snapshot_timestamp" not in st.session_state:
+    st.session_state.snapshot_timestamp = time.time()
+    st.session_state.snapshot_phrase = load_random_snapshot()
+
+if time.time() - st.session_state.snapshot_timestamp > 120:
+    st.session_state.snapshot_phrase = load_random_snapshot()
+    st.session_state.snapshot_timestamp = time.time()
+
+# ---- LOAD TICKER DATA FOR TOP BAR ----
+def load_ticker_bar_data():
+    tickers = random.sample(["AAPL", "TSLA", "MSFT", "GOOGL", "AMZN", "NVDA", "META"], 7)
+    years = ["2021", "2022", "2023"]
+    result = []
+    for t in tickers:
+        y = random.choice(years)
+        data = load_from_db(t, [y])
+        if data and isinstance(data[0], dict):
+            d = data[0]
+            key, label, _ = random.choice(kpi_fields)
+            val = d.get(key)
+            if val:
+                try:
+                    val_fmt = f"{float(val):.2f}"
+                    result.append((t, y, f"{label.title()}: {val_fmt}B"))
+                except:
+                    continue
+    return result
+
+# ---- RENDER VIDEO, NAVBAR, TICKER ----
+bar_items = load_ticker_bar_data()
+
 def get_random_color():
     return random.choice(["#00ff00", "#ff0000", "#00ffff", "#ffa500", "#ff69b4", "#ffffff"])
 
-# HTML for the page
 html_code = f"""
 <style>
   .video-background {{
@@ -32,7 +89,6 @@ html_code = f"""
     z-index: -1;
     object-fit: cover;
   }}
-
   .navbar {{
     position: absolute;
     top: 0;
@@ -44,18 +100,15 @@ html_code = f"""
     padding: 1rem;
     z-index: 10;
   }}
-
   .navbar a {{
     color: white;
     text-decoration: none;
     font-weight: bold;
     transition: color 0.3s;
   }}
-
   .navbar a:hover {{
     color: #00f7ff;
   }}
-
   .ticker-bar {{
     position: absolute;
     top: 60px;
@@ -69,18 +122,15 @@ html_code = f"""
     display: flex;
     align-items: center;
   }}
-
   .ticker-content {{
     display: inline-block;
     white-space: nowrap;
     animation: ticker 30s linear infinite;
   }}
-
   @keyframes ticker {{
     from {{ transform: translateX(100%); }}
     to {{ transform: translateX(-100%); }}
   }}
-
   .ticker-item {{
     display: inline-block;
     margin: 0 2rem;
@@ -107,8 +157,8 @@ html_code = f"""
   <div class="ticker-content">
 """
 
-for name, value in sample_data:
-    html_code += f'<span class="ticker-item" style="color:{get_random_color()};">{name}: {value}</span>'
+for t, y, val in bar_items:
+    html_code += f'<span class="ticker-item" style="color:{get_random_color()};">{t} ({y}): {val}</span>'
 
 html_code += """
   </div>
@@ -117,49 +167,27 @@ html_code += """
 
 html(html_code, height=300)
 
-# Optional content or intro text
+# ---- HEADLINE ----
 st.markdown("""
-<div style='position:relative; top:160px; color:white; text-align:center;'>
+<div style='position:relative; top:160px; color:black; text-align:center;'>
     <h1>Welcome to Financial Insights Hub</h1>
     <p>Real-time analysis, smart data. Make better financial decisions.</p>
 </div>
 """, unsafe_allow_html=True)
 
-# Cool additional section: Trending KPIs
-st.markdown("""
-<div style='position:relative; top:200px; text-align:center; padding:2rem;'>
-    <h2 style='color:#00f7ff;'>🚀 Trending Financial Metrics</h2>
-    <p style='color:white;'>Keep an eye on what's moving the markets. Explore key KPIs updated live from our database.</p>
-    <div style='display:flex; justify-content:center; gap:2rem; flex-wrap:wrap;'>
-        <div style='background-color:#111; padding:1.5rem; border-radius:12px; color:#0f0; min-width:200px;'>
-            <h3>Debt/Equity</h3>
-            <p>0.56</p>
-        </div>
-        <div style='background-color:#111; padding:1.5rem; border-radius:12px; color:#f00; min-width:200px;'>
-            <h3>ROE</h3>
-            <p>18.9%</p>
-        </div>
-        <div style='background-color:#111; padding:1.5rem; border-radius:12px; color:#0ff; min-width:200px;'>
-            <h3>Net Margin</h3>
-            <p>12.3%</p>
-        </div>
-    </div>
-</div>
-""", unsafe_allow_html=True)
-
-# AI-generated insight box
-st.markdown("""
-<div style='position:relative; top:240px; text-align:center; padding:2rem; background-color:#0a0a0a; color:white;'>
+# ---- SNAPSHOT INSIGHT ----
+st.markdown(f"""
+<div style='position:relative; top:200px; text-align:center; padding:2rem; background-color:#0a0a0a; color:white;'>
     <h2 style='color:#00f7ff;'>🤖 Snapshot AI Insights</h2>
-    <p style='font-size:18px;'>"Nel Q1 il margine operativo medio è cresciuto del <span style='color:#00ff00;'>+12%</span> tra le mid-cap europee, trainato da energia e tech."</p>
+    <p style='font-size:18px;'>{st.session_state.snapshot_phrase}</p>
 </div>
 """, unsafe_allow_html=True)
 
-# Dynamic geographic visualization (placeholder image)
+# ---- GLOBAL COVERAGE ----
 st.markdown("""
-<div style='position:relative; top:260px; text-align:center; padding:2rem;'>
+<div style='position:relative; top:220px; text-align:center; padding:2rem;'>
     <h2 style='color:#00f7ff;'>🌍 Global Data Coverage</h2>
-    <img src='https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/World_map_-_low_resolution_gray_political.png/1200px-World_map_-_low_resolution_gray_political.png' width='60%' style='border-radius:15px; box-shadow: 0 0 10px rgba(0,0,0,0.7);'>
+    <img src='https://upload.wikimedia.org/wikipedia/commons/8/83/BlankMap-World.svg' width='60%' style='border-radius:15px; box-shadow: 0 0 10px rgba(0,0,0,0.7); background-color:white;'>
     <p style='color:white; margin-top:1rem;'>We track financial KPIs across global markets, industries, and economies.</p>
 </div>
 """, unsafe_allow_html=True)
