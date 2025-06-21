@@ -194,7 +194,15 @@ html_code = f"""
     z-index: -1;
     object-fit: cover;
     opacity: 0.05;
-    background-color: black;
+  }}
+  .video-overlay {{
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.1); /* leggera oscurità */
+    z-index: 0; /* sopra video (-1) ma sotto contenuti (>=1) */
+    pointer-events: none; /* lascia cliccare gli elementi sopra */
   }}
 </style>
 
@@ -202,7 +210,7 @@ html_code = f"""
   <source src="https://www.dropbox.com/scl/fi/zpyh82bkpbhoi2dkf78f4/test_video.mp4?rlkey=td6g1wyi08kt6ko59fmsdzqa7&st=ly84c83k&raw=1" type="video/mp4">
   Your browser does not support the video tag.
 </video>
-
+<div class="video-overlay"></div>
 
 <div class="navbar">
   <div class="navbar-left">
@@ -247,7 +255,7 @@ st.markdown("""
 
 # ---- SNAPSHOT INSIGHT ----
 st.markdown(f"""
-<div style='position:relative; top:200px; text-align:center; padding:2rem; background-color:#0a0a0a; color:white;'>
+<div style='position:relative; top:100px; text-align:center; padding:2rem; background-color:#0a0a0a; color:white;'>
     <h2 style='color:#00f7ff;'>🤖 Snapshot Insights</h2>
     <p style='font-size:18px;'>{st.session_state.snapshot_phrase}</p>
 </div>
@@ -257,7 +265,7 @@ st.markdown(f"""
 from PIL import Image
 import streamlit as st
 # Spazio visivo tra snapshot e mappa
-#st.markdown("<div style='height: 80px;'></div>", unsafe_allow_html=True)
+st.markdown("<div style='height: 150px;'></div>", unsafe_allow_html=True)
 
 #st.markdown("🌍 Our Global Presence")
 
