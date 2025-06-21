@@ -253,7 +253,7 @@ new_width = 600
 map_base64 = get_base64_image("images/Map_Chart.png")
 
 
-# CSS identico a quello usato per i profili
+# CSS per le card animate in stile profili
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
@@ -325,30 +325,51 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Card HTML
-cards = ""
-for label, value, icon in [
-    ("Companies", f"{n_companies:,}", "fa-building"),
-    ("Records", f"{n_records:,}", "fa-database"),
-    ("Years", f"{n_years}", "fa-calendar-alt")
-]:
-    cards += f"""
-    <div class='profile-card'>
-      <div class='profile-inner'>
-        <div class='profile-front'>
-          <i class='fas {icon}'></i>
-          <h4>{label}</h4>
-        </div>
-        <div class='profile-back'>
-          {value}
-        </div>
+# Header
+st.markdown("<h3 style='text-align:center; color:#0173C4;'>📊 Our Data in Numbers</h3>", unsafe_allow_html=True)
+
+# HTML delle card (tutte concatenate correttamente)
+cards = """
+<div class='profile-grid'>
+  <div class='profile-card'>
+    <div class='profile-inner'>
+      <div class='profile-front'>
+        <i class='fas fa-building'></i>
+        <h4>Companies</h4>
+      </div>
+      <div class='profile-back'>
+        1,342
       </div>
     </div>
-    """
+  </div>
+  <div class='profile-card'>
+    <div class='profile-inner'>
+      <div class='profile-front'>
+        <i class='fas fa-database'></i>
+        <h4>Records</h4>
+      </div>
+      <div class='profile-back'>
+        98,214
+      </div>
+    </div>
+  </div>
+  <div class='profile-card'>
+    <div class='profile-inner'>
+      <div class='profile-front'>
+        <i class='fas fa-calendar-alt'></i>
+        <h4>Years</h4>
+      </div>
+      <div class='profile-back'>
+        15
+      </div>
+    </div>
+  </div>
+</div>
+"""
 
-# Output
-st.markdown("<h3 style='text-align:center; color:#0173C4;'>📊 Our Data in Numbers</h3>", unsafe_allow_html=True)
-st.markdown(f"<div class='profile-grid'>{cards}</div>", unsafe_allow_html=True)
+# Mostra le card
+st.markdown(cards, unsafe_allow_html=True)
+
 
 
 # Map section
@@ -360,5 +381,3 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 st.markdown("</div>", unsafe_allow_html=True)
-
-
