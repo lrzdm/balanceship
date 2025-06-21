@@ -254,7 +254,6 @@ map_base64 = get_base64_image("images/Map_Chart.png")
 
 
 
-# CSS per le card flip
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
@@ -295,15 +294,8 @@ html, body, .main {
     margin-bottom: 2rem;
 }
 
-.flip-card-container {
-    display: flex;
-    justify-content: space-around;
-    gap: 2rem;
-    flex-wrap: nowrap;
-}
-
+/* Card flip struttura */
 .flip-card {
-    background-color: transparent;
     width: 140px;
     height: 160px;
     perspective: 1000px;
@@ -314,14 +306,13 @@ html, body, .main {
     position: relative;
     width: 100%;
     height: 100%;
-    text-align: center;
     transition: transform 0.7s;
     transform-style: preserve-3d;
     border-radius: 15px;
     box-shadow: 0 8px 25px rgba(1, 115, 196, 0.2);
 }
 
-.flip-card.flipped .flip-card-inner {
+.flip-card-inner.flipped {
     transform: rotateY(180deg);
 }
 
@@ -329,7 +320,6 @@ html, body, .main {
     position: absolute;
     width: 100%;
     height: 100%;
-    -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
     border-radius: 15px;
     display: flex;
@@ -338,13 +328,13 @@ html, body, .main {
     align-items: center;
     padding: 1rem;
     font-family: 'Orbitron', monospace;
+    user-select: none;
 }
 
 .flip-card-front {
     background-color: #0173C4;
     color: white;
     font-size: 3rem;
-    user-select: none;
 }
 
 .flip-card-front i {
@@ -357,7 +347,6 @@ html, body, .main {
     color: white;
     transform: rotateY(180deg);
     font-size: 2.8rem;
-    user-select: none;
 }
 
 .counter-label {
@@ -365,21 +354,26 @@ html, body, .main {
     font-size: 1.1rem;
     font-weight: 600;
     color: #01395e;
-    user-select: none;
+}
+
+/* Container per le 3 card in fila */
+.flip-card-container {
+    display: flex;
+    justify-content: space-around;
+    gap: 2rem;
+    flex-wrap: nowrap;
 }
 </style>
 
-<!-- Usa icone fontawesome CDN -->
+<!-- FontAwesome CDN -->
 <link
   href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
   rel="stylesheet"
 />
 """, unsafe_allow_html=True)
 
-# Container principale
 st.markdown("<div class='container'>", unsafe_allow_html=True)
 
-# Box contenente card
 st.markdown("<div class='box'><h2>📊 Our Data in Numbers</h2>", unsafe_allow_html=True)
 
 st.markdown("""
@@ -418,7 +412,7 @@ st.markdown("""
 
 st.markdown("</div>", unsafe_allow_html=True)
 
-# Box con mappa
+# Box mappa
 st.markdown(f"""
 <div class='box map-box'>
     <h3>🌍 Stock Exchanges on our Databases</h3>
@@ -428,10 +422,10 @@ st.markdown(f"""
 
 st.markdown("</div>", unsafe_allow_html=True)
 
-# JS per flip al click
+# Script flip — attacca evento click su inner per toggle class flipped
 st.markdown("""
 <script>
-const cards = document.querySelectorAll('.flip-card');
+const cards = document.querySelectorAll('.flip-card-inner');
 cards.forEach(card => {
   card.addEventListener('click', () => {
     card.classList.toggle('flipped');
@@ -439,3 +433,4 @@ cards.forEach(card => {
 });
 </script>
 """, unsafe_allow_html=True)
+
