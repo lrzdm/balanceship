@@ -57,9 +57,12 @@ st.markdown("""
       <li><strong>Sector:</strong> Finance & Data Analytics</li>
       <li><strong>HQ:</strong> Rome, Italy</li>
       <li><strong>Mission:</strong> Empower businesses with intelligent financial tools</li>
-      <li><strong>HQ:</strong> XXX</li>
-      <li><strong>HQ:</strong> XXX</li>
-      <li><strong>HQ:</strong> XXX</li>
+      <li><strong>XXX</li>
+      <li><strong>XXX</li>
+      <li><strong>XXX</li>
+      <li><strong>XXX</li>
+      <li><strong>XXX</li>
+      <li><strong>XXX</li>
     </ul>
   </div>
   
