@@ -5,6 +5,8 @@ from streamlit.components.v1 import html
 import datetime
 from cache_db import load_from_db
 from data_utils import read_exchanges, read_companies
+import base64
+import os
 
 st.set_page_config(layout="wide")
 
@@ -12,7 +14,7 @@ st.set_page_config(layout="wide")
 if "last_refresh" not in st.session_state:
     st.session_state.last_refresh = time.time()
 
-REFRESH_INTERVAL = 60  # seconds
+REFRESH_INTERVAL = 60
 if time.time() - st.session_state.last_refresh > REFRESH_INTERVAL:
     st.session_state.last_refresh = time.time()
     st.experimental_rerun()
@@ -72,7 +74,7 @@ if time.time() - st.session_state.snapshot_timestamp > 120:
 # ---- LOAD TICKER DATA FOR BAR ----
 def load_ticker_bar_data():
     tickers = get_all_tickers()
-    sampled = random.sample(tickers, min(7, len(tickers)))
+    sampled = random.sample(tickers, min(25, len(tickers)))  # genera 25
     years = ["2021", "2022", "2023"]
     result = []
     for t in sampled:
@@ -95,6 +97,16 @@ bar_items = load_ticker_bar_data()
 def get_random_color():
     return random.choice(["#00ff00", "#ff0000", "#00ffff", "#ffa500", "#ff69b4", "#ffffff"])
 
+# ---- LOAD LOGOS ----
+def get_base64_image(image_path):
+    if os.path.exists(image_path):
+        with open(image_path, "rb") as f:
+            return base64.b64encode(f.read()).decode()
+    return ""
+
+logo1 = get_base64_image("images/logo1.png")
+logo2 = get_base64_image("images/logo2.png")
+
 html_code = f"""
 <style>
   .video-background {{
@@ -111,16 +123,25 @@ html_code = f"""
     top: 0;
     width: 100%;
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
     align-items: center;
     background: rgba(0, 0, 0, 0.8);
-    padding: 1rem;
+    padding: 0.5rem 1rem;
     z-index: 999;
+  }}
+  .navbar-left {{
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }}
+  .navbar-left img {{
+    height: 50px;
   }}
   .navbar a {{
     color: white;
     text-decoration: none;
     font-weight: bold;
+    margin-left: 2rem;
     transition: color 0.3s;
   }}
   .navbar a:hover {{
@@ -128,7 +149,7 @@ html_code = f"""
   }}
   .ticker-bar {{
     position: fixed;
-    top: 60px;
+    top: 70px;
     width: 100%;
     background-color: black;
     overflow: hidden;
@@ -142,7 +163,7 @@ html_code = f"""
   .ticker-content {{
     display: inline-block;
     white-space: nowrap;
-    animation: ticker 30s linear infinite;
+    animation: ticker 120s linear infinite;
   }}
   @keyframes ticker {{
     from {{ transform: translateX(100%); }}
@@ -163,11 +184,17 @@ html_code = f"""
 </video>
 
 <div class="navbar">
-  <a href="#">Home</a>
-  <a href="#">Financials</a>
-  <a href="#">Insights</a>
-  <a href="#">About Us</a>
-  <a href="#">Contact</a>
+  <div class="navbar-left">
+    <img src="data:image/png;base64,{logo1}" />
+    <img src="data:image/png;base64,{logo2}" />
+  </div>
+  <div class="navbar-right">
+    <a href="#">Home</a>
+    <a href="#">Financials</a>
+    <a href="#">Insights</a>
+    <a href="#">About Us</a>
+    <a href="#">Contact</a>
+  </div>
 </div>
 
 <div class="ticker-bar">
@@ -205,6 +232,6 @@ st.markdown("""
 <div style='position:relative; top:240px; text-align:center; padding:2rem;'>
     <h2 style='color:#00f7ff;'>🌍 Global Data Coverage</h2>
     <img src='https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/World_map_-_low_resolution_gray_political.png/1200px-World_map_-_low_resolution_gray_political.png' width='60%' style='border-radius:15px; box-shadow: 0 0 10px rgba(0,0,0,0.7); background:white;'>
-    <p style='color:white; margin-top:1rem;'>We track financial KPIs across global markets, industries, and economies.</p>
+    <p style='color:black; margin-top:1rem;'>We track financial KPIs across global markets, industries, and economies.</p>
 </div>
 """, unsafe_allow_html=True)
