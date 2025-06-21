@@ -4,8 +4,13 @@ import time
 from streamlit.components.v1 import html
 import datetime
 from cache_db import load_from_db
+from data_utils import read_exchanges, read_companies
+from streamlit_autorefresh import st_autorefresh
 
 st.set_page_config(layout="wide")
+
+# ---- AUTOREFRESH EVERY 60 SECONDS ----
+st_autorefresh(interval=60 * 1000, key="datarefresh")
 
 # ---- KPI & AI PHRASE CONFIG ----
 kpi_fields = [
@@ -23,18 +28,25 @@ kpi_fields = [
     ("pretax_income", "pre-tax income", "earned pre-tax income of {val}B")
 ]
 
-# ---- LOAD RANDOM SNAPSHOT PHRASE ----
-def load_random_snapshot():
-    today = datetime.datetime.utcnow()
-    ticker = st.session_state.get("snapshot_ticker")
-    all_tickers = ["AAPL", "TSLA", "MSFT", "GOOGL", "AMZN", "NVDA", "META"]
-    ticker = random.choice(all_tickers)
-    year = random.choice(["2021", "2022", "2023"])
+# ---- LOAD ALL TICKERS FROM DB ----
+def get_all_tickers():
+    exchanges = read_exchanges("exchanges.txt")
+    tickers = []
+    for ex in exchanges.values():
+        companies = read_companies(ex)
+        for c in companies:
+            if 'ticker' in c:
+                tickers.append(c['ticker'])
+    return list(set(tickers))
 
+# ---- RANDOM SNAPSHOT INSIGHT ----
+def load_random_snapshot():
+    tickers = get_all_tickers()
+    ticker = random.choice(tickers)
+    year = random.choice(["2021", "2022", "2023"])
     data = load_from_db(ticker, [year])
     if not data or not data[0]:
         return "Data not available."
-
     d = data[0]
     random.shuffle(kpi_fields)
     for key, label, phrase in kpi_fields:
@@ -52,12 +64,13 @@ if time.time() - st.session_state.snapshot_timestamp > 120:
     st.session_state.snapshot_phrase = load_random_snapshot()
     st.session_state.snapshot_timestamp = time.time()
 
-# ---- LOAD TICKER DATA FOR TOP BAR ----
+# ---- LOAD TICKER DATA FOR BAR ----
 def load_ticker_bar_data():
-    tickers = random.sample(["AAPL", "TSLA", "MSFT", "GOOGL", "AMZN", "NVDA", "META"], 7)
+    tickers = get_all_tickers()
+    sampled = random.sample(tickers, min(7, len(tickers)))
     years = ["2021", "2022", "2023"]
     result = []
-    for t in tickers:
+    for t in sampled:
         y = random.choice(years)
         data = load_from_db(t, [y])
         if data and isinstance(data[0], dict):
@@ -72,7 +85,6 @@ def load_ticker_bar_data():
                     continue
     return result
 
-# ---- RENDER VIDEO, NAVBAR, TICKER ----
 bar_items = load_ticker_bar_data()
 
 def get_random_color():
@@ -90,7 +102,7 @@ html_code = f"""
     object-fit: cover;
   }}
   .navbar {{
-    position: absolute;
+    position: fixed;
     top: 0;
     width: 100%;
     display: flex;
@@ -98,7 +110,7 @@ html_code = f"""
     align-items: center;
     background: rgba(0, 0, 0, 0.8);
     padding: 1rem;
-    z-index: 10;
+    z-index: 999;
   }}
   .navbar a {{
     color: white;
@@ -110,7 +122,7 @@ html_code = f"""
     color: #00f7ff;
   }}
   .ticker-bar {{
-    position: absolute;
+    position: fixed;
     top: 60px;
     width: 100%;
     background-color: black;
@@ -118,7 +130,7 @@ html_code = f"""
     height: 40px;
     border-top: 2px solid #333;
     border-bottom: 2px solid #333;
-    z-index: 9;
+    z-index: 998;
     display: flex;
     align-items: center;
   }}
@@ -185,9 +197,9 @@ st.markdown(f"""
 
 # ---- GLOBAL COVERAGE ----
 st.markdown("""
-<div style='position:relative; top:220px; text-align:center; padding:2rem;'>
+<div style='position:relative; top:240px; text-align:center; padding:2rem;'>
     <h2 style='color:#00f7ff;'>🌍 Global Data Coverage</h2>
-    <img src='https://upload.wikimedia.org/wikipedia/commons/8/83/BlankMap-World.svg' width='60%' style='border-radius:15px; box-shadow: 0 0 10px rgba(0,0,0,0.7); background-color:white;'>
+    <img src='https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/World_map_-_low_resolution_gray_political.png/1200px-World_map_-_low_resolution_gray_political.png' width='60%' style='border-radius:15px; box-shadow: 0 0 10px rgba(0,0,0,0.7); background:white;'>
     <p style='color:white; margin-top:1rem;'>We track financial KPIs across global markets, industries, and economies.</p>
 </div>
 """, unsafe_allow_html=True)
