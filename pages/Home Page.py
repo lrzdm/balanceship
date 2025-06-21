@@ -193,7 +193,7 @@ html_code = f"""
     min-height: 100%;
     z-index: -1;
     object-fit: cover;
-    opacity: 0.005;
+    opacity: 0.01;
   }}
 </style>
 
