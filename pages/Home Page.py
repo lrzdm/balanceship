@@ -7,17 +7,17 @@ from cache_db import load_from_db
 from data_utils import read_exchanges, read_companies
 import base64
 import os
+from streamlit_autorefresh import st_autorefresh
 
 st.set_page_config(layout="wide")
 
-# ---- AUTOREFRESH EVERY 60 SECONDS ----
-if "last_refresh" not in st.session_state:
-    st.session_state.last_refresh = time.time()
+# Ricarica la pagina ogni 30 secondi
+st_autorefresh(interval=30 * 1000, key="auto_refresh")
 
-REFRESH_INTERVAL = 60
-if time.time() - st.session_state.last_refresh > REFRESH_INTERVAL:
-    st.session_state.last_refresh = time.time()
-    #st.experimental_rerun()
+if ("snapshot_timestamp" not in st.session_state) or (time.time() - st.session_state.snapshot_timestamp > 30):
+    st.session_state.snapshot_phrase = load_random_snapshot()
+    st.session_state.snapshot_timestamp = time.time()
+
 
 # ---- KPI & AI PHRASE CONFIG ----
 kpi_fields = [
@@ -87,7 +87,14 @@ def load_ticker_bar_data():
             if val:
                 try:
                     val_fmt = f"{float(val):.2f}"
-                    result.append((t, y, f"{label.title()}: {val_fmt}B"))
+                    b_metrics = ["total_revenue", "ebit", "ebitda", "free_cash_flow", "net_income", "cost_of_revenue", "total_debt", "total_assets", "operating_income", "gross_profit", "pretax_income"]
+                    if key in b_metrics:
+                        val_str = f"{val_fmt}B"
+                    else:
+                        val_str = val_fmt
+                    
+                    result.append((t, y, f"{label.title()}: {val_str}"))
+                    #result.append((t, y, f"{label.title()}: {val_fmt}B"))
                 except:
                     continue
     return result
@@ -245,7 +252,7 @@ html(html_code, height=800)
 # ---- HEADLINE ----
 st.markdown("""
 <div style='position:relative; top:100px; color:#0173C4; text-align:center;'>
-    <h1 style="text-shadow: 1px 1px 2px black;">Welcome to BalanceShip Financial Hub</h1>
+    <h1>Welcome to BalanceShip Financial Hub</h1>
     <p>Real-time analysis, smart data. Make better financial decisions.</p>
 </div>
 """, unsafe_allow_html=True)
@@ -259,7 +266,7 @@ snapshot_phrase = st.session_state.get("snapshot_phrase", "Your AI-driven financ
 
 # Carico e ridimensiono l'immagine
 map_base64 = get_base64_image("images/Map_Chart.png")
-new_width = 300 
+new_width = 500 
 
 # Layout con box affiancati
 st.markdown(f"""
