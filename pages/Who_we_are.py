@@ -51,8 +51,6 @@ st.markdown(f"<div class='logo-container'>{logo_html}</div>", unsafe_allow_html=
 st.markdown("""
 <div style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; align-items: stretch; min-height: 400px; margin: 40px 0;">
   <div class='startup-box' style="max-width: 600px; width: 100%; margin: 0; text-align: center; height: 100%; box-sizing: border-box;">
-    <li><strong style="color:#f5f5f5;">XXX</li>
-    <li><strong style="color:#f5f5f5;">XXX</li>
     <h2>🚀 Our Startup</h2>
     <ul style='list-style:none; padding-left:0; margin: 0; text-align: left;'>
       <li><strong>Founded:</strong> 2025</li>
