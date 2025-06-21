@@ -253,184 +253,85 @@ new_width = 600
 map_base64 = get_base64_image("images/Map_Chart.png")
 
 
-
 st.markdown("""
 <style>
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap');
 
 html, body, .main {
-    font-family: 'Open Sans', sans-serif !important;
-    background-color: #f8f9fa !important;
-    padding: 0;
-    margin: 0;
+  font-family: 'Open Sans', sans-serif !important;
+  background-color: #f8f9fa !important;
 }
+.container { display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; margin:60px auto 40px; max-width:1400px; padding:0 2rem; }
+.box { background:#f2f2f2; padding:2rem; border-radius:15px; box-shadow:0 4px 15px rgba(1,115,196,0.2); display:flex; flex-direction:column; align-items:center; }
 
-.container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: stretch;
-    gap: 2rem;
-    margin: 60px auto 40px auto;
-    max-width: 1400px;
-    padding: 0 2rem;
-}
-
-.box {
-    flex: 1 1 400px;
-    background-color: #f2f2f2;
-    padding: 2rem;
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(1, 115, 196, 0.2);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.box h2 {
-    color: #0173C4;
-    text-align: center;
-    margin-bottom: 2rem;
-}
-
-/* Card flip struttura */
 .flip-card {
-    width: 140px;
-    height: 160px;
-    perspective: 1000px;
-    cursor: pointer;
+  width:140px; height:160px; perspective:1000px;
 }
+.flip-card input { display:none; }
+.flip-inner {
+  position:relative; width:100%; height:100%; transition:transform 0.7s; transform-style:preserve-3d; border-radius:15px; }
+.flip-inner.flipped { transform:rotateY(180deg); }
 
-.flip-card-inner {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    transition: transform 0.7s;
-    transform-style: preserve-3d;
-    border-radius: 15px;
-    box-shadow: 0 8px 25px rgba(1, 115, 196, 0.2);
+.flip-front, .flip-back {
+  position:absolute; width:100%; height:100%; backface-visibility:hidden; border-radius:15px;
+  display:flex; flex-direction:column; justify-content:center; align-items:center; font-family:'Orbitron', monospace;
 }
-
-.flip-card-inner.flipped {
-    transform: rotateY(180deg);
+.flip-front {
+  background:#0173C4; color:white;
 }
-
-.flip-card-front, .flip-card-back {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    backface-visibility: hidden;
-    border-radius: 15px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 1rem;
-    font-family: 'Orbitron', monospace;
-    user-select: none;
-}
-
-.flip-card-front {
-    background-color: #0173C4;
-    color: white;
-    font-size: 3rem;
-}
-
-.flip-card-front i {
-    font-size: 3.5rem;
-    margin-bottom: 0.5rem;
-}
-
-.flip-card-back {
-    background-color: #01c4a7;
-    color: white;
-    transform: rotateY(180deg);
-    font-size: 2.8rem;
+.flip-front i { font-size:3.5rem; margin-bottom:0.5rem; }
+.flip-back {
+  background:#01c4a7; color:white; transform:rotateY(180deg); font-size:2.8rem;
 }
 
 .counter-label {
-    margin-top: 10px;
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #01395e;
+  font-size:1rem; color:#fff; font-weight:600; margin-top:6px;
 }
 
-/* Container per le 3 card in fila */
-.flip-card-container {
-    display: flex;
-    justify-content: space-around;
-    gap: 2rem;
-    flex-wrap: nowrap;
-}
+.flip-row { display:flex; gap:2rem; }
+
+.map-box { background:white; padding:2rem; border-radius:15px; box-shadow:0 4px 15px rgba(1,115,196,0.2); text-align:center; }
+.map-box h3 { color:#0173C4; margin-bottom:1rem; }
+.map-img { max-width:100%; border-radius:12px; }
 </style>
-
-<!-- FontAwesome CDN -->
-<link
-  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-  rel="stylesheet"
-/>
 """, unsafe_allow_html=True)
 
 st.markdown("<div class='container'>", unsafe_allow_html=True)
 
-st.markdown("<div class='box'><h2>📊 Our Data in Numbers</h2>", unsafe_allow_html=True)
+# Card flip section
+st.markdown("<div class='box'><h2 style='color:#0173C4; margin-bottom:1.5rem;'>📊 Our Data in Numbers</h2><div class='flip-row'>", unsafe_allow_html=True)
 
-st.markdown("""
-<div class="flip-card-container">
-  <div class="flip-card" id="card1">
-    <div class="flip-card-inner">
-      <div class="flip-card-front">
-        <i class="fas fa-building"></i>
-        <div class="counter-label">Companies</div>
-      </div>
-      <div class="flip-card-back">{companies}</div>
-    </div>
-  </div>
+cards_html = ""
+for idx, (label, value, icon) in enumerate([
+    ("Companies", n_companies, "fa-building"),
+    ("Records", n_records, "fa-database"),
+    ("Years", n_years, "fa-calendar-alt")
+]):
+    cards_html += f"""
+    <div class='flip-card'>
+      <input type='checkbox' id='chk{idx}'>
+      <label for='chk{idx}' class='flip-inner'>
+        <div class='flip-front'>
+          <i class='fas {icon}'></i>
+          <div class='counter-label'>{label}</div>
+        </div>
+        <div class='flip-back'>{value:,}</div>
+      </label>
+    </div>"""
+st.markdown(cards_html, unsafe_allow_html=True)
 
-  <div class="flip-card" id="card2">
-    <div class="flip-card-inner">
-      <div class="flip-card-front">
-        <i class="fas fa-database"></i>
-        <div class="counter-label">Records</div>
-      </div>
-      <div class="flip-card-back">{records}</div>
-    </div>
-  </div>
+st.markdown("</div></div>", unsafe_allow_html=True)
 
-  <div class="flip-card" id="card3">
-    <div class="flip-card-inner">
-      <div class="flip-card-front">
-        <i class="fas fa-calendar-alt"></i>
-        <div class="counter-label">Years</div>
-      </div>
-      <div class="flip-card-back">{years}</div>
-    </div>
-  </div>
-</div>
-""".format(companies=f"{n_companies:,}", records=f"{n_records:,}", years=n_years), unsafe_allow_html=True)
-
-st.markdown("</div>", unsafe_allow_html=True)
-
-# Box mappa
+# Map section
 st.markdown(f"""
-<div class='box map-box'>
-    <h3>🌍 Stock Exchanges on our Databases</h3>
-    <img src="data:image/png;base64,{map_base64}" class="map-img" />
+<div class='map-box'>
+  <h3>🌍 Stock Exchanges on our Databases</h3>
+  <img src="data:image/png;base64,{map_base64}" class="map-img"/>
 </div>
 """, unsafe_allow_html=True)
 
 st.markdown("</div>", unsafe_allow_html=True)
 
-# Script flip — attacca evento click su inner per toggle class flipped
-st.markdown("""
-<script>
-const cards = document.querySelectorAll('.flip-card-inner');
-cards.forEach(card => {
-  card.addEventListener('click', () => {
-    card.classList.toggle('flipped');
-  });
-});
-</script>
-""", unsafe_allow_html=True)
 
