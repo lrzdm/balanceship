@@ -2,6 +2,7 @@ import streamlit as st
 import random
 import time
 from streamlit.components.v1 import html
+import streamlit.components.v1 as components
 import datetime
 from cache_db import load_from_db
 from data_utils import read_exchanges, read_companies
@@ -114,7 +115,7 @@ html_code = f"""
     z-index: 999;
     gap: 2rem;
     color: black;
-    margin-bottom: 80px;
+    margin-bottom: 100px;
   }}
   .navbar-left {{
     display: flex;
