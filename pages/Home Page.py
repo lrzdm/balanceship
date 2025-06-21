@@ -131,7 +131,7 @@ html_code = f"""
     width: 100%;
     display: flex;
     align-items: center;
-    background: rgba(211, 211, 211, 0.9);  /* grigio chiaro */
+    background: rgba(255, 255, 255, 1);  /* grigio chiaro */
     padding: 0.5rem 1rem;
     z-index: 999;
     gap: 2rem;
@@ -248,20 +248,19 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # ---- GLOBAL COVERAGE ----
-# Coordinate pallini da regolare in pixel rispetto all'immagine ridimensionata
 locations = {
     "Rome": (50, 80),
     "New York": (150, 100),
     "Tokyo": (300, 120),
 }
 
-dots_html = """
-<div style='position: relative; max-width: 100%; max-height: 400px; margin: 0 auto;'>
-  <img src='images/World-Map.png' style='width: 100%; height: auto; display: block;' />
+map_html = """
+<div style='position: relative; max-width: 100%; max-height: 400px; margin: 2rem auto 0 auto;'>
+  <img src='images/World-Map.png' style='width: 100%; height: auto; display: block;' alt='World Map'/>
 """
 
 for city, (x, y) in locations.items():
-    dots_html += f"""
+    map_html += f"""
     <div title="{city}" style='
         position: absolute;
         top: {y}px;
@@ -276,8 +275,9 @@ for city, (x, y) in locations.items():
     '></div>
     """
 
-dots_html += "</div>"
+map_html += "</div>"
 
-st.markdown(dots_html, unsafe_allow_html=True)
+st.markdown(map_html, unsafe_allow_html=True)
+
 
 
