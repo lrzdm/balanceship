@@ -253,126 +253,137 @@ new_width = 600
 map_base64 = get_base64_image("images/Map_Chart.png")
 
 
-# Funzione per animare i counter
-def animate_count(final, key, steps=50, delay=0.01):
+# Funzione per animare i numeri
+def animate_count(target, key, suffix=""):
     placeholder = st.empty()
+    steps = 50
     for i in range(steps + 1):
-        value = int(final * i / steps)
+        val = int(target * i / steps)
         placeholder.markdown(
-            f"<div class='countup-number'>{value:,}</div>",
-            unsafe_allow_html=True,
+            f"<div class='countup-number'>{val:,}{suffix}</div>",
+            unsafe_allow_html=True
         )
-        time.sleep(delay)
+        time.sleep(0.01)
+
 
 # CSS layout
-st.markdown(f"""
+st.markdown("""
 <style>
-  .container-flex {{
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
+
+html, body, .main {
+    font-family: 'Open Sans', sans-serif !important;
+    background-color: #f8f9fa !important;
+    padding: 0;
+    margin: 0;
+}
+
+.container {
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
     align-items: stretch;
     gap: 2rem;
-    margin-top: 80px;
-    flex-wrap: wrap;
-  }}
-  .box-insight {{
-    flex: 1 1 350px;
+    margin: 60px auto 40px auto;
+    max-width: 1400px;
+    padding: 0 2rem;
+}
+
+.box {
+    flex: 1 1 400px;
     background-color: #f2f2f2;
-    color: #0173C4;
     padding: 2rem;
     border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(1, 115, 196, 0.4);
-    min-width: 300px;
+    box-shadow: 0 4px 15px rgba(1, 115, 196, 0.2);
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-  }}
-  .box-insight h2 {{
-    text-align: center;
+    justify-content: center;
+}
+
+.box h2 {
     color: #0173C4;
+    text-align: center;
     margin-bottom: 2rem;
-  }}
-  .countup-container {{
+}
+
+.counter-group {
     display: flex;
     justify-content: space-around;
     align-items: center;
-    gap: 1rem;
     flex-wrap: wrap;
-  }}
-  .countup-item {{
+    gap: 2rem;
+}
+
+.counter-item {
     text-align: center;
-    font-size: 1.2rem;
-    min-width: 90px;
     flex: 1;
-  }}
-  .countup-number {{
+    min-width: 100px;
+}
+
+.counter-label {
+    font-size: 1.2rem;
+    color: #0173C4;
+    font-weight: 600;
+}
+
+.countup-number {
     font-size: 2.5rem;
-    font-weight: bold;
     color: #01c4a7;
+    font-weight: bold;
     margin-top: 0.3rem;
-  }}
-  .box-map {{
-    flex: 1 1 350px;
+}
+
+.map-box {
+    flex: 1 1 400px;
     background-color: white;
     padding: 2rem;
     border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(1, 115, 196, 0.3);
+    box-shadow: 0 4px 15px rgba(1, 115, 196, 0.2);
     display: flex;
-    justify-content: center;
-    align-items: center;
-    min-width: 300px;
-    transition: transform 0.3s ease;
     flex-direction: column;
-  }}
-  .box-map:hover {{
-    transform: scale(1.03);
-    box-shadow: 0 6px 20px rgba(1, 115, 196, 0.6);
-  }}
-  .box-map h3 {{
+    align-items: center;
+    justify-content: center;
+}
+
+.map-box h3 {
     color: #0173C4;
-    text-align: center;
     margin-bottom: 1rem;
-  }}
-  img.map-image {{
-    border-radius: 12px;
+}
+
+.map-img {
     max-width: 100%;
-    height: auto;
-  }}
+    border-radius: 12px;
+}
 </style>
-
-<div class="container-flex">
-  <div class="box-insight">
-    <h2>📊 Our Data in Numbers</h2>
-    <div class="countup-container">
-      <div class="countup-item">
-        <div>Companies</div>
 """, unsafe_allow_html=True)
 
-animate_count(n_companies, key="companies")
+# Layout container
+st.markdown("<div class='container'>", unsafe_allow_html=True)
 
-st.markdown("""
-      </div>
-      <div class="countup-item">
-        <div>Records</div>
-""", unsafe_allow_html=True)
+# Box con counter
+st.markdown("<div class='box'><h2>📊 Our Data in Numbers</h2><div class='counter-group'>", unsafe_allow_html=True)
 
-animate_count(n_records, key="records")
+with st.container():
+    st.markdown("<div class='counter-item'><div class='counter-label'>Companies</div>", unsafe_allow_html=True)
+    animate_count(n_companies, key="companies")
+    st.markdown("</div>", unsafe_allow_html=True)
 
-st.markdown("""
-      </div>
-      <div class="countup-item">
-        <div>Years</div>
-""", unsafe_allow_html=True)
+    st.markdown("<div class='counter-item'><div class='counter-label'>Records</div>", unsafe_allow_html=True)
+    animate_count(n_records, key="records")
+    st.markdown("</div>", unsafe_allow_html=True)
 
-animate_count(n_years, key="years")
+    st.markdown("<div class='counter-item'><div class='counter-label'>Years</div>", unsafe_allow_html=True)
+    animate_count(n_years, key="years")
+    st.markdown("</div>", unsafe_allow_html=True)
 
+st.markdown("</div></div>", unsafe_allow_html=True)
+
+# Box con mappa
 st.markdown(f"""
-      </div>
-  </div>
-  <div class="box-map">
-    <h3>🌍 Stock Exchanges on our databases</h3>
-    <img src="data:image/png;base64,{map_base64}" alt="Map Chart" class="map-image" style="width:{new_width}px;" />
-  </div>
+<div class='map-box'>
+    <h3>🌍 Stock Exchanges on our Databases</h3>
+    <img src="data:image/png;base64,{map_base64}" class="map-img" />
 </div>
 """, unsafe_allow_html=True)
 
+st.markdown("</div>", unsafe_allow_html=True) 
