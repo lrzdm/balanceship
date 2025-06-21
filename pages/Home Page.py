@@ -105,7 +105,7 @@ html_code = f"""
     background: transparent !important;
   }}
   .navbar {{
-    position: fixed;
+    #position: fixed;
     top: 0;
     width: 100%;
     display: flex;
@@ -190,7 +190,7 @@ html_code = f"""
   }}
 </style>
 
-<video autoplay loop muted class="video-background">
+<video autoplay loop class="video-background">
   <source src="https://www.dropbox.com/scl/fi/zpyh82bkpbhoi2dkf78f4/test_video.mp4?rlkey=td6g1wyi08kt6ko59fmsdzqa7&st=ly84c83k&raw=1" type="video/mp4">
   Your browser does not support the video tag.
 </video>
@@ -241,17 +241,75 @@ st.markdown("""
 
 #----BOX COUNTER AND MAP--------
 
-n_companies = 1342
-n_records = 98214
-n_years = 15
+n_companies = len(get_all_tickers())
+n_years = 3
+n_records = n_companies * n_years
+
 new_width = 500
 map_base64 = get_base64_image("images/Map_Chart.png")
 
 html_code = f"""
+<style>
+  .container-flex {{
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 60px;
+    flex-wrap: wrap;
+  }}
+  .box-insight {{
+    flex: 1 1 350px;
+    background-color: #e0e0e5; /* grigio chiaro */
+    color: #0173C4; /* blu sito */
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(1, 115, 196, 0.3);
+    min-width: 300px;
+  }}
+  .countup-container {{
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+    gap: 1.5rem;
+  }}
+  .countup-item {{
+    text-align: center;
+    font-size: 1.5rem;
+  }}
+  .countup-number {{
+    font-size: 2.2rem;
+    font-weight: bold;
+    color: #0173C4;
+  }}
+  .box-map {{
+    flex: 1 1 350px;
+    background-color: white;
+    padding: 1rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(1, 115, 196, 0.3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 300px;
+    transition: transform 0.3s ease;
+  }}
+  .box-map h3 {{
+    color: #0173C4;
+    text-align: center;
+    margin-bottom: 1rem;
+  }}
+  img.map-image {{
+    border-radius: 12px;
+    max-width: 100%;
+    height: auto;
+  }}
+</style>
+
 <div class="container-flex">
   <div class="box-insight">
     <h2>📊 Our Data in Numbers</h2>
-    <div class="countup-container" id="countup-container">
+    <div class="countup-container">
       <div class="countup-item">
         <div id="companies" class="countup-number">0</div>
         <div>Companies</div>
@@ -268,100 +326,34 @@ html_code = f"""
   </div>
   <div class="box-map">
     <div>
-      <h3>🌍 Stock Exchanges on our databases</h3>
+      <h3>🌍 Stock Exchanges in our DB</h3>
       <img src="data:image/png;base64,{map_base64}" alt="Map Chart" class="map-image" style="width:{new_width}px;" />
     </div>
   </div>
 </div>
 
-<style>
-  .container-flex {{
-    display: flex;
-    justify-content: center;
-    gap: 2rem;
-    margin-top: 60px;
-    flex-wrap: wrap;
-  }}
-  .box-insight {{
-    flex: 1 1 350px;
-    background-color: #0a0a0a;
-    color: white;
-    padding: 2rem;
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(1, 115, 196, 0.4);
-    min-width: 300px;
-  }}
-  .box-insight h2 {{
-    color: #0173C4;
-    margin-bottom: 1rem;
-  }}
-  .countup-container {{
-    display: flex;
-    justify-content: space-around;
-    flex-wrap: wrap;
-    margin-top: 1rem;
-    gap: 1.5rem;
-  }}
-  .countup-item {{
-    text-align: center;
-    font-size: 1.5rem;
-  }}
-  .countup-number {{
-    font-size: 2.2rem;
-    font-weight: bold;
-    color: #01c4a7;
-  }}
-  .box-map {{
-    flex: 1 1 350px;
-    background-color: white;
-    padding: 1rem;
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(1, 115, 196, 0.3);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-width: 300px;
-    transition: transform 0.3s ease;
-  }}
-  .box-map:hover {{
-    transform: scale(1.05);
-    box-shadow: 0 6px 20px rgba(1, 115, 196, 0.6);
-  }}
-  .box-map h3 {{
-    color: #0173C4;
-    text-align: center;
-    margin-bottom: 1rem;
-  }}
-  img.map-image {{
-    border-radius: 12px;
-    max-width: 100%;
-    height: auto;
-  }}
-</style>
-
 <script>
-  function animateCount(id, target) {{
-    const el = document.getElementById(id);
-    let start = 0;
-    const duration = 1500;
-    const step = Math.ceil(target / (duration / 30));
-    const counter = setInterval(() => {{
-      start += step;
-      if (start >= target) {{
-        el.textContent = target.toLocaleString();
-        clearInterval(counter);
-      }} else {{
-        el.textContent = start.toLocaleString();
-      }}
-    }}, 30);
-  }}
+function animateCount(id, target) {{
+  const el = document.getElementById(id);
+  let count = 0;
+  const step = Math.ceil(target / 100);
+  const interval = setInterval(() => {{
+    count += step;
+    if (count >= target) {{
+      el.textContent = target.toLocaleString();
+      clearInterval(interval);
+    }} else {{
+      el.textContent = count.toLocaleString();
+    }}
+  }}, 20);
+}}
 
-  window.onload = function() {{
-    animateCount('companies', {n_companies});
-    animateCount('records', {n_records});
-    animateCount('years', {n_years});
-  }};
+window.onload = function() {{
+  animateCount('companies', {n_companies});
+  animateCount('records', {n_records});
+  animateCount('years', {n_years});
+}};
 </script>
 """
 
-components.html(html_code, height=500)
+components.html(html_code, height=480, scrolling=False)
