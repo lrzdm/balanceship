@@ -193,7 +193,8 @@ html_code = f"""
     min-height: 100%;
     z-index: -1;
     object-fit: cover;
-    opacity: 0.05;
+    opacity: 0.005;
+    background-color: black;
   }}
   .video-overlay {{
     position: fixed;
@@ -255,7 +256,7 @@ st.markdown("""
 
 # ---- SNAPSHOT INSIGHT ----
 st.markdown(f"""
-<div style='position:relative; top:100px; text-align:center; padding:2rem; background-color:#0a0a0a; color:white;'>
+<div style='position:relative; top:120px; text-align:center; padding:2rem; background-color:#0a0a0a; color:white;'>
     <h2 style='color:#00f7ff;'>🤖 Snapshot Insights</h2>
     <p style='font-size:18px;'>{st.session_state.snapshot_phrase}</p>
 </div>
