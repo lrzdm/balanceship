@@ -7,12 +7,9 @@ from cache_db import load_from_db
 from data_utils import read_exchanges, read_companies
 import base64
 import os
-from streamlit_autorefresh import st_autorefresh
 
 st.set_page_config(layout="wide")
 
-# Ricarica la pagina ogni 30 secondi
-st_autorefresh(interval=30 * 1000, key="auto_refresh")
 
 
 # ---- KPI & AI PHRASE CONFIG ----
@@ -59,9 +56,16 @@ def load_random_snapshot():
             return f"In {year}, {ticker} {phrase.format(val=val_fmt)}."
     return "Data incomplete for insight."
 
-if ("snapshot_timestamp" not in st.session_state) or (time.time() - st.session_state.snapshot_timestamp > 30):
+if "snapshot_timestamp" not in st.session_state:
+    st.session_state.snapshot_timestamp = time.time()
+    st.session_state.snapshot_phrase = load_random_snapshot()
+
+if time.time() - st.session_state.snapshot_timestamp > 120:
     st.session_state.snapshot_phrase = load_random_snapshot()
     st.session_state.snapshot_timestamp = time.time()
+    
+
+
 
 # ---- LOAD TICKER DATA FOR BAR ----
 def load_ticker_bar_data():
@@ -318,7 +322,7 @@ st.markdown(f"""
 <div class="container-flex">
   <div class="box-insight">
     <h2>🤖 Snapshot Insights</h2>
-    <p>{snapshot_phrase}</p>
+    <p>{st.session_state.snapshot_phrase}</p>
   </div>
   <div class="box-map">
     <div>
