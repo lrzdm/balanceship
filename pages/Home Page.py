@@ -213,8 +213,12 @@ html_code = f"""
   <div class="ticker-content" id="ticker-content">
 """
 
-# Spazio sotto navbar + ticker
+# Riduce lo spazio sopra (puoi regolare)
+st.markdown("<style>.main {{padding-top: 0rem !important;}}</style>", unsafe_allow_html=True)
+
+# Aggiunge spazio sotto la barra
 st.markdown("<div style='height:80px;'></div>", unsafe_allow_html=True)
+
 
 # Aggiunta dinamica dei ticker (due volte per scorrimento fluido)
 for t, y, val in bar_items * 2:  # duplica direttamente
@@ -250,64 +254,75 @@ map_base64 = get_base64_image("images/Map_Chart.png")
 
 html_code = f"""
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
+
+  html, body, .main {{
+    font-family: 'Open Sans', sans-serif !important;
+    font-size: 18px !important;
+    color: black;
+    margin: 0;
+    padding: 0;
+  }}
+
   .container-flex {{
     display: flex;
     justify-content: center;
+    align-items: stretch;
     gap: 2rem;
-    margin-top: 60px;
+    margin-top: 40px;
     flex-wrap: wrap;
+    padding: 0 1rem;
   }}
-  .box-insight {{
+
+  .box-common {{
     flex: 1 1 350px;
-    background-color: #e0e0e5; /* grigio chiaro */
-    color: #0173C4; /* blu sito */
+    background-color: #f2f2f2;
+    color: #0173C4;
     padding: 2rem;
     border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(1, 115, 196, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     min-width: 300px;
-  }}
-  .countup-container {{
     display: flex;
-    justify-content: space-around;
-    flex-wrap: wrap;
-    margin-top: 1rem;
-    gap: 1.5rem;
+    flex-direction: column;
+    justify-content: center;
   }}
-  .countup-item {{
+
+  .box-common h2 {{
     text-align: center;
     font-size: 1.5rem;
-  }}
-  .countup-number {{
-    font-size: 2.2rem;
-    font-weight: bold;
+    margin-bottom: 2rem;
     color: #0173C4;
   }}
-  .box-map {{
-    flex: 1 1 350px;
-    background-color: white;
-    padding: 1rem;
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(1, 115, 196, 0.3);
+
+  .countup-container {{
     display: flex;
     justify-content: center;
     align-items: center;
-    min-width: 300px;
-    transition: transform 0.3s ease;
+    gap: 3rem;
+    flex-grow: 1;
+    flex-wrap: wrap;
   }}
-  .box-map h3 {{
-    color: #0173C4;
+
+  .countup-item {{
     text-align: center;
-    margin-bottom: 1rem;
   }}
-  img.map-image {{
+
+  .countup-number {{
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #0173C4;
+  }}
+
+  .map-image {{
     border-radius: 12px;
     max-width: 100%;
     height: auto;
+    margin-top: 1rem;
   }}
 </style>
 
 <div class="container-flex">
-  <div class="box-insight">
+  <div class="box-common">
     <h2>📊 Our Data in Numbers</h2>
     <div class="countup-container">
       <div class="countup-item">
@@ -324,11 +339,10 @@ html_code = f"""
       </div>
     </div>
   </div>
-  <div class="box-map">
-    <div>
-      <h3>🌍 Stock Exchanges in our DB</h3>
-      <img src="data:image/png;base64,{map_base64}" alt="Map Chart" class="map-image" style="width:{new_width}px;" />
-    </div>
+
+  <div class="box-common">
+    <h2>🌍 Stock Exchanges in our DB</h2>
+    <img src="data:image/png;base64,{map_base64}" alt="Map Chart" class="map-image" style="width:500px;" />
   </div>
 </div>
 
@@ -336,24 +350,26 @@ html_code = f"""
 function animateCount(id, target) {{
   const el = document.getElementById(id);
   let count = 0;
-  const step = Math.ceil(target / 100);
-  const interval = setInterval(() => {{
-    count += step;
+  const increment = Math.ceil(target / 60);
+  const duration = 1000;
+  const stepTime = Math.max(Math.floor(duration / (target / increment)), 10);
+
+  const timer = setInterval(() => {{
+    count += increment;
     if (count >= target) {{
-      el.textContent = target.toLocaleString();
-      clearInterval(interval);
+      el.innerText = target.toLocaleString();
+      clearInterval(timer);
     }} else {{
-      el.textContent = count.toLocaleString();
+      el.innerText = count.toLocaleString();
     }}
-  }}, 20);
+  }}, stepTime);
 }}
 
-window.onload = function() {{
-  animateCount('companies', {n_companies});
-  animateCount('records', {n_records});
-  animateCount('years', {n_years});
-}};
+document.addEventListener("DOMContentLoaded", function () {{
+  animateCount("companies", {n_companies});
+  animateCount("records", {n_records});
+  animateCount("years", {n_years});
+}});
 </script>
 """
-
-components.html(html_code, height=480, scrolling=False)
+components.html(html_code, height=520, scrolling=False)
