@@ -67,7 +67,7 @@ if "snapshot_timestamp" not in st.session_state:
     st.session_state.snapshot_timestamp = time.time()
     st.session_state.snapshot_phrase = load_random_snapshot()
 
-if time.time() - st.session_state.snapshot_timestamp > 120:
+if time.time() - st.session_state.snapshot_timestamp > 30:
     st.session_state.snapshot_phrase = load_random_snapshot()
     st.session_state.snapshot_timestamp = time.time()
 
@@ -147,14 +147,19 @@ html_code = f"""
     height: 50px;
   }}
   .navbar a {{
-    color: black;
+    color: #0173C4;           /* blu pagina */
     text-decoration: none;
     font-weight: bold;
     margin-left: 2rem;
-    transition: color 0.3s;
+    padding: 0.3rem 0.6rem;   /* spazio interno per il box */
+    border-radius: 5px;       /* angoli arrotondati */
+    transition: background-color 0.3s, color 0.3s;
+    display: inline-block;    /* per applicare padding e background */
   }}
   .navbar a:hover {{
-    color: #0077cc;
+    background-color: #0173C4;  /* sfondo blu */
+    color: white;               /* testo bianco */
+    cursor: pointer;
   }}
   .ticker-bar {{
     position: fixed;
@@ -187,10 +192,11 @@ html_code = f"""
   }}
   .video-background {{
     position: fixed;
+    top: 110px;
     right: 0;
     bottom: 0;
     min-width: 100%;
-    min-height: 100%;
+    height: calc(100% - 110px);
     z-index: -1;
     object-fit: cover;
     opacity: 0.8;
@@ -317,7 +323,7 @@ st.markdown(f"""
   </div>
   <div class="box-map">
     <div>
-      <h3>🌍 Our Global Presence</h3>
+      <h3>🌍 Stock Exchanges on our databases</h3>
       <img src="data:image/png;base64,{map_base64}" alt="Map Chart" class="map-image" style="width:{new_width}px;" />
     </div>
   </div>
