@@ -253,76 +253,103 @@ new_width = 600
 map_base64 = get_base64_image("images/Map_Chart.png")
 
 
+# CSS identico a quello usato per i profili
 st.markdown("""
 <style>
-@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
 
-html, body, .main {
-  font-family: 'Open Sans', sans-serif !important;
-  background-color: #f8f9fa !important;
-}
-.container { display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; margin:60px auto 40px; max-width:1400px; padding:0 2rem; }
-.box { background:#f2f2f2; padding:2rem; border-radius:15px; box-shadow:0 4px 15px rgba(1,115,196,0.2); display:flex; flex-direction:column; align-items:center; }
-
-.flip-card {
-  width:140px; height:160px; perspective:1000px;
-}
-.flip-card input { display:none; }
-.flip-inner {
-  position:relative; width:100%; height:100%; transition:transform 0.7s; transform-style:preserve-3d; border-radius:15px; }
-.flip-inner.flipped { transform:rotateY(180deg); }
-
-.flip-front, .flip-back {
-  position:absolute; width:100%; height:100%; backface-visibility:hidden; border-radius:15px;
-  display:flex; flex-direction:column; justify-content:center; align-items:center; font-family:'Orbitron', monospace;
-}
-.flip-front {
-  background:#0173C4; color:white;
-}
-.flip-front i { font-size:3.5rem; margin-bottom:0.5rem; }
-.flip-back {
-  background:#01c4a7; color:white; transform:rotateY(180deg); font-size:2.8rem;
+.profile-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 3rem;
 }
 
-.counter-label {
-  font-size:1rem; color:#fff; font-weight:600; margin-top:6px;
+.profile-card {
+    width: 180px;
+    height: 200px;
+    perspective: 1000px;
 }
 
-.flip-row { display:flex; gap:2rem; }
+.profile-inner {
+    width: 100%;
+    height: 100%;
+    transition: transform 0.8s;
+    transform-style: preserve-3d;
+    position: relative;
+    cursor: pointer;
+}
 
-.map-box { background:white; padding:2rem; border-radius:15px; box-shadow:0 4px 15px rgba(1,115,196,0.2); text-align:center; }
-.map-box h3 { color:#0173C4; margin-bottom:1rem; }
-.map-img { max-width:100%; border-radius:12px; }
+.profile-card:hover .profile-inner {
+    transform: rotateY(180deg);
+}
+
+.profile-front, .profile-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(1, 115, 196, 0.2);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Open Sans', sans-serif;
+}
+
+.profile-front {
+    background-color: #0173C4;
+    color: white;
+}
+
+.profile-front i {
+    font-size: 2.8rem;
+    margin-bottom: 0.5rem;
+}
+
+.profile-front h4 {
+    font-size: 1rem;
+    margin: 0;
+}
+
+.profile-back {
+    background-color: #01c4a7;
+    color: white;
+    transform: rotateY(180deg);
+    font-size: 2rem;
+    font-weight: bold;
+}
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown("<div class='container'>", unsafe_allow_html=True)
-
-# Card flip section
-st.markdown("<div class='box'><h2 style='color:#0173C4; margin-bottom:1.5rem;'>📊 Our Data in Numbers</h2><div class='flip-row'>", unsafe_allow_html=True)
-
-cards_html = ""
-for idx, (label, value, icon) in enumerate([
-    ("Companies", n_companies, "fa-building"),
-    ("Records", n_records, "fa-database"),
-    ("Years", n_years, "fa-calendar-alt")
-]):
-    cards_html += f"""
-    <div class='flip-card'>
-      <input type='checkbox' id='chk{idx}'>
-      <label for='chk{idx}' class='flip-inner'>
-        <div class='flip-front'>
+# Card HTML
+cards = ""
+for label, value, icon in [
+    ("Companies", f"{n_companies:,}", "fa-building"),
+    ("Records", f"{n_records:,}", "fa-database"),
+    ("Years", f"{n_years}", "fa-calendar-alt")
+]:
+    cards += f"""
+    <div class='profile-card'>
+      <div class='profile-inner'>
+        <div class='profile-front'>
           <i class='fas {icon}'></i>
-          <div class='counter-label'>{label}</div>
+          <h4>{label}</h4>
         </div>
-        <div class='flip-back'>{value:,}</div>
-      </label>
-    </div>"""
-st.markdown(cards_html, unsafe_allow_html=True)
+        <div class='profile-back'>
+          {value}
+        </div>
+      </div>
+    </div>
+    """
 
-st.markdown("</div></div>", unsafe_allow_html=True)
+# Output
+st.markdown("<h3 style='text-align:center; color:#0173C4;'>📊 Our Data in Numbers</h3>", unsafe_allow_html=True)
+st.markdown(f"<div class='profile-grid'>{cards}</div>", unsafe_allow_html=True)
+
 
 # Map section
 st.markdown(f"""
