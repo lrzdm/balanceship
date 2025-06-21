@@ -126,20 +126,27 @@ html_code = f"""
     object-fit: cover;
   }}
   .navbar {{
-    position: fixed;
-    top: 0;
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: rgba(0, 0, 0, 0.8);
-    padding: 0.5rem 1rem;
-    z-index: 999;
+   position: fixed;
+   top: 0;
+   width: 100%;
+   display: flex;
+   align-items: center;
+   background: rgba(0, 0, 0, 0.8);
+   padding: 0.5rem 1rem;
+   z-index: 999;
+   gap: 2rem;           /* aggiunto gap tra logo e link */
   }}
-  .navbar-left {{
+ .navbar-left {{
+   display: flex;
+   align-items: center;
+   gap: 15px;
+   flex-shrink: 0;      /* impedisce che il logo si riduca */
+ }}
+  .navbar-right {{
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 1.5rem;         /* spazio tra i link */
+    margin-left: 1rem;   /* riduci il margine sinistro per avvicinare i link */
   }}
   .navbar-left img {{
     height: 50px;
@@ -240,13 +247,34 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # ---- GLOBAL COVERAGE ----
-st.markdown("""
-<div style='position:relative; top:240px; text-align:center; padding:2rem;'>
-    <h2 style='color:#00f7ff;'>🌍 Global Data Coverage</h2>
-    <a href="https://www.google.com/maps" target="_blank" rel="noopener noreferrer">
-      <img src='https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/World_map_-_low_resolution_gray_political.png/1200px-World_map_-_low_resolution_gray_political.png' width='60%' style='border-radius:15px; box-shadow: 0 0 10px rgba(0,0,0,0.7); background:white; cursor:pointer;'>
-    </a>
-    <p style='color:black; margin-top:1rem;'>We track financial KPIs across global markets, industries, and economies.</p>
-</div>
+# mostra mappa locale
+st.image("images/World-Map.png", use_column_width=True)
+
+# overlay pallini con html + css
+locations = {
+    "Rome": (50, 80),    # posizioni x,y in pixel o percentuali sulla mappa (da regolare)
+    "New York": (150, 100),
+    "Tokyo": (300, 120),
+}
+
+dots_html = "<div style='position:relative; margin-top:-300px; width:100%; height:0;'>"
+for city, (x, y) in locations.items():
+    dots_html += f"""
+    <div title="{city}" style='
+        position: absolute;
+        top: {y}px;
+        left: {x}px;
+        width: 12px;
+        height: 12px;
+        background: red;
+        border-radius: 50%;
+        border: 2px solid white;
+        cursor: pointer;
+        z-index: 10;
+    '></div>
+    """
+dots_html += "</div>"
+
+st.markdown(dots_html, unsafe_allow_html=True)
 """, unsafe_allow_html=True)
 
