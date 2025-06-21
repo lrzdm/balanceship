@@ -193,10 +193,16 @@ html_code = f"""
   }}
 </style>
 
+#<video autoplay muted loop class="video-background">
+#  <source src="test_video.mp4" type="video/mp4">
+#  Your browser does not support the video tag.
+#</video>
+
 <video autoplay muted loop class="video-background">
-  <source src="test_video.mp4" type="video/mp4">
+  <source src="https://www.https://www.youtube.com/watch?v=i1rKHVpVw4w" type="video/mp4">
   Your browser does not support the video tag.
 </video>
+
 
 <div class="navbar">
   <div class="navbar-left">
@@ -248,23 +254,12 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # ---- GLOBAL COVERAGE ----
-st.title("Financial Insights - Mappa Geografica Interattiva")
+from PIL import Image
+import streamlit as st
 
-st.markdown(
-    """
-    <div style="
-        margin-top: 40px;
-        padding: 10px;
-        border: 2px solid #ccc;
-        border-radius: 15px;
-        max-width: 900px;
-        margin-left: auto;
-        margin-right: auto;
-        box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
-    ">
-        <img src="images/Map_Chart.png" alt="Geographic Coverage" style="width: 100%; height: auto; border-radius: 12px;">
-        <p style="text-align:center; color:#555; font-style: italic; margin-top: 8px;">Our global coverage map with stock exchanges mapped highlighted</p>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+st.markdown("🌍 Our Global Presence")
+
+# Carica e ridimensiona l'immagine
+img = Image.open("images/Map_Chart.png")
+st.image(img, use_container_width=True, caption="Geographic Coverage", output_format="PNG")
+
