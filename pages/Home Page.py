@@ -5,12 +5,18 @@ from streamlit.components.v1 import html
 import datetime
 from cache_db import load_from_db
 from data_utils import read_exchanges, read_companies
-from streamlit_autorefresh import st_autorefresh
+import datetime
 
 st.set_page_config(layout="wide")
 
-# ---- AUTOREFRESH EVERY 60 SECONDS ----
-st_autorefresh(interval=60 * 1000, key="datarefresh")
+if "last_refresh" not in st.session_state:
+    st.session_state.last_refresh = time.time()
+
+REFRESH_INTERVAL = 60  # secondi
+if time.time() - st.session_state.last_refresh > REFRESH_INTERVAL:
+    st.session_state.last_refresh = time.time()
+    st.experimental_rerun()
+
 
 # ---- KPI & AI PHRASE CONFIG ----
 kpi_fields = [
