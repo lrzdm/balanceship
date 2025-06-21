@@ -395,9 +395,11 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 st.markdown("</div>", unsafe_allow_html=True)
+st.write(f"Companies loaded: {n_companies}")
+st.write(f"Records total: {n_records}")
 
 # --- Sidebar ---
-sidebar_logo = get_base64("images/logo4.png") if os.path.exists("images/logo4.png") else ""
+sidebar_logo = get_base64_image("images/logo4.png") if os.path.exists("images/logo4.png") else ""
 st.sidebar.markdown(f"""
 <div style='text-align:center;margin-top:20px'>
   <img src="data:image/png;base64,{sidebar_logo}" width='120'><br>
