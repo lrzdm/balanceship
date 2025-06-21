@@ -15,9 +15,7 @@ body { background-color: #eceff1; color: #263238; }
 .logo-container { display: flex; justify-content: center; gap: 30px; margin: 30px auto; flex-wrap: wrap; }
 .logo-large { height: 90px; }
 .logo-small { height: 60px; }
-.startup-video-container { display: flex; justify-content: center; align-items: stretch; gap: 30px; margin: 40px auto; max-width: 1200px; }
 .startup-box { background: #f5f5f5; border-left: 6px solid #0173C4; border-radius: 10px; padding: 30px; flex: 1; box-shadow: 0 4px 15px rgba(1, 115, 196, 0.3); }
-.video-box { flex: 2; }
 .description-block { background: #fff; border-radius: 12px; box-shadow: 0 4px 15px rgba(1, 115, 196, 0.3); padding: 40px; margin: 20px; }
 .description-block div { margin-top: 30px; font-weight: bold; text-align: center; }
 .profile-grid { display: flex; justify-content: center; gap: 30px; margin: 30px; flex-wrap: nowrap; }
@@ -51,8 +49,8 @@ st.markdown(f"<div class='logo-container'>{logo_html}</div>", unsafe_allow_html=
 
 # --- Startup Info + Video Side by Side ---
 st.markdown("""
-<div class='startup-video-container'>
-  <div class='startup-box'>
+<div class='startup-video-container' style="justify-content: center;">
+  <div class='startup-box' style="max-width: 600px; margin: auto;">
     <h2>🚀 Our Startup</h2>
     <ul style='list-style:none; padding-left:0'>
       <li><strong>Founded:</strong> 2025</li>
@@ -61,14 +59,9 @@ st.markdown("""
       <li><strong>Mission:</strong> Empower businesses with intelligent financial tools</li>
     </ul>
   </div>
-  <div class='video-box'>
-    <iframe width="100%" height="315" src="https://www.youtube.com/embed/YOUR_VIDEO_ID"
-      title="Balanceship Presentation" frameborder="0"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-      allowfullscreen></iframe>
-  </div>
 </div>
 """, unsafe_allow_html=True)
+
 
 # --- Company Description ---
 st.markdown("""
