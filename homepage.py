@@ -400,6 +400,7 @@ st.markdown(f"""
 st.markdown("</div>", unsafe_allow_html=True)
 
 # --- Sidebar ---
+insta, lin = get_base64("images/IG.png"), get_base64("images/LIN.png")
 sidebar_logo = get_base64("images/logo4.png") if os.path.exists("images/logo4.png") else ""
 st.sidebar.markdown(f"""
 <div style='text-align:center;margin-top:20px'>
