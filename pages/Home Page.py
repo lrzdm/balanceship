@@ -249,7 +249,7 @@ n_companies = len(get_all_tickers())
 n_years = 3
 n_records = n_companies * n_years * 34
 
-new_width = 400
+new_width = 300
 map_base64 = get_base64_image("images/Map_Chart.png")
 
 
@@ -302,7 +302,7 @@ st.markdown("""
 .profile-front {
     background-color: #0173C4;
     color: white;
-    padding: 1rem;
+    padding: 0;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -317,7 +317,7 @@ st.markdown("""
 .profile-front h4 {
     font-size: 1.2rem;
     margin: 0;
-    margin-top: 0.5rem;
+    margin-top: 0.5rem 0 0 0;
 }
 
 .profile-back {
@@ -385,7 +385,7 @@ st.markdown("<div style='height: 50px;'></div>", unsafe_allow_html=True)
 # Map section
 st.markdown(f"""
 <div class='map-box'>
-  <h3> "<h3 style='text-align:center; color:#0173C4;'> 🌍 Stock Exchanges on our Databases</h3>"
+  <h3 style='text-align:center; color:#0173C4;'>🌍 Stock Exchanges on our Databases</h3>
   <img src="data:image/png;base64,{map_base64}" class="map-img"/>
 </div>
 """, unsafe_allow_html=True)
