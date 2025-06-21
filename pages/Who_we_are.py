@@ -49,8 +49,8 @@ st.markdown(f"<div class='logo-container'>{logo_html}</div>", unsafe_allow_html=
 
 # --- Startup Info + About us Side by Side ---
 st.markdown("""
-<div style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; margin: 40px 0;">
-  <div class='startup-box' style="max-width: 600px; width: 100%; margin: 0; text-align: center;">
+<div style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; align-items: center; margin: 40px 0;">
+  <div class='startup-box' style="max-width: 600px; width: 100%; margin: 0;">
     <h2>🚀 Our Startup</h2>
     <ul style='list-style:none; padding-left:0; margin: 0;'>
       <li><strong>Founded:</strong> 2025</li>
@@ -60,7 +60,7 @@ st.markdown("""
     </ul>
   </div>
   
-  <div class='description-block' style="max-width: 600px; width: 100%; margin: 0; text-align: center;">
+  <div class='description-block' style="max-width: 600px; width: 100%; margin: 0;">
     <h2>🏢 About Us</h2>
     <p><strong>Balanceship</strong> means clarity and control over financial data. Just like steering a well-balanced ship, our tools help you navigate company financials with ease and confidence.</p>
     <p>We believe financial analysis should be intuitive, actionable, and beautiful. That’s why we design tools that speak the language of business professionals—clear dashboards, strong KPIs, and powerful benchmarking.</p>
@@ -70,6 +70,7 @@ st.markdown("""
   </div>
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
