@@ -115,6 +115,10 @@ html_code = f"""
     margin-left: 0 !important;
     margin-right: 0 !important;
   }}
+  .stApp, .main, .block-container {{
+    background-color: rgba(0, 0, 0, 0) !important;
+    background: transparent !important;
+  }}
   .navbar {{
     position: fixed;
     top: 0;
@@ -235,8 +239,8 @@ html(html_code, height=800)
 
 # ---- HEADLINE ----
 st.markdown("""
-<div style='position:relative; top:160px; color:black; text-align:center;'>
-    <h1>Welcome to BalanceShip Financial Hub</h1>
+<div style='position:relative; top:100px; color:black; text-align:center;'>
+    <h1 style="text-shadow: 1px 1px 2px black;">Welcome to BalanceShip Financial Hub</h1>
     <p>Real-time analysis, smart data. Make better financial decisions.</p>
 </div>
 """, unsafe_allow_html=True)
@@ -253,14 +257,20 @@ st.markdown(f"""
 from PIL import Image
 import streamlit as st
 # Spazio visivo tra snapshot e mappa
-st.markdown("<div style='height: 80px;'></div>", unsafe_allow_html=True)
+#st.markdown("<div style='height: 80px;'></div>", unsafe_allow_html=True)
 
-st.markdown("🌍 Our Global Presence")
+#st.markdown("🌍 Our Global Presence")
 
 #Carica e ridimensiona l'immagine al 50%
 img = Image.open("images/Map_Chart.png")
 width, height = img.size
 img_resized = img.resize((width // 11, height // 11))
+
+st.markdown("""
+<div style='background-color:white; padding:2rem; border-radius:12px;'>
+    <h3>🌍 Our Global Presence</h3>
+</div>
+""", unsafe_allow_html=True)
 
 st.image(img_resized, caption="Geographic Coverage")
 
