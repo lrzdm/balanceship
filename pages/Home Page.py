@@ -189,11 +189,12 @@ html_code = f"""
     min-height: 100%;
     z-index: -1;
     object-fit: cover;
-    opacity: 0.15;
+    opacity: 0.05;
+    background-color: black;
   }}
 </style>
 
-<video autoplay muted loop class="video-background">
+<video autoplay loop class="video-background">
   <source src="https://www.dropbox.com/scl/fi/zpyh82bkpbhoi2dkf78f4/test_video.mp4?rlkey=td6g1wyi08kt6ko59fmsdzqa7&st=ly84c83k&raw=1" type="video/mp4">
   Your browser does not support the video tag.
 </video>
@@ -230,7 +231,7 @@ html_code += """
 """
 
 
-html(html_code, height=300)
+html(html_code, height=800)
 
 # ---- HEADLINE ----
 st.markdown("""
@@ -251,7 +252,9 @@ st.markdown(f"""
 # ---- GLOBAL COVERAGE ----
 from PIL import Image
 import streamlit as st
-st.markdown("<div style='height:150px;'></div>", unsafe_allow_html=True)
+# Spazio visivo tra snapshot e mappa
+st.markdown("<div style='height: 80px;'></div>", unsafe_allow_html=True)
+
 st.markdown("🌍 Our Global Presence")
 
 #Carica e ridimensiona l'immagine al 50%
