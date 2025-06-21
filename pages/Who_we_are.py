@@ -49,7 +49,7 @@ st.markdown(f"<div class='logo-container'>{logo_html}</div>", unsafe_allow_html=
 
 # --- Startup Info + About us Side by Side ---
 st.markdown("""
-<div style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; align-items: stretch; margin: 40px 0;">
+<div style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; align-items: stretch; min-height: 400px; margin: 40px 0;">
   <div class='startup-box' style="max-width: 600px; width: 100%; margin: 0; text-align: center; height: 100%; box-sizing: border-box;">
     <h2>🚀 Our Startup</h2>
     <ul style='list-style:none; padding-left:0; margin: 0; text-align: left;'>
@@ -70,6 +70,7 @@ st.markdown("""
   </div>
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
