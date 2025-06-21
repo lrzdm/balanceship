@@ -339,7 +339,8 @@ st.markdown("""
 st.markdown("<h3 style='text-align:center; color:#0173C4;'>📊 Our Data in Numbers</h3>", unsafe_allow_html=True)
 
 # HTML delle card (tutte concatenate correttamente)
-cards = """
+# HTML delle card con variabili dinamiche
+cards = f"""
 <div class='profile-grid'>
   <div class='profile-card'>
     <div class='profile-inner'>
