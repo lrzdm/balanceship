@@ -12,6 +12,21 @@ from PIL import Image
 st.set_page_config(layout="wide")
 
 
+# ---- KPI & AI PHRASE CONFIG ----
+kpi_fields = [
+    ("total_revenue", "revenue", "reported a revenue of {val}B USD"),
+    ("ebit", "EBIT", "had an EBIT of {val}B USD"),
+    ("ebitda", "EBITDA", "posted an EBITDA of {val}B USD"),
+    ("free_cash_flow", "Free Cash Flow", "generated Free Cash Flow of {val}B USD"),
+    ("net_income", "net profit", "achieved a net profit of {val}B USD"),
+    ("basic_eps", "EPS", "had an EPS of {val}"),
+    ("cost_of_revenue", "COGS", "reported COGS of {val}B USD"),
+    ("total_debt", "total debt", "closed the year with total debt of {val}B"),
+    ("total_assets", "total assets", "held total assets worth {val}B"),
+    ("operating_income", "operating income", "reached operating income of {val}B"),
+    ("gross_profit", "gross profit", "achieved gross profit of {val}B"),
+    ("pretax_income", "pre-tax income", "earned pre-tax income of {val}B")
+]
 
 # ---- LOAD ALL TICKERS FROM DB ----
 def get_all_tickers():
