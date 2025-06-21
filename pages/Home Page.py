@@ -115,23 +115,13 @@ html_code = f"""
     margin-left: 0 !important;
     margin-right: 0 !important;
   }}
-
-  .video-background {{
-    position: fixed;
-    right: 0;
-    bottom: 0;
-    min-width: 100%;
-    min-height: 100%;
-    z-index: -1;
-    object-fit: cover;
-  }}
   .navbar {{
     position: fixed;
     top: 0;
     width: 100%;
     display: flex;
     align-items: center;
-    background: rgba(255, 255, 255, 1);  /* grigio chiaro */
+    background: rgba(255, 255, 255, 1);
     padding: 0.5rem 1rem;
     z-index: 999;
     gap: 2rem;
@@ -147,7 +137,7 @@ html_code = f"""
     display: flex;
     align-items: center;
     gap: 1.5rem;
-    margin-left: 7rem;  /* spostati più a destra */
+    margin-left: 7rem;
   }}
   .navbar-left img {{
     height: 50px;
@@ -191,14 +181,27 @@ html_code = f"""
     font-family: monospace;
     line-height: 40px;
   }}
+  .video-background {{
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    min-width: 100%;
+    min-height: 100%;
+    z-index: -1;
+    object-fit: cover;
+    opacity: 0.15;
+  }}
 </style>
 
-#<video autoplay muted loop class="video-background">
-#  <source src="test_video.mp4" type="video/mp4">
-#  Your browser does not support the video tag.
-#</video>
+<video autoplay muted loop class="video-background">
+  <source src="test_video.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
 
-st.video("https://www.youtube.com/watch?v=i1rKHVpVw4w")
+#st.markdown(video_html, unsafe_allow_html=True)
+
+
+#st.video("https://www.youtube.com/watch?v=i1rKHVpVw4w")
 
 <div class="navbar">
   <div class="navbar-left">
@@ -258,7 +261,7 @@ st.markdown("🌍 Our Global Presence")
 #Carica e ridimensiona l'immagine al 50%
 img = Image.open("images/Map_Chart.png")
 width, height = img.size
-img_resized = img.resize((width // 2, height // 2))
+img_resized = img.resize((width // 8, height // 8))
 
 st.image(img_resized, caption="Geographic Coverage")
 
