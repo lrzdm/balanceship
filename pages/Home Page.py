@@ -14,10 +14,6 @@ st.set_page_config(layout="wide")
 # Ricarica la pagina ogni 30 secondi
 st_autorefresh(interval=30 * 1000, key="auto_refresh")
 
-if ("snapshot_timestamp" not in st.session_state) or (time.time() - st.session_state.snapshot_timestamp > 30):
-    st.session_state.snapshot_phrase = load_random_snapshot()
-    st.session_state.snapshot_timestamp = time.time()
-
 
 # ---- KPI & AI PHRASE CONFIG ----
 kpi_fields = [
@@ -63,11 +59,7 @@ def load_random_snapshot():
             return f"In {year}, {ticker} {phrase.format(val=val_fmt)}."
     return "Data incomplete for insight."
 
-if "snapshot_timestamp" not in st.session_state:
-    st.session_state.snapshot_timestamp = time.time()
-    st.session_state.snapshot_phrase = load_random_snapshot()
-
-if time.time() - st.session_state.snapshot_timestamp > 30:
+if ("snapshot_timestamp" not in st.session_state) or (time.time() - st.session_state.snapshot_timestamp > 30):
     st.session_state.snapshot_phrase = load_random_snapshot()
     st.session_state.snapshot_timestamp = time.time()
 
