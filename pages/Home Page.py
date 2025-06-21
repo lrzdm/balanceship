@@ -147,7 +147,7 @@ html_code = f"""
     display: flex;
     align-items: center;
     gap: 1.5rem;
-    margin-left: 3rem;  /* spostati più a destra */
+    margin-left: 8rem;  /* spostati più a destra */
   }}
   .navbar-left img {{
     height: 50px;
@@ -248,25 +248,29 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # ---- GLOBAL COVERAGE ----
+# Mostra mappa locale con dimensioni controllate
+st.image("images/World-Map.png", use_column_width=False, width=800)
+
+# Overlay pallini con html + css
 locations = {
-    "Rome": (50, 80),
-    "New York": (150, 100),
-    "Tokyo": (300, 120),
+    "Rome": (110, 150),    # Posizioni x,y in pixel da regolare in base alla dimensione immagine
+    "New York": (220, 130),
+    "Tokyo": (640, 180),
 }
 
-map_html = """
-<div style='position: relative; max-width: 100%; max-height: 400px; margin: 2rem auto 0 auto;'>
-  <img src='images/World-Map.png' style='width: 100%; height: auto; display: block;' alt='World Map'/>
+dots_html = """
+<div style='position: relative; width: 800px; height: 400px; margin: 1rem auto 2rem auto;'>
+  <img src='images/world_map.png' style='width: 800px; height: 400px; display: block;' alt='World Map'/>
 """
 
 for city, (x, y) in locations.items():
-    map_html += f"""
+    dots_html += f"""
     <div title="{city}" style='
         position: absolute;
         top: {y}px;
         left: {x}px;
-        width: 12px;
-        height: 12px;
+        width: 14px;
+        height: 14px;
         background: red;
         border-radius: 50%;
         border: 2px solid white;
@@ -275,9 +279,6 @@ for city, (x, y) in locations.items():
     '></div>
     """
 
-map_html += "</div>"
+dots_html += "</div>"
 
-st.markdown(map_html, unsafe_allow_html=True)
-
-
-
+st.markdown(dots_html, unsafe_allow_html=True)
