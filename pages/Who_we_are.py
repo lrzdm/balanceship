@@ -47,10 +47,10 @@ for path, cls in [("images/logo1.png","logo-large"),("images/logo2.png","logo-sm
         logo_html += f'<img src="data:image/png;base64,{get_base64(path)}" class="{cls}">'
 st.markdown(f"<div class='logo-container'>{logo_html}</div>", unsafe_allow_html=True)
 
-# --- Startup Info + Video Side by Side ---
+# --- Startup Info + About us Side by Side ---
 st.markdown("""
-<div class='startup-video-container' style="justify-content: center;">
-  <div class='startup-box' style="max-width: 600px; margin: auto;">
+<div style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; margin: 40px 0;">
+  <div class='startup-box' style="max-width: 600px; width: 100%; margin: 0;">
     <h2>🚀 Our Startup</h2>
     <ul style='list-style:none; padding-left:0'>
       <li><strong>Founded:</strong> 2025</li>
@@ -59,21 +59,18 @@ st.markdown("""
       <li><strong>Mission:</strong> Empower businesses with intelligent financial tools</li>
     </ul>
   </div>
-</div>
-""", unsafe_allow_html=True)
-
-
-# --- Company Description ---
-st.markdown("""
-<div class='description-block'>
+  
+  <div class='description-block' style="max-width: 600px; width: 100%; margin: 0;">
     <h2 style='text-align: center;'>🏢 About Us</h2>
     <p><strong>Balanceship</strong> means clarity and control over financial data. Just like steering a well-balanced ship, our tools help you navigate company financials with ease and confidence.</p>
     <p>We believe financial analysis should be intuitive, actionable, and beautiful. That’s why we design tools that speak the language of business professionals—clear dashboards, strong KPIs, and powerful benchmarking.</p>
     <div style='margin-top: 30px; font-weight: bold; text-align: center; color: #0173C4;'>
         Navigate the financial sea with clarity ⚓
     </div>
+  </div>
 </div>
 """, unsafe_allow_html=True)
+
 
 # --- Team Profiles ---
 st.markdown("<h2 style='text-align:center; margin-top:40px;'>👥 Our Team</h2>", unsafe_allow_html=True)
