@@ -114,6 +114,7 @@ html_code = f"""
     z-index: 999;
     gap: 2rem;
     color: black;
+    margin-bottom: 80px;
   }}
   .navbar-left {{
     display: flex;
@@ -212,7 +213,7 @@ html_code = f"""
 """
 
 # Spazio sotto navbar + ticker
-st.markdown("<div style='height:110px;'></div>", unsafe_allow_html=True)
+st.markdown("<div style='height:80px;'></div>", unsafe_allow_html=True)
 
 # Aggiunta dinamica dei ticker (due volte per scorrimento fluido)
 for t, y, val in bar_items * 2:  # duplica direttamente
@@ -230,28 +231,54 @@ html(html_code, height=800)
 
 # ---- HEADLINE ----
 st.markdown("""
-<div style='margin-top: 100px; margin-bottom: 120px; color:#0173C4; text-align:center;'>
+<div style='margin-top: 100px; margin-bottom: 100px; color:#0173C4; text-align:center;'>
     <h1>Welcome to BalanceShip Financial Hub</h1>
     <p>Real-time analysis, smart data. Make better financial decisions.</p>
 </div>
 """, unsafe_allow_html=True)
 
-#------BOX MAPPA E INSIGHTS----------
-# Esempio: recupero dinamico
-n_companies = 1342  # puoi usare una query sul DB
+
+#----BOX COUNTER AND MAP--------
+
+n_companies = 1342
 n_records = 98214
 n_years = 15
-
-map_base64 = get_base64_image("images/Map_Chart.png")
 new_width = 500
+map_base64 = get_base64_image("images/Map_Chart.png")
 
-st.markdown(f"""
+html_code = f"""
+<div class="container-flex">
+  <div class="box-insight">
+    <h2>📊 Our Data in Numbers</h2>
+    <div class="countup-container" id="countup-container">
+      <div class="countup-item">
+        <div id="companies" class="countup-number">0</div>
+        <div>Companies</div>
+      </div>
+      <div class="countup-item">
+        <div id="records" class="countup-number">0</div>
+        <div>Records</div>
+      </div>
+      <div class="countup-item">
+        <div id="years" class="countup-number">0</div>
+        <div>Years</div>
+      </div>
+    </div>
+  </div>
+  <div class="box-map">
+    <div>
+      <h3>🌍 Stock Exchanges on our databases</h3>
+      <img src="data:image/png;base64,{map_base64}" alt="Map Chart" class="map-image" style="width:{new_width}px;" />
+    </div>
+  </div>
+</div>
+
 <style>
   .container-flex {{
     display: flex;
     justify-content: center;
     gap: 2rem;
-    margin-top: 120px;
+    margin-top: 60px;
     flex-wrap: wrap;
   }}
   .box-insight {{
@@ -311,71 +338,29 @@ st.markdown(f"""
   }}
 </style>
 
-<div class="container-flex">
-  <div class="box-insight">
-    <h2>📊 Our Data in Numbers</h2>
-    <div class="countup-container" id="countup-container">
-      <div class="countup-item">
-        <div id="companies" class="countup-number">0</div>
-        <div>Companies</div>
-      </div>
-      <div class="countup-item">
-        <div id="records" class="countup-number">0</div>
-        <div>Records</div>
-      </div>
-      <div class="countup-item">
-        <div id="years" class="countup-number">0</div>
-        <div>Years</div>
-      </div>
-    </div>
-  </div>
-  <div class="box-map">
-    <div>
-      <h3>🌍 Stock Exchanges on our databases</h3>
-      <img src="data:image/png;base64,{map_base64}" alt="Map Chart" class="map-image" style="width:{new_width}px;" />
-    </div>
-  </div>
-</div>
-
 <script>
-  document.addEventListener('DOMContentLoaded', () => {{
-    let options = {{
-      root: null,
-      rootMargin: '0px',
-      threshold: 0.4
-    }};
+  function animateCount(id, target) {{
+    const el = document.getElementById(id);
+    let start = 0;
+    const duration = 1500;
+    const step = Math.ceil(target / (duration / 30));
+    const counter = setInterval(() => {{
+      start += step;
+      if (start >= target) {{
+        el.textContent = target.toLocaleString();
+        clearInterval(counter);
+      }} else {{
+        el.textContent = start.toLocaleString();
+      }}
+    }}, 30);
+  }}
 
-    let started = false;
-
-    const observer = new IntersectionObserver((entries, observer) => {{
-      entries.forEach(entry => {{
-        if (entry.isIntersecting && !started) {{
-          started = true;
-          animateCount('companies', {n_companies});
-          animateCount('records', {n_records});
-          animateCount('years', {n_years});
-        }}
-      }});
-    }}, options);
-
-    observer.observe(document.querySelector("#countup-container"));
-
-    function animateCount(id, target) {{
-      const el = document.getElementById(id);
-      let start = 0;
-      const duration = 1500;
-      const step = Math.ceil(target / (duration / 30));
-
-      const counter = setInterval(() => {{
-        start += step;
-        if (start >= target) {{
-          el.textContent = target.toLocaleString();
-          clearInterval(counter);
-        }} else {{
-          el.textContent = start.toLocaleString();
-        }}
-      }}, 30);
-    }}
-  }});
+  window.onload = function() {{
+    animateCount('companies', {n_companies});
+    animateCount('records', {n_records});
+    animateCount('years', {n_years});
+  }};
 </script>
-""", unsafe_allow_html=True)
+"""
+
+components.html(html_code, height=500)
