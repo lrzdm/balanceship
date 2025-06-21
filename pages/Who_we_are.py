@@ -66,7 +66,7 @@ st.markdown("""
     </ul>
   </div>
   
-  <div class='description-block' style="max-width: 600px; width: 100%; margin: 0; text-align: center; height: 100%; box-sizing: border-box; display: flex; flex-direction: column; justify-content: flex-start;">
+  <div class='description-block' style="max-width: 600px; width: 100%; margin: 0; text-align: center; height: 100%; box-sizing: border-box; display: flex; flex-direction: column; justify-content: flex-start; color: black">
     <h2>🏢 About Us</h2>
     <p><strong>Balanceship</strong> means clarity and control over financial data. Just like steering a well-balanced ship, our tools help you navigate company financials with ease and confidence.</p>
     <p>We believe financial analysis should be intuitive, actionable, and beautiful. That’s why we design tools that speak the language of business professionals—clear dashboards, strong KPIs, and powerful benchmarking.</p>
