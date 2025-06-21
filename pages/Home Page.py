@@ -249,6 +249,10 @@ n_companies = len(get_all_tickers())
 n_years = 3
 n_records = n_companies * n_years * 34
 
+n_companies_fmt = format(n_companies, ",")
+n_years_fmt = format(n_years, ",")
+n_records_fmt = format(n_records, ",")
+
 new_width = 300
 map_base64 = get_base64_image("images/Map_Chart.png")
 
@@ -349,7 +353,7 @@ cards = f"""
         <h4>Companies</h4>
       </div>
       <div class='profile-back'>
-        {n_companies}
+        {n_companies_fmt}
       </div>
     </div>
   </div>
@@ -360,7 +364,7 @@ cards = f"""
         <h4>Records</h4>
       </div>
       <div class='profile-back'>
-        {n_records}
+        {n_records_fmt}
       </div>
     </div>
   </div>
@@ -371,7 +375,7 @@ cards = f"""
         <h4>Years</h4>
       </div>
       <div class='profile-back'>
-        {n_years}
+        {n_years_fmt}
       </div>
     </div>
   </div>
