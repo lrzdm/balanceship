@@ -193,7 +193,8 @@ html_code = f"""
     min-height: 100%;
     z-index: -1;
     object-fit: cover;
-    opacity: 0.01;
+    opacity: 0.3;
+    background-color: black;
   }}
 </style>
 
@@ -251,11 +252,7 @@ from PIL import Image
 snapshot_phrase = st.session_state.get("snapshot_phrase", "Your AI-driven financial insight here...")
 
 # Carico e ridimensiono l'immagine
-img = Image.open("images/Map_Chart.png")
-width, height = img.size
-new_width = width // 11
-new_height = height // 11
-img_resized = img.resize((new_width, new_height))
+map_base64 = get_base64_image("images/Map_Chart.png")
 
 # Layout con box affiancati
 st.markdown(f"""
@@ -320,7 +317,7 @@ st.markdown(f"""
   <div class="box-map">
     <div>
       <h3>🌍 Our Global Presence</h3>
-      <img src="images/Map_Chart.png" alt="Map Chart" class="map-image" width="{new_width}" />
+      <img src="data:image/png;base64,{map_base64}" alt="Map Chart" class="map-image" style="width:{new_width}px;" />
     </div>
   </div>
 </div>
