@@ -49,10 +49,10 @@ st.markdown(f"<div class='logo-container'>{logo_html}</div>", unsafe_allow_html=
 
 # --- Startup Info + About us Side by Side ---
 st.markdown("""
-<div style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; align-items: center; margin: 40px 0;">
-  <div class='startup-box' style="max-width: 600px; width: 100%; margin: 0;">
+<div style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; align-items: stretch; margin: 40px 0;">
+  <div class='startup-box' style="max-width: 600px; width: 100%; margin: 0; text-align: center; height: 100%; box-sizing: border-box;">
     <h2>🚀 Our Startup</h2>
-    <ul style='list-style:none; padding-left:0; margin: 0;'>
+    <ul style='list-style:none; padding-left:0; margin: 0; text-align: left;'>
       <li><strong>Founded:</strong> 2025</li>
       <li><strong>Sector:</strong> Finance & Data Analytics</li>
       <li><strong>HQ:</strong> Rome, Italy</li>
@@ -60,16 +60,17 @@ st.markdown("""
     </ul>
   </div>
   
-  <div class='description-block' style="max-width: 600px; width: 100%; margin: 0;">
+  <div class='description-block' style="max-width: 600px; width: 100%; margin: 0; text-align: center; height: 100%; box-sizing: border-box; display: flex; flex-direction: column; justify-content: flex-start;">
     <h2>🏢 About Us</h2>
     <p><strong>Balanceship</strong> means clarity and control over financial data. Just like steering a well-balanced ship, our tools help you navigate company financials with ease and confidence.</p>
     <p>We believe financial analysis should be intuitive, actionable, and beautiful. That’s why we design tools that speak the language of business professionals—clear dashboards, strong KPIs, and powerful benchmarking.</p>
-    <div style='margin-top: 30px; font-weight: bold; color: #0173C4;'>
+    <div style='margin-top: auto; font-weight: bold; color: #0173C4;'>
         Navigate the financial sea with clarity ⚓
     </div>
   </div>
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
