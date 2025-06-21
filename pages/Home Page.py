@@ -276,5 +276,4 @@ for city, (x, y) in locations.items():
 dots_html += "</div>"
 
 st.markdown(dots_html, unsafe_allow_html=True)
-""", unsafe_allow_html=True)
 
