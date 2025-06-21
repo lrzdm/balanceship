@@ -7,26 +7,11 @@ from cache_db import load_from_db
 from data_utils import read_exchanges, read_companies
 import base64
 import os
+from PIL import Image
 
 st.set_page_config(layout="wide")
 
 
-
-# ---- KPI & AI PHRASE CONFIG ----
-kpi_fields = [
-    ("total_revenue", "revenue", "reported a revenue of {val}B USD"),
-    ("ebit", "EBIT", "had an EBIT of {val}B USD"),
-    ("ebitda", "EBITDA", "posted an EBITDA of {val}B USD"),
-    ("free_cash_flow", "Free Cash Flow", "generated Free Cash Flow of {val}B USD"),
-    ("net_income", "net profit", "achieved a net profit of {val}B USD"),
-    ("basic_eps", "EPS", "had an EPS of {val}"),
-    ("cost_of_revenue", "COGS", "reported COGS of {val}B USD"),
-    ("total_debt", "total debt", "closed the year with total debt of {val}B"),
-    ("total_assets", "total assets", "held total assets worth {val}B"),
-    ("operating_income", "operating income", "reached operating income of {val}B"),
-    ("gross_profit", "gross profit", "achieved gross profit of {val}B"),
-    ("pretax_income", "pre-tax income", "earned pre-tax income of {val}B")
-]
 
 # ---- LOAD ALL TICKERS FROM DB ----
 def get_all_tickers():
@@ -38,34 +23,7 @@ def get_all_tickers():
             if 'ticker' in c:
                 tickers.append(c['ticker'])
     return list(set(tickers))
-
-# ---- RANDOM SNAPSHOT INSIGHT ----
-def load_random_snapshot():
-    tickers = get_all_tickers()
-    ticker = random.choice(tickers)
-    year = random.choice(["2021", "2022", "2023"])
-    data = load_from_db(ticker, [year])
-    if not data or not data[0]:
-        return "Data not available."
-    d = data[0]
-    random.shuffle(kpi_fields)
-    for key, label, phrase in kpi_fields:
-        val = d.get(key)
-        if val and isinstance(val, (int, float)) and val != 0:
-            val_fmt = f"{val:.2f}"
-            return f"In {year}, {ticker} {phrase.format(val=val_fmt)}."
-    return "Data incomplete for insight."
-
-if "snapshot_timestamp" not in st.session_state:
-    st.session_state.snapshot_timestamp = time.time()
-    st.session_state.snapshot_phrase = load_random_snapshot()
-
-if time.time() - st.session_state.snapshot_timestamp > 120:
-    st.session_state.snapshot_phrase = load_random_snapshot()
-    st.session_state.snapshot_timestamp = time.time()
     
-
-
 
 # ---- LOAD TICKER DATA FOR BAR ----
 def load_ticker_bar_data():
@@ -110,8 +68,16 @@ def get_base64_image(image_path):
 logo1 = get_base64_image("images/logo1.png")
 logo2 = get_base64_image("images/logo2.png")
 
+# Inizio stringa HTML/CSS
 html_code = f"""
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
+
+  html, body, .main {{
+    font-family: 'Open Sans', sans-serif !important;
+    font-size: 18px !important;
+    color: black;
+  }}
   body, .block-container {{
     padding-left: 0 !important;
     padding-right: 0 !important;
@@ -150,18 +116,18 @@ html_code = f"""
     height: 50px;
   }}
   .navbar a {{
-    color: #0173C4;           /* blu pagina */
+    color: #0173C4;
     text-decoration: none;
     font-weight: bold;
     margin-left: 2rem;
-    padding: 0.3rem 0.6rem;   /* spazio interno per il box */
-    border-radius: 5px;       /* angoli arrotondati */
+    padding: 0.3rem 0.6rem;
+    border-radius: 5px;
     transition: background-color 0.3s, color 0.3s;
-    display: inline-block;    /* per applicare padding e background */
+    display: inline-block;
   }}
   .navbar a:hover {{
-    background-color: #0173C4;  /* sfondo blu */
-    color: white;               /* testo bianco */
+    background-color: #0173C4;
+    color: white;
     cursor: pointer;
   }}
   .ticker-bar {{
@@ -207,7 +173,7 @@ html_code = f"""
   }}
 </style>
 
-<video autoplay loop class="video-background">
+<video autoplay loop muted class="video-background">
   <source src="https://www.dropbox.com/scl/fi/zpyh82bkpbhoi2dkf78f4/test_video.mp4?rlkey=td6g1wyi08kt6ko59fmsdzqa7&st=ly84c83k&raw=1" type="video/mp4">
   Your browser does not support the video tag.
 </video>
@@ -230,41 +196,40 @@ html_code = f"""
   <div class="ticker-content" id="ticker-content">
 """
 
-for t, y, val in bar_items:
+# Spazio sotto navbar + ticker
+st.markdown("<div style='height:110px;'></div>", unsafe_allow_html=True)
+
+# Aggiunta dinamica dei ticker (due volte per scorrimento fluido)
+for t, y, val in bar_items * 2:  # duplica direttamente
     html_code += f'<span class="ticker-item" style="color:{get_random_color()};">{t} ({y}): {val}</span>'
 
-# Duplico il contenuto per continuità senza pause
-for t, y, val in bar_items:
-    html_code += f'<span class="ticker-item" style="color:{get_random_color()};">{t} ({y}): {val}</span>'
-
+# Chiusura blocco
 html_code += """
   </div>
 </div>
 """
 
-
+# Rendering
 html(html_code, height=800)
+
 
 # ---- HEADLINE ----
 st.markdown("""
-<div style='position:relative; top:100px; color:#0173C4; text-align:center;'>
+<div style='margin-top: 100px; margin-bottom: 120px; color:#0173C4; text-align:center;'>
     <h1>Welcome to BalanceShip Financial Hub</h1>
     <p>Real-time analysis, smart data. Make better financial decisions.</p>
 </div>
 """, unsafe_allow_html=True)
 
 #------BOX MAPPA E INSIGHTS----------
-import streamlit as st
-from PIL import Image
+# Esempio: recupero dinamico
+n_companies = 1342  # puoi usare una query sul DB
+n_records = 98214
+n_years = 15
 
-# Prendo la frase dal session_state
-snapshot_phrase = st.session_state.get("snapshot_phrase", "Your AI-driven financial insight here...")
-
-# Carico e ridimensiono l'immagine
 map_base64 = get_base64_image("images/Map_Chart.png")
-new_width = 500 
+new_width = 500
 
-# Layout con box affiancati
 st.markdown(f"""
 <style>
   .container-flex {{
@@ -287,9 +252,21 @@ st.markdown(f"""
     color: #0173C4;
     margin-bottom: 1rem;
   }}
-  .box-insight p {{
-    font-size: 1.2rem;
-    line-height: 1.4;
+  .countup-container {{
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+    gap: 1.5rem;
+  }}
+  .countup-item {{
+    text-align: center;
+    font-size: 1.5rem;
+  }}
+  .countup-number {{
+    font-size: 2.2rem;
+    font-weight: bold;
+    color: #01c4a7;
   }}
   .box-map {{
     flex: 1 1 350px;
@@ -321,8 +298,21 @@ st.markdown(f"""
 
 <div class="container-flex">
   <div class="box-insight">
-    <h2>🤖 Snapshot Insights</h2>
-    <p>{st.session_state.snapshot_phrase}</p>
+    <h2>📊 Our Data in Numbers</h2>
+    <div class="countup-container" id="countup-container">
+      <div class="countup-item">
+        <div id="companies" class="countup-number">0</div>
+        <div>Companies</div>
+      </div>
+      <div class="countup-item">
+        <div id="records" class="countup-number">0</div>
+        <div>Records</div>
+      </div>
+      <div class="countup-item">
+        <div id="years" class="countup-number">0</div>
+        <div>Years</div>
+      </div>
+    </div>
   </div>
   <div class="box-map">
     <div>
@@ -331,5 +321,46 @@ st.markdown(f"""
     </div>
   </div>
 </div>
-""", unsafe_allow_html=True)
 
+<script>
+  document.addEventListener('DOMContentLoaded', () => {{
+    let options = {{
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.4
+    }};
+
+    let started = false;
+
+    const observer = new IntersectionObserver((entries, observer) => {{
+      entries.forEach(entry => {{
+        if (entry.isIntersecting && !started) {{
+          started = true;
+          animateCount('companies', {n_companies});
+          animateCount('records', {n_records});
+          animateCount('years', {n_years});
+        }}
+      }});
+    }}, options);
+
+    observer.observe(document.querySelector("#countup-container"));
+
+    function animateCount(id, target) {{
+      const el = document.getElementById(id);
+      let start = 0;
+      const duration = 1500;
+      const step = Math.ceil(target / (duration / 30));
+
+      const counter = setInterval(() => {{
+        start += step;
+        if (start >= target) {{
+          el.textContent = target.toLocaleString();
+          clearInterval(counter);
+        }} else {{
+          el.textContent = start.toLocaleString();
+        }}
+      }}, 30);
+    }}
+  }});
+</script>
+""", unsafe_allow_html=True)
