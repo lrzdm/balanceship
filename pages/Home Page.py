@@ -17,7 +17,7 @@ if "last_refresh" not in st.session_state:
 REFRESH_INTERVAL = 60
 if time.time() - st.session_state.last_refresh > REFRESH_INTERVAL:
     st.session_state.last_refresh = time.time()
-    st.experimental_rerun()
+    #st.experimental_rerun()
 
 # ---- KPI & AI PHRASE CONFIG ----
 kpi_fields = [
@@ -194,7 +194,7 @@ html_code = f"""
 </style>
 
 <video autoplay muted loop class="video-background">
-  <source src="your-company-video.mp4" type="video/mp4">
+  <source src="test_video.mp4" type="video/mp4">
   Your browser does not support the video tag.
 </video>
 
@@ -234,7 +234,7 @@ html(html_code, height=300)
 # ---- HEADLINE ----
 st.markdown("""
 <div style='position:relative; top:160px; color:black; text-align:center;'>
-    <h1>Welcome to Financial Insights Hub</h1>
+    <h1>Welcome to BalanceShip Financial Hub</h1>
     <p>Real-time analysis, smart data. Make better financial decisions.</p>
 </div>
 """, unsafe_allow_html=True)
@@ -242,35 +242,29 @@ st.markdown("""
 # ---- SNAPSHOT INSIGHT ----
 st.markdown(f"""
 <div style='position:relative; top:200px; text-align:center; padding:2rem; background-color:#0a0a0a; color:white;'>
-    <h2 style='color:#00f7ff;'>🤖 Snapshot AI Insights</h2>
+    <h2 style='color:#00f7ff;'>🤖 Snapshot Insights</h2>
     <p style='font-size:18px;'>{st.session_state.snapshot_phrase}</p>
 </div>
 """, unsafe_allow_html=True)
 
 # ---- GLOBAL COVERAGE ----
-import folium
-from streamlit_folium import st_folium
-
 st.title("Financial Insights - Mappa Geografica Interattiva")
 
-# Definisci le coordinate di città importanti
-locations = {
-    "Rome": [41.9, 12.5],
-    "New York": [40.7128, -74.0060],
-    "Tokyo": [35.6762, 139.6503],
-}
-
-# Crea una mappa centrata sull'Europa con zoom 2
-m = folium.Map(location=[41.9, 12.5], zoom_start=2)
-
-# Aggiungi marker per ogni città
-for city, coords in locations.items():
-    folium.Marker(
-        location=coords,
-        popup=f"<b>{city}</b>",
-        tooltip=city,
-        icon=folium.Icon(color="red", icon="info-sign")
-    ).add_to(m)
-
-# Visualizza la mappa in Streamlit (con dimensioni personalizzate)
-st_data = st_folium(m, width=700, height=450)
+st.markdown(
+    """
+    <div style="
+        margin-top: 40px;
+        padding: 10px;
+        border: 2px solid #ccc;
+        border-radius: 15px;
+        max-width: 900px;
+        margin-left: auto;
+        margin-right: auto;
+        box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+    ">
+        <img src="images/Map_Chart.png" alt="Geographic Coverage" style="width: 100%; height: auto; border-radius: 12px;">
+        <p style="text-align:center; color:#555; font-style: italic; margin-top: 8px;">Our global coverage map with stock exchanges mapped highlighted</p>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
