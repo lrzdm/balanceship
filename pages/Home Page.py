@@ -253,23 +253,11 @@ new_width = 600
 map_base64 = get_base64_image("images/Map_Chart.png")
 
 
-# Funzione per animare i numeri
-def animate_count(target, key, suffix=""):
-    placeholder = st.empty()
-    steps = 50
-    for i in range(steps + 1):
-        val = int(target * i / steps)
-        placeholder.markdown(
-            f"<div class='countup-number'>{val:,}{suffix}</div>",
-            unsafe_allow_html=True
-        )
-        time.sleep(0.01)
-
-
-# CSS layout
+# CSS layout aggiornato con flipboard-style
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap');
 
 html, body, .main {
     font-family: 'Open Sans', sans-serif !important;
@@ -306,31 +294,55 @@ html, body, .main {
     margin-bottom: 2rem;
 }
 
+/* Flipboard-style counters */
 .counter-group {
     display: flex;
     justify-content: space-around;
     align-items: center;
     flex-wrap: wrap;
-    gap: 2rem;
+    gap: 3rem;
 }
 
 .counter-item {
     text-align: center;
     flex: 1;
-    min-width: 100px;
+    min-width: 140px;
+    background: #f2f2f2;
+    border-radius: 15px;
+    padding: 1.5rem 2rem;
+    box-shadow: 0 8px 25px rgba(1, 115, 196, 0.2);
+    font-family: 'Orbitron', monospace;
+    cursor: default;
+    transition: transform 0.4s ease;
+}
+
+.counter-item:hover {
+    transform: scale(1.05) rotateX(5deg);
 }
 
 .counter-label {
     font-size: 1.2rem;
     color: #0173C4;
     font-weight: 600;
+    margin-top: 0.5rem;
 }
 
-.countup-number {
-    font-size: 2.5rem;
+.flip-number {
+    font-size: 2.8rem;
     color: #01c4a7;
-    font-weight: bold;
-    margin-top: 0.3rem;
+    letter-spacing: 3px;
+    animation: flipIn 1.2s ease-in-out;
+}
+
+@keyframes flipIn {
+  0% {
+    transform: rotateX(90deg);
+    opacity: 0;
+  }
+  100% {
+    transform: rotateX(0deg);
+    opacity: 1;
+  }
 }
 
 .map-box {
@@ -360,21 +372,23 @@ html, body, .main {
 # Layout container
 st.markdown("<div class='container'>", unsafe_allow_html=True)
 
-# Box con counter
+# Box con counter (flipboard style)
 st.markdown("<div class='box'><h2>📊 Our Data in Numbers</h2><div class='counter-group'>", unsafe_allow_html=True)
 
-with st.container():
-    st.markdown("<div class='counter-item'><div class='counter-label'>Companies</div>", unsafe_allow_html=True)
-    animate_count(n_companies, key="companies")
-    st.markdown("</div>", unsafe_allow_html=True)
-
-    st.markdown("<div class='counter-item'><div class='counter-label'>Records</div>", unsafe_allow_html=True)
-    animate_count(n_records, key="records")
-    st.markdown("</div>", unsafe_allow_html=True)
-
-    st.markdown("<div class='counter-item'><div class='counter-label'>Years</div>", unsafe_allow_html=True)
-    animate_count(n_years, key="years")
-    st.markdown("</div>", unsafe_allow_html=True)
+st.markdown(f"""
+  <div class='counter-item'>
+    <div class='flip-number'>{n_companies:,}</div>
+    <div class='counter-label'>Companies</div>
+  </div>
+  <div class='counter-item'>
+    <div class='flip-number'>{n_records:,}</div>
+    <div class='counter-label'>Records</div>
+  </div>
+  <div class='counter-item'>
+    <div class='flip-number'>{n_years}</div>
+    <div class='counter-label'>Years</div>
+  </div>
+""", unsafe_allow_html=True)
 
 st.markdown("</div></div>", unsafe_allow_html=True)
 
@@ -386,4 +400,4 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-st.markdown("</div>", unsafe_allow_html=True) 
+st.markdown("</div>", unsafe_allow_html=True)
