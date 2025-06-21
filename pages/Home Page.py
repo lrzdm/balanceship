@@ -193,7 +193,7 @@ html_code = f"""
     min-height: 100%;
     z-index: -1;
     object-fit: cover;
-    opacity: 0.3;
+    opacity: 0.8;
     background-color: black;
   }}
 </style>
@@ -253,6 +253,7 @@ snapshot_phrase = st.session_state.get("snapshot_phrase", "Your AI-driven financ
 
 # Carico e ridimensiono l'immagine
 map_base64 = get_base64_image("images/Map_Chart.png")
+new_width = 300 
 
 # Layout con box affiancati
 st.markdown(f"""
