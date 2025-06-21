@@ -147,7 +147,7 @@ html_code = f"""
     display: flex;
     align-items: center;
     gap: 1.5rem;
-    margin-left: 8rem;  /* spostati più a destra */
+    margin-left: 6rem;  /* spostati più a destra */
   }}
   .navbar-left img {{
     height: 50px;
@@ -248,24 +248,25 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # ---- GLOBAL COVERAGE ----
-# Mostra mappa locale con dimensioni controllate
-st.image("images/World-Map.png", use_column_width=False, width=800)
+# Imposta larghezza massima per la mappa (es. 600px) e rende l'immagine responsive nel container
+MAP_WIDTH = 600
+MAP_HEIGHT = 300  # regola in proporzione all'immagine
 
-# Overlay pallini con html + css
 locations = {
-    "Rome": (110, 150),    # Posizioni x,y in pixel da regolare in base alla dimensione immagine
-    "New York": (220, 130),
-    "Tokyo": (640, 180),
+    "Rome": (100, 140),    # x,y pixel adattati a nuova dimensione immagine
+    "New York": (200, 120),
+    "Tokyo": (520, 160),
 }
 
-dots_html = """
-<div style='position: relative; width: 800px; height: 400px; margin: 1rem auto 2rem auto;'>
-  <img src='images/world_map.png' style='width: 800px; height: 400px; display: block;' alt='World Map'/>
+# HTML container con immagine e pallini overlay posizionati assolutamente
+dots_html = f"""
+<div style='position: relative; width: {MAP_WIDTH}px; height: {MAP_HEIGHT}px; margin: 2rem auto 3rem auto; border: 1px solid #ccc; border-radius: 8px;'>
+  <img src="images/World-Map.png" style="width: 100%; height: 100%; display: block; border-radius: 8px;" alt="World Map"/>
 """
 
 for city, (x, y) in locations.items():
     dots_html += f"""
-    <div title="{city}" style='
+    <div title="{city}" style="
         position: absolute;
         top: {y}px;
         left: {x}px;
@@ -276,9 +277,20 @@ for city, (x, y) in locations.items():
         border: 2px solid white;
         cursor: pointer;
         z-index: 10;
-    '></div>
+        box-shadow: 0 0 5px rgba(255, 0, 0, 0.7);
+    "></div>
     """
 
 dots_html += "</div>"
 
+# Visualizzo con markdown (unsafe_allow_html=True per l’HTML personalizzato)
 st.markdown(dots_html, unsafe_allow_html=True)
+
+# Ora mostro il box insight subito sotto la mappa (non coperto)
+st.markdown("""
+<div style='text-align:center; padding:1rem; background-color:#0a0a0a; color:white; border-radius: 8px; max-width: 600px; margin: 0 auto 2rem auto;'>
+    <h2 style='color:#00f7ff;'>🤖 Snapshot AI Insights</h2>
+    <p>Qui puoi mettere il testo dinamico con gli insight.</p>
+</div>
+""", unsafe_allow_html=True)
+
