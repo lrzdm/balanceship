@@ -253,18 +253,24 @@ new_width = 600
 map_base64 = get_base64_image("images/Map_Chart.png")
 
 
-def animate_count(target, delay=0.01, steps=40):
-    container = st.empty()
+# Funzione per animare i counter
+def animate_count(final, key, steps=50, delay=0.01):
+    placeholder = st.empty()
     for i in range(steps + 1):
-        val = int(target * i / steps)
-        container.markdown(f"<div class='countup-number'>{val:,}</div>", unsafe_allow_html=True)
+        value = int(final * i / steps)
+        placeholder.markdown(
+            f"<div class='countup-number'>{value:,}</div>",
+            unsafe_allow_html=True,
+        )
         time.sleep(delay)
 
+# CSS layout
 st.markdown(f"""
 <style>
   .container-flex {{
     display: flex;
     justify-content: center;
+    align-items: stretch;
     gap: 2rem;
     margin-top: 80px;
     flex-wrap: wrap;
@@ -279,7 +285,7 @@ st.markdown(f"""
     min-width: 300px;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: space-between;
   }}
   .box-insight h2 {{
     text-align: center;
@@ -290,18 +296,20 @@ st.markdown(f"""
     display: flex;
     justify-content: space-around;
     align-items: center;
+    gap: 1rem;
     flex-wrap: wrap;
-    gap: 2rem;
   }}
   .countup-item {{
     text-align: center;
     font-size: 1.2rem;
-    flex: 1 1 100px;
+    min-width: 90px;
+    flex: 1;
   }}
   .countup-number {{
     font-size: 2.5rem;
     font-weight: bold;
     color: #01c4a7;
+    margin-top: 0.3rem;
   }}
   .box-map {{
     flex: 1 1 350px;
@@ -336,25 +344,30 @@ st.markdown(f"""
   <div class="box-insight">
     <h2>📊 Our Data in Numbers</h2>
     <div class="countup-container">
+      <div class="countup-item">
+        <div>Companies</div>
 """, unsafe_allow_html=True)
 
-# COUNTER ANIMATI IN PYTHON
-col1, col2, col3 = st.columns(3)
-with col1:
-    st.markdown("<div class='countup-item'><div>Companies</div>", unsafe_allow_html=True)
-    animate_count(n_companies)
-    st.markdown("</div>", unsafe_allow_html=True)
-with col2:
-    st.markdown("<div class='countup-item'><div>Records</div>", unsafe_allow_html=True)
-    animate_count(n_records)
-    st.markdown("</div>", unsafe_allow_html=True)
-with col3:
-    st.markdown("<div class='countup-item'><div>Years</div>", unsafe_allow_html=True)
-    animate_count(n_years)
-    st.markdown("</div>", unsafe_allow_html=True)
+animate_count(n_companies, key="companies")
+
+st.markdown("""
+      </div>
+      <div class="countup-item">
+        <div>Records</div>
+""", unsafe_allow_html=True)
+
+animate_count(n_records, key="records")
+
+st.markdown("""
+      </div>
+      <div class="countup-item">
+        <div>Years</div>
+""", unsafe_allow_html=True)
+
+animate_count(n_years, key="years")
 
 st.markdown(f"""
-    </div>
+      </div>
   </div>
   <div class="box-map">
     <h3>🌍 Stock Exchanges on our databases</h3>
