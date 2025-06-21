@@ -198,11 +198,7 @@ html_code = f"""
 #  Your browser does not support the video tag.
 #</video>
 
-<video autoplay muted loop class="video-background">
-  <source src="https://www.https://www.youtube.com/watch?v=i1rKHVpVw4w" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
-
+st.video("https://www.youtube.com/watch?v=i1rKHVpVw4w")
 
 <div class="navbar">
   <div class="navbar-left">
@@ -259,7 +255,10 @@ import streamlit as st
 
 st.markdown("🌍 Our Global Presence")
 
-# Carica e ridimensiona l'immagine
+#Carica e ridimensiona l'immagine al 50%
 img = Image.open("images/Map_Chart.png")
-st.image(img, use_container_width=True, caption="Geographic Coverage", output_format="PNG")
+width, height = img.size
+img_resized = img.resize((width // 2, height // 2))
+
+st.image(img_resized, caption="Geographic Coverage")
 
