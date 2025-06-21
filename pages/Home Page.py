@@ -237,8 +237,8 @@ html(html_code, height=800)
 # ---- HEADLINE ----
 st.markdown("""
 <div style='margin-top: 100px; margin-bottom: 100px; color:#0173C4; text-align:center;'>
-    <h1>Welcome to BalanceShip Financial Hub</h1>
-    <p>Real-time analysis, smart data. Make better financial decisions.</p>
+    <h1>Welcome to BalanceShip!</h1>
+    <p>Smart data. Make better financial decisions.</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -268,8 +268,8 @@ st.markdown("""
 }
 
 .profile-card {
-    width: 180px;
-    height: 200px;
+    width: 220px;
+    height: 250px;
     perspective: 1000px;
 }
 
@@ -299,10 +299,14 @@ st.markdown("""
     align-items: center;
     font-family: 'Open Sans', sans-serif;
 }
-
 .profile-front {
     background-color: #0173C4;
     color: white;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .profile-front i {
@@ -311,16 +315,22 @@ st.markdown("""
 }
 
 .profile-front h4 {
-    font-size: 1rem;
+    font-size: 1.2rem;
     margin: 0;
+    margin-top: 0.5rem;
 }
 
 .profile-back {
     background-color: #01c4a7;
     color: white;
     transform: rotateY(180deg);
-    font-size: 2rem;
+    font-size: 2.2rem;
     font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 1rem;
 }
 </style>
 """, unsafe_allow_html=True)
