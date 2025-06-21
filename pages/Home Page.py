@@ -195,22 +195,12 @@ html_code = f"""
     object-fit: cover;
     opacity: 0.005;
   }}
-  .video-overlay {{
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.3); /* leggera oscurità */
-    z-index: 0; /* sopra video (-1) ma sotto contenuti (>=1) */
-    pointer-events: none; /* lascia cliccare gli elementi sopra */
-  }}
 </style>
 
 <video autoplay loop class="video-background">
   <source src="https://www.dropbox.com/scl/fi/zpyh82bkpbhoi2dkf78f4/test_video.mp4?rlkey=td6g1wyi08kt6ko59fmsdzqa7&st=ly84c83k&raw=1" type="video/mp4">
   Your browser does not support the video tag.
 </video>
-<div class="video-overlay"></div>
 
 <div class="navbar">
   <div class="navbar-left">
@@ -253,31 +243,86 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ---- SNAPSHOT INSIGHT ----
-st.markdown(f"""
-<div style='position:relative; top:120px; text-align:center; padding:2rem; background-color:#0a0a0a; color:white;'>
-    <h2 style='color:#0173C4;'>🤖 Snapshot Insights</h2>
-    <p style='font-size:18px;'>{st.session_state.snapshot_phrase}</p>
-</div>
-""", unsafe_allow_html=True)
-
-# ---- GLOBAL COVERAGE ----
-from PIL import Image
+#------BOX MAPPA E INSIGHTS----------
 import streamlit as st
-# Spazio visivo tra snapshot e mappa
-st.markdown("<div style='height: 150px;'></div>", unsafe_allow_html=True)
+from PIL import Image
 
-#st.markdown("🌍 Our Global Presence")
+# Prendo la frase dal session_state
+snapshot_phrase = st.session_state.get("snapshot_phrase", "Your AI-driven financial insight here...")
 
-#Carica e ridimensiona l'immagine al 50%
+# Carico e ridimensiono l'immagine
 img = Image.open("images/Map_Chart.png")
 width, height = img.size
-img_resized = img.resize((width // 11, height // 11))
+new_width = width // 11
+new_height = height // 11
+img_resized = img.resize((new_width, new_height))
 
-st.markdown("""
-<div style='background-color:white; padding:2rem; border-radius:12px; text-align:center;'>
-    <h3 style='color:#0173C4;'>🌍 Our Global Presence</h3>
+# Layout con box affiancati
+st.markdown(f"""
+<style>
+  .container-flex {{
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 120px;
+    flex-wrap: wrap;
+  }}
+  .box-insight {{
+    flex: 1 1 350px;
+    background-color: #0a0a0a;
+    color: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(1, 115, 196, 0.4);
+    min-width: 300px;
+  }}
+  .box-insight h2 {{
+    color: #0173C4;
+    margin-bottom: 1rem;
+  }}
+  .box-insight p {{
+    font-size: 1.2rem;
+    line-height: 1.4;
+  }}
+  .box-map {{
+    flex: 1 1 350px;
+    background-color: white;
+    padding: 1rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(1, 115, 196, 0.3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 300px;
+    transition: transform 0.3s ease;
+  }}
+  .box-map:hover {{
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(1, 115, 196, 0.6);
+  }}
+  .box-map h3 {{
+    color: #0173C4;
+    text-align: center;
+    margin-bottom: 1rem;
+  }}
+  img.map-image {{
+    border-radius: 12px;
+    max-width: 100%;
+    height: auto;
+  }}
+</style>
+
+<div class="container-flex">
+  <div class="box-insight">
+    <h2>🤖 Snapshot Insights</h2>
+    <p>{snapshot_phrase}</p>
+  </div>
+  <div class="box-map">
+    <div>
+      <h3>🌍 Our Global Presence</h3>
+      <img src="images/Map_Chart.png" alt="Map Chart" class="map-image" width="{new_width}" />
+    </div>
+  </div>
 </div>
 """, unsafe_allow_html=True)
 
-st.image(img_resized, use_column_width=False, width=width//11)
