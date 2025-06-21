@@ -194,14 +194,10 @@ html_code = f"""
 </style>
 
 <video autoplay muted loop class="video-background">
-  <source src="images/test_video.mp4" type="video/mp4">
+  <source src="https://www.dropbox.com/scl/fi/zpyh82bkpbhoi2dkf78f4/test_video.mp4?rlkey=td6g1wyi08kt6ko59fmsdzqa7&st=ly84c83k&raw=1" type="video/mp4">
   Your browser does not support the video tag.
 </video>
 
-#st.markdown(video_html, unsafe_allow_html=True)
-
-
-#st.video("https://www.youtube.com/watch?v=i1rKHVpVw4w")
 
 <div class="navbar">
   <div class="navbar-left">
@@ -255,7 +251,7 @@ st.markdown(f"""
 # ---- GLOBAL COVERAGE ----
 from PIL import Image
 import streamlit as st
-
+st.markdown("<div style='height:150px;'></div>", unsafe_allow_html=True)
 st.markdown("🌍 Our Global Presence")
 
 #Carica e ridimensiona l'immagine al 50%
