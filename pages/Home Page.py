@@ -147,7 +147,7 @@ html_code = f"""
     display: flex;
     align-items: center;
     gap: 1.5rem;
-    margin-left: 6rem;  /* spostati più a destra */
+    margin-left: 7rem;  /* spostati più a destra */
   }}
   .navbar-left img {{
     height: 50px;
@@ -248,49 +248,29 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # ---- GLOBAL COVERAGE ----
-# Imposta larghezza massima per la mappa (es. 600px) e rende l'immagine responsive nel container
-MAP_WIDTH = 600
-MAP_HEIGHT = 300  # regola in proporzione all'immagine
+import folium
+from streamlit_folium import st_folium
 
+st.title("Financial Insights - Mappa Geografica Interattiva")
+
+# Definisci le coordinate di città importanti
 locations = {
-    "Rome": (100, 140),    # x,y pixel adattati a nuova dimensione immagine
-    "New York": (200, 120),
-    "Tokyo": (520, 160),
+    "Rome": [41.9, 12.5],
+    "New York": [40.7128, -74.0060],
+    "Tokyo": [35.6762, 139.6503],
 }
 
-# HTML container con immagine e pallini overlay posizionati assolutamente
-dots_html = f"""
-<div style='position: relative; width: {MAP_WIDTH}px; height: {MAP_HEIGHT}px; margin: 2rem auto 3rem auto; border: 1px solid #ccc; border-radius: 8px;'>
-  <img src="images/World-Map.png" style="width: 100%; height: 100%; display: block; border-radius: 8px;" alt="World Map"/>
-"""
+# Crea una mappa centrata sull'Europa con zoom 2
+m = folium.Map(location=[41.9, 12.5], zoom_start=2)
 
-for city, (x, y) in locations.items():
-    dots_html += f"""
-    <div title="{city}" style="
-        position: absolute;
-        top: {y}px;
-        left: {x}px;
-        width: 14px;
-        height: 14px;
-        background: red;
-        border-radius: 50%;
-        border: 2px solid white;
-        cursor: pointer;
-        z-index: 10;
-        box-shadow: 0 0 5px rgba(255, 0, 0, 0.7);
-    "></div>
-    """
+# Aggiungi marker per ogni città
+for city, coords in locations.items():
+    folium.Marker(
+        location=coords,
+        popup=f"<b>{city}</b>",
+        tooltip=city,
+        icon=folium.Icon(color="red", icon="info-sign")
+    ).add_to(m)
 
-dots_html += "</div>"
-
-# Visualizzo con markdown (unsafe_allow_html=True per l’HTML personalizzato)
-st.markdown(dots_html, unsafe_allow_html=True)
-
-# Ora mostro il box insight subito sotto la mappa (non coperto)
-st.markdown("""
-<div style='text-align:center; padding:1rem; background-color:#0a0a0a; color:white; border-radius: 8px; max-width: 600px; margin: 0 auto 2rem auto;'>
-    <h2 style='color:#00f7ff;'>🤖 Snapshot AI Insights</h2>
-    <p>Qui puoi mettere il testo dinamico con gli insight.</p>
-</div>
-""", unsafe_allow_html=True)
-
+# Visualizza la mappa in Streamlit (con dimensioni personalizzate)
+st_data = st_folium(m, width=700, height=450)
