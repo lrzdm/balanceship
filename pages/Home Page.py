@@ -194,7 +194,7 @@ html_code = f"""
 </style>
 
 <video autoplay muted loop class="video-background">
-  <source src="test_video.mp4" type="video/mp4">
+  <source src="images/test_video.mp4" type="video/mp4">
   Your browser does not support the video tag.
 </video>
 
@@ -261,7 +261,7 @@ st.markdown("🌍 Our Global Presence")
 #Carica e ridimensiona l'immagine al 50%
 img = Image.open("images/Map_Chart.png")
 width, height = img.size
-img_resized = img.resize((width // 8, height // 8))
+img_resized = img.resize((width // 11, height // 11))
 
 st.image(img_resized, caption="Geographic Coverage")
 
