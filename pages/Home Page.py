@@ -109,6 +109,13 @@ logo2 = get_base64_image("images/logo2.png")
 
 html_code = f"""
 <style>
+  body, .block-container {{
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }}
+
   .video-background {{
     position: fixed;
     right: 0;
@@ -163,11 +170,11 @@ html_code = f"""
   .ticker-content {{
     display: inline-block;
     white-space: nowrap;
-    animation: ticker 120s linear infinite;
+    animation: ticker 60s linear infinite;
   }}
   @keyframes ticker {{
-    from {{ transform: translateX(100%); }}
-    to {{ transform: translateX(-100%); }}
+    from {{ transform: translateX(0%); }}
+    to {{ transform: translateX(-50%); }}
   }}
   .ticker-item {{
     display: inline-block;
@@ -198,9 +205,13 @@ html_code = f"""
 </div>
 
 <div class="ticker-bar">
-  <div class="ticker-content">
+  <div class="ticker-content" id="ticker-content">
 """
 
+for t, y, val in bar_items:
+    html_code += f'<span class="ticker-item" style="color:{get_random_color()};">{t} ({y}): {val}</span>'
+
+# Duplico il contenuto per continuità senza pause
 for t, y, val in bar_items:
     html_code += f'<span class="ticker-item" style="color:{get_random_color()};">{t} ({y}): {val}</span>'
 
@@ -208,6 +219,7 @@ html_code += """
   </div>
 </div>
 """
+
 
 html(html_code, height=300)
 
@@ -231,7 +243,10 @@ st.markdown(f"""
 st.markdown("""
 <div style='position:relative; top:240px; text-align:center; padding:2rem;'>
     <h2 style='color:#00f7ff;'>🌍 Global Data Coverage</h2>
-    <img src='https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/World_map_-_low_resolution_gray_political.png/1200px-World_map_-_low_resolution_gray_political.png' width='60%' style='border-radius:15px; box-shadow: 0 0 10px rgba(0,0,0,0.7); background:white;'>
+    <a href="https://www.google.com/maps" target="_blank" rel="noopener noreferrer">
+      <img src='https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/World_map_-_low_resolution_gray_political.png/1200px-World_map_-_low_resolution_gray_political.png' width='60%' style='border-radius:15px; box-shadow: 0 0 10px rgba(0,0,0,0.7); background:white; cursor:pointer;'>
+    </a>
     <p style='color:black; margin-top:1rem;'>We track financial KPIs across global markets, industries, and economies.</p>
 </div>
 """, unsafe_allow_html=True)
+
