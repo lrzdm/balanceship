@@ -126,40 +126,41 @@ html_code = f"""
     object-fit: cover;
   }}
   .navbar {{
-   position: fixed;
-   top: 0;
-   width: 100%;
-   display: flex;
-   align-items: center;
-   background: rgba(0, 0, 0, 0.8);
-   padding: 0.5rem 1rem;
-   z-index: 999;
-   gap: 2rem;           /* aggiunto gap tra logo e link */
+    position: fixed;
+    top: 0;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    background: rgba(211, 211, 211, 0.9);  /* grigio chiaro */
+    padding: 0.5rem 1rem;
+    z-index: 999;
+    gap: 2rem;
+    color: black;
   }}
- .navbar-left {{
-   display: flex;
-   align-items: center;
-   gap: 15px;
-   flex-shrink: 0;      /* impedisce che il logo si riduca */
- }}
+  .navbar-left {{
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-shrink: 0;
+  }}
   .navbar-right {{
     display: flex;
     align-items: center;
-    gap: 1.5rem;         /* spazio tra i link */
-    margin-left: 1rem;   /* riduci il margine sinistro per avvicinare i link */
+    gap: 1.5rem;
+    margin-left: 3rem;  /* spostati più a destra */
   }}
   .navbar-left img {{
     height: 50px;
   }}
   .navbar a {{
-    color: white;
+    color: black;
     text-decoration: none;
     font-weight: bold;
     margin-left: 2rem;
     transition: color 0.3s;
   }}
   .navbar a:hover {{
-    color: #00f7ff;
+    color: #0077cc;
   }}
   .ticker-bar {{
     position: fixed;
@@ -247,17 +248,18 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # ---- GLOBAL COVERAGE ----
-# mostra mappa locale
-st.image("images/World-Map.png", use_column_width=True)
-
-# overlay pallini con html + css
+# Coordinate pallini da regolare in pixel rispetto all'immagine ridimensionata
 locations = {
-    "Rome": (50, 80),    # posizioni x,y in pixel o percentuali sulla mappa (da regolare)
+    "Rome": (50, 80),
     "New York": (150, 100),
     "Tokyo": (300, 120),
 }
 
-dots_html = "<div style='position:relative; margin-top:-300px; width:100%; height:0;'>"
+dots_html = """
+<div style='position: relative; max-width: 100%; max-height: 400px; margin: 0 auto;'>
+  <img src='images/World-Map.png' style='width: 100%; height: auto; display: block;' />
+"""
+
 for city, (x, y) in locations.items():
     dots_html += f"""
     <div title="{city}" style='
@@ -273,7 +275,9 @@ for city, (x, y) in locations.items():
         z-index: 10;
     '></div>
     """
+
 dots_html += "</div>"
 
 st.markdown(dots_html, unsafe_allow_html=True)
+
 
