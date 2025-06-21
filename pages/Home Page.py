@@ -247,13 +247,14 @@ st.markdown("""
 
 n_companies = len(get_all_tickers())
 n_years = 3
-n_records = n_companies * n_years
+n_records = n_companies * n_years * 34
 
 new_width = 600
 map_base64 = get_base64_image("images/Map_Chart.png")
 
 
-# CSS layout aggiornato con flipboard-style
+
+# CSS per le card flip
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
@@ -294,110 +295,147 @@ html, body, .main {
     margin-bottom: 2rem;
 }
 
-/* Flipboard-style counters */
-.counter-group {
+.flip-card-container {
     display: flex;
     justify-content: space-around;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 3rem;
+    gap: 2rem;
+    flex-wrap: nowrap;
 }
 
-.counter-item {
+.flip-card {
+    background-color: transparent;
+    width: 140px;
+    height: 160px;
+    perspective: 1000px;
+    cursor: pointer;
+}
+
+.flip-card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
     text-align: center;
-    flex: 1;
-    min-width: 140px;
-    background: #f2f2f2;
+    transition: transform 0.7s;
+    transform-style: preserve-3d;
     border-radius: 15px;
-    padding: 1.5rem 2rem;
     box-shadow: 0 8px 25px rgba(1, 115, 196, 0.2);
-    font-family: 'Orbitron', monospace;
-    cursor: default;
-    transition: transform 0.4s ease;
 }
 
-.counter-item:hover {
-    transform: scale(1.05) rotateX(5deg);
+.flip-card.flipped .flip-card-inner {
+    transform: rotateY(180deg);
+}
+
+.flip-card-front, .flip-card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+    font-family: 'Orbitron', monospace;
+}
+
+.flip-card-front {
+    background-color: #0173C4;
+    color: white;
+    font-size: 3rem;
+    user-select: none;
+}
+
+.flip-card-front i {
+    font-size: 3.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.flip-card-back {
+    background-color: #01c4a7;
+    color: white;
+    transform: rotateY(180deg);
+    font-size: 2.8rem;
+    user-select: none;
 }
 
 .counter-label {
-    font-size: 1.2rem;
-    color: #0173C4;
+    margin-top: 10px;
+    font-size: 1.1rem;
     font-weight: 600;
-    margin-top: 0.5rem;
-}
-
-.flip-number {
-    font-size: 2.8rem;
-    color: #01c4a7;
-    letter-spacing: 3px;
-    animation: flipIn 1.2s ease-in-out;
-}
-
-@keyframes flipIn {
-  0% {
-    transform: rotateX(90deg);
-    opacity: 0;
-  }
-  100% {
-    transform: rotateX(0deg);
-    opacity: 1;
-  }
-}
-
-.map-box {
-    flex: 1 1 400px;
-    background-color: white;
-    padding: 2rem;
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(1, 115, 196, 0.2);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-.map-box h3 {
-    color: #0173C4;
-    margin-bottom: 1rem;
-}
-
-.map-img {
-    max-width: 100%;
-    border-radius: 12px;
+    color: #01395e;
+    user-select: none;
 }
 </style>
+
+<!-- Usa icone fontawesome CDN -->
+<link
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+  rel="stylesheet"
+/>
 """, unsafe_allow_html=True)
 
-# Layout container
+# Container principale
 st.markdown("<div class='container'>", unsafe_allow_html=True)
 
-# Box con counter (flipboard style)
-st.markdown("<div class='box'><h2>📊 Our Data in Numbers</h2><div class='counter-group'>", unsafe_allow_html=True)
+# Box contenente card
+st.markdown("<div class='box'><h2>📊 Our Data in Numbers</h2>", unsafe_allow_html=True)
 
-st.markdown(f"""
-  <div class='counter-item'>
-    <div class='flip-number'>{n_companies:,}</div>
-    <div class='counter-label'>Companies</div>
+st.markdown("""
+<div class="flip-card-container">
+  <div class="flip-card" id="card1">
+    <div class="flip-card-inner">
+      <div class="flip-card-front">
+        <i class="fas fa-building"></i>
+        <div class="counter-label">Companies</div>
+      </div>
+      <div class="flip-card-back">{companies}</div>
+    </div>
   </div>
-  <div class='counter-item'>
-    <div class='flip-number'>{n_records:,}</div>
-    <div class='counter-label'>Records</div>
-  </div>
-  <div class='counter-item'>
-    <div class='flip-number'>{n_years}</div>
-    <div class='counter-label'>Years</div>
-  </div>
-""", unsafe_allow_html=True)
 
-st.markdown("</div></div>", unsafe_allow_html=True)
+  <div class="flip-card" id="card2">
+    <div class="flip-card-inner">
+      <div class="flip-card-front">
+        <i class="fas fa-database"></i>
+        <div class="counter-label">Records</div>
+      </div>
+      <div class="flip-card-back">{records}</div>
+    </div>
+  </div>
+
+  <div class="flip-card" id="card3">
+    <div class="flip-card-inner">
+      <div class="flip-card-front">
+        <i class="fas fa-calendar-alt"></i>
+        <div class="counter-label">Years</div>
+      </div>
+      <div class="flip-card-back">{years}</div>
+    </div>
+  </div>
+</div>
+""".format(companies=f"{n_companies:,}", records=f"{n_records:,}", years=n_years), unsafe_allow_html=True)
+
+st.markdown("</div>", unsafe_allow_html=True)
 
 # Box con mappa
 st.markdown(f"""
-<div class='map-box'>
+<div class='box map-box'>
     <h3>🌍 Stock Exchanges on our Databases</h3>
     <img src="data:image/png;base64,{map_base64}" class="map-img" />
 </div>
 """, unsafe_allow_html=True)
 
 st.markdown("</div>", unsafe_allow_html=True)
+
+# JS per flip al click
+st.markdown("""
+<script>
+const cards = document.querySelectorAll('.flip-card');
+cards.forEach(card => {
+  card.addEventListener('click', () => {
+    card.classList.toggle('flipped');
+  });
+});
+</script>
+""", unsafe_allow_html=True)
