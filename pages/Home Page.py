@@ -194,14 +194,13 @@ html_code = f"""
     z-index: -1;
     object-fit: cover;
     opacity: 0.005;
-    background-color: black;
   }}
   .video-overlay {{
     position: fixed;
     top: 0; left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0,0,0,0.1); /* leggera oscurità */
+    background-color: rgba(0,0,0,0.3); /* leggera oscurità */
     z-index: 0; /* sopra video (-1) ma sotto contenuti (>=1) */
     pointer-events: none; /* lascia cliccare gli elementi sopra */
   }}
@@ -248,7 +247,7 @@ html(html_code, height=800)
 
 # ---- HEADLINE ----
 st.markdown("""
-<div style='position:relative; top:100px; color:black; text-align:center;'>
+<div style='position:relative; top:100px; color:#0173C4; text-align:center;'>
     <h1 style="text-shadow: 1px 1px 2px black;">Welcome to BalanceShip Financial Hub</h1>
     <p>Real-time analysis, smart data. Make better financial decisions.</p>
 </div>
@@ -257,7 +256,7 @@ st.markdown("""
 # ---- SNAPSHOT INSIGHT ----
 st.markdown(f"""
 <div style='position:relative; top:120px; text-align:center; padding:2rem; background-color:#0a0a0a; color:white;'>
-    <h2 style='color:#00f7ff;'>🤖 Snapshot Insights</h2>
+    <h2 style='color:#0173C4;'>🤖 Snapshot Insights</h2>
     <p style='font-size:18px;'>{st.session_state.snapshot_phrase}</p>
 </div>
 """, unsafe_allow_html=True)
@@ -276,10 +275,9 @@ width, height = img.size
 img_resized = img.resize((width // 11, height // 11))
 
 st.markdown("""
-<div style='background-color:white; padding:2rem; border-radius:12px;'>
-    <h3>🌍 Our Global Presence</h3>
+<div style='background-color:white; padding:2rem; border-radius:12px; text-align:center;'>
+    <h3 style='color:#0173C4;'>🌍 Our Global Presence</h3>
 </div>
 """, unsafe_allow_html=True)
 
-st.image(img_resized, caption="Geographic Coverage")
-
+st.image(img_resized, use_column_width=False, width=width//11)
