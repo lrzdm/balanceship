@@ -97,8 +97,6 @@ html_code = f"""
   body, .block-container {{
     padding-left: 0 !important;
     padding-right: 0 !important;
-    padding-top: 0;
-    padding-down: 0;
     margin-left: 0 !important;
     margin-right: 0 !important;
   }}
@@ -110,7 +108,6 @@ html_code = f"""
     position: fixed;
     top: 0;
     width: 100%;
-    height: 80%;
     display: flex;
     align-items: center;
     background: rgba(255, 255, 255, 1);
@@ -118,7 +115,7 @@ html_code = f"""
     z-index: 999;
     gap: 2rem;
     color: black;
-    #margin-bottom: 50px;
+    margin-bottom: 50px;
   }}
   .navbar-left {{
     display: flex;
@@ -217,10 +214,10 @@ html_code = f"""
 """
 
 # Riduce lo spazio sopra (puoi regolare)
-#st.markdown("<style>.main {{padding-top: 0rem !important;}}</style>", unsafe_allow_html=True)
+st.markdown("<style>.main {{padding-top: 0rem !important;}}</style>", unsafe_allow_html=True)
 
 # Aggiunge spazio sotto la barra
-#st.markdown("<div style='height:80px;'></div>", unsafe_allow_html=True)
+st.markdown("<div style='height:80px;'></div>", unsafe_allow_html=True)
 
 
 # Aggiunta dinamica dei ticker (due volte per scorrimento fluido)
