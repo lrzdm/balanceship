@@ -115,7 +115,7 @@ html_code = f"""
     z-index: 999;
     gap: 2rem;
     color: black;
-    margin-bottom: 100px;
+    margin-bottom: 50px;
   }}
   .navbar-left {{
     display: flex;
