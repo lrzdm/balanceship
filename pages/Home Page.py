@@ -395,3 +395,14 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 st.markdown("</div>", unsafe_allow_html=True)
+
+# --- Sidebar ---
+sidebar_logo = get_base64("images/logo4.png") if os.path.exists("images/logo4.png") else ""
+st.sidebar.markdown(f"""
+<div style='text-align:center;margin-top:20px'>
+  <img src="data:image/png;base64,{sidebar_logo}" width='120'><br>
+  <small>Navigate the financial sea with clarity ⚓</small><br>
+  <a href='#'><img src='data:image/png;base64,{insta}' width='30' style='margin:5px'></a>
+  <a href='#'><img src='data:image/png;base64,{lin}' width='30' style='margin:5px'></a>
+</div>
+""", unsafe_allow_html=True)
