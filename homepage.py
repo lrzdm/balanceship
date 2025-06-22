@@ -10,7 +10,6 @@ import base64
 import os
 from PIL import Image
 
-    
 st.set_page_config(layout="wide")
 
 
@@ -45,6 +44,9 @@ def get_all_tickers():
                 tickers.append(c['ticker'])
     return list(set(tickers))
     
+@st.cache_data
+def cached_all_tickers():
+    return get_all_tickers()
 
 # ---- LOAD TICKER DATA FOR BAR ----
 def load_ticker_bar_data():
@@ -122,34 +124,36 @@ html_code = f"""
     gap: 2rem;
     color: black;
     margin-bottom: 50px;
-    justify-content: flex-start;
   }}
   .navbar-left {{
     display: flex;
     align-items: center;
     gap: 15px;
-  }}
-  .navbar-left img {{
-    height: 50px;
+    flex-shrink: 0;
   }}
   .navbar-right {{
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 1.5rem;
+    margin-left: 7rem;
+  }}
+  .navbar-left img {{
+    height: 50px;
+  }}
+  .navbar a {{
+    color: #0173C4;
+    text-decoration: none;
+    font-weight: bold;
     margin-left: 2rem;
-  }}
-  .search-input {{
-    padding: 6px 10px;
-    border: 1px solid #0173C4;
+    padding: 0.3rem 0.6rem;
     border-radius: 5px;
-    font-size: 14px;
-    outline: none;
-    transition: all 0.2s;
-    width: 200px;
+    transition: background-color 0.3s, color 0.3s;
+    display: inline-block;
   }}
-  .search-input:focus {{
-    border-color: #005b9f;
-    box-shadow: 0 0 4px #0173C4;
+  .navbar a:hover {{
+    background-color: #0173C4;
+    color: white;
+    cursor: pointer;
   }}
   .ticker-bar {{
     position: fixed;
@@ -210,37 +214,17 @@ html_code = f"""
     <img src="data:image/png;base64,{logo2}" />
   </div>
   <div class="navbar-right">
-    <input name="search" class="search-input" placeholder="Search ticker..." />
-    </form>
+    <a>Home</a>
+    <a>Database</a>
+    <a>Dashboard</a>
+    <a>Graphs</a>
+    <a>Our Team</a>
   </div>
 </div>
 
 <div class="ticker-bar">
   <div class="ticker-content" id="ticker-content">
 """
-
-html_code += """
-  </div>
-</div>
-
-<script>
-  const input = document.getElementById("searchInput");
-  input.addEventListener("keypress", function(event) {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      const query = input.value.toUpperCase();
-      // aggiorna URL senza reload forzato (pushState)
-      const url = new URL(window.location);
-      url.searchParams.set("search", query);
-      window.history.pushState({}, '', url);
-      // triggera Streamlit rerun (con un piccolo hack)
-      const e = new Event('input', { bubbles: true });
-      input.dispatchEvent(e);
-    }
-  });
-</script>
-"""
-
 
 # Riduce lo spazio sopra (puoi regolare)
 st.markdown("<style>.main {{padding-top: 0rem !important;}}</style>", unsafe_allow_html=True)
@@ -261,17 +245,6 @@ html_code += """
 
 # Rendering
 html(html_code, height=800)
-
-# Usa streamlit text_input per intercettare i cambiamenti della query param
-search_ticker = st.query_params().get("search", [""])[0].upper()
-
-if search_ticker:
-    st.markdown(f"### 📈 Financials for `{search_ticker}`")
-    data = load_from_db(search_ticker, ["2021", "2022", "2023"])
-    if data:
-        st.dataframe(data)
-    else:
-        st.warning(f"No data found for {search_ticker}")
 
 
 # ---- HEADLINE ----
