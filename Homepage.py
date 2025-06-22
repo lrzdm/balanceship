@@ -451,6 +451,7 @@ st.sidebar.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
+st.write("ciaooo")
 st.markdown("""
 <hr style="margin-top:50px;"/>
 <div style='text-align: center; font-size: 0.9rem; color: grey;'>
