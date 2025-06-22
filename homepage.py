@@ -21,6 +21,7 @@ quotes = [
 ]
 
 # Quote del giorno basata sul giorno dell’anno
+day_of_year = datetime.datetime.now().timetuple().tm_yday
 quote_of_the_day = quotes[day_of_year % len(quotes)]
 
 # Base64 helper
