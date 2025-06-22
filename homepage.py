@@ -9,7 +9,7 @@ from data_utils import read_exchanges, read_companies
 import base64
 import os
 from PIL import Image
-
+import Who_we_are
 
 st.set_page_config(layout="wide")
 
@@ -20,14 +20,14 @@ selected_page = query_params.get("page", ["Home"])[0]
 if selected_page == "Home":
     st.title("Home")
     st.write("Benvenuto nella homepage.")
-elif selected_page == "Financials":
+elif selected_page == "Database":
     Financials.app()
-elif selected_page == "Insights":
+elif selected_page == "Dashboard":
     Insights.app()
-elif selected_page == "About":
+elif selected_page == "Graphs":
     About.app()
-elif selected_page == "Contact":
-    Contact.app()
+elif selected_page == "Our Team":
+    Who_we_are.app()
 else:
     st.error("Pagina non trovata.")
 
