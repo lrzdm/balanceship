@@ -17,6 +17,7 @@ selected_page = query_params.get("page", ["Home"])[0]
 
 # Routing personalizzato
 if selected_page == "Home":
+    st.write("")
 elif selected_page == "Database":
     ew.app()
 elif selected_page == "Dashboard":
