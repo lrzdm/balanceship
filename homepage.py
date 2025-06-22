@@ -229,15 +229,36 @@ html_code = f"""
   <div class="navbar-left">
     <img src="data:image/png;base64,{logo1}" />
     <img src="data:image/png;base64,{logo2}" />
-  </div>
-  <div class="navbar-right" style="display: flex; align-items: center; gap: 1rem; max-width: 600px; color: #0173C4; font-size: 14px;">
-  <div style="flex: 1; font-style: italic; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+</div>
+<div class="navbar-right" style="
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  max-width: 600px;
+  color: #0173C4;
+  font-size: 14px;
+  overflow: hidden;
+  white-space: nowrap;
+">
+  <div style="
+    flex-grow: 1;
+    font-style: italic;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  ">
     💡 {quote_of_the_day}
   </div>
-  <div style="white-space: nowrap; font-weight: 600;">
+  <div style="
+    flex-shrink: 0;
+    font-weight: 600;
+    white-space: nowrap;
+  ">
     🕒 {current_time} | 📅 {current_date}
   </div>
 </div>
+
 
 <div class="ticker-bar">
   <div class="ticker-content" id="ticker-content">
