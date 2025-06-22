@@ -122,7 +122,7 @@ html_code = f"""
     gap: 2rem;
     color: black;
     margin-bottom: 50px;
-    justify-content: space-between;
+    justify-content: flex-start;
   }}
   .navbar-left {{
     display: flex;
@@ -136,6 +136,7 @@ html_code = f"""
     display: flex;
     align-items: center;
     gap: 1rem;
+    margin-left: 2rem;
   }}
   .search-input {{
     padding: 6px 10px;
@@ -144,6 +145,7 @@ html_code = f"""
     font-size: 14px;
     outline: none;
     transition: all 0.2s;
+    width: 200px;
   }}
   .search-input:focus {{
     border-color: #005b9f;
@@ -208,8 +210,7 @@ html_code = f"""
     <img src="data:image/png;base64,{logo2}" />
   </div>
   <div class="navbar-right">
-    <form action="" method="get">
-      <input name="search" class="search-input" placeholder="Search ticker..." />
+    <input name="search" class="search-input" placeholder="Search ticker..." />
     </form>
   </div>
 </div>
@@ -218,8 +219,27 @@ html_code = f"""
   <div class="ticker-content" id="ticker-content">
 """
 
-query_params = st.query_params
-search_ticker = query_params.get("search", [""])[0].upper()
+html_code += """
+  </div>
+</div>
+
+<script>
+  const input = document.getElementById("searchInput");
+  input.addEventListener("keypress", function(event) {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      const query = input.value.toUpperCase();
+      // aggiorna URL senza reload forzato (pushState)
+      const url = new URL(window.location);
+      url.searchParams.set("search", query);
+      window.history.pushState({}, '', url);
+      // triggera Streamlit rerun (con un piccolo hack)
+      const e = new Event('input', { bubbles: true });
+      input.dispatchEvent(e);
+    }
+  });
+</script>
+"""
 
 
 # Riduce lo spazio sopra (puoi regolare)
@@ -241,6 +261,9 @@ html_code += """
 
 # Rendering
 html(html_code, height=800)
+
+# Usa streamlit text_input per intercettare i cambiamenti della query param
+search_ticker = st.experimental_get_query_params().get("search", [""])[0].upper()
 
 if search_ticker:
     st.markdown(f"### 📈 Financials for `{search_ticker}`")
