@@ -1,8 +1,6 @@
 import streamlit as st
 import os, base64
 from PIL import Image
-
-def app():
     
 st.set_page_config(page_title="Who We Are", layout="wide")
     
