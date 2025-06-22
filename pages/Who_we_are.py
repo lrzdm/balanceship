@@ -4,6 +4,10 @@ from PIL import Image
 
 st.set_page_config(page_title="Who We Are", layout="wide")
 
+def app():
+    st.title("Our Team")
+    st.write("Our Team")
+    
 # Base64 helper
 def get_base64(path):
     with open(path, 'rb') as f: return base64.b64encode(f.read()).decode()
