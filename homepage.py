@@ -263,7 +263,7 @@ html_code += """
 html(html_code, height=800)
 
 # Usa streamlit text_input per intercettare i cambiamenti della query param
-search_ticker = st.experimental_get_query_params().get("search", [""])[0].upper()
+search_ticker = st.query_params().get("search", [""])[0].upper()
 
 if search_ticker:
     st.markdown(f"### 📈 Financials for `{search_ticker}`")
