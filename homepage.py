@@ -9,9 +9,26 @@ from data_utils import read_exchanges, read_companies
 import base64
 import os
 from PIL import Image
+import datetime
 
 st.set_page_config(layout="wide")
 
+quotes = [
+    "Success is not final, failure is not fatal: It is the courage to continue that counts.",
+    "Invest in yourself. Your career is the engine of your wealth.",
+    "The stock market is designed to transfer money from the Active to the Patient.",
+    "Risk comes from not knowing what you’re doing.",
+    "Don’t put all your eggs in one basket.",
+]
+
+# Quote del giorno basata sul giorno dell’anno
+day_of_year = datetime.datetime.now().timetuple().tm_yday
+quote_of_the_day = quotes[day_of_year % len(quotes)]
+
+# Ora e data formattate
+now = datetime.datetime.now()
+current_time = now.strftime("%H:%M:%S")
+current_date = now.strftime("%Y-%m-%d")
 
 # Base64 helper
 def get_base64(path):
@@ -213,12 +230,12 @@ html_code = f"""
     <img src="data:image/png;base64,{logo1}" />
     <img src="data:image/png;base64,{logo2}" />
   </div>
-  <div class="navbar-right">
-    <a>Home</a>
-    <a>Database</a>
-    <a>Dashboard</a>
-    <a>Graphs</a>
-    <a>Our Team</a>
+  <div class="navbar-right" style="display: flex; align-items: center; gap: 1rem; max-width: 600px; color: #0173C4; font-size: 14px;">
+  <div style="flex: 1; font-style: italic; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+    💡 {quote_of_the_day}
+  </div>
+  <div style="white-space: nowrap; font-weight: 600;">
+    🕒 {current_time} | 📅 {current_date}
   </div>
 </div>
 
