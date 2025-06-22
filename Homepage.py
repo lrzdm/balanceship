@@ -9,7 +9,7 @@ from data_utils import read_exchanges, read_companies
 import base64
 import os
 from PIL import Image
-from pages import Financials, Insights, About, Contact  # importa le tue pagine .py
+from pages import Database, KPI Dashboard, Who_we_are, Graph  # importa le tue pagine .py
 
 st.set_page_config(layout="wide")
 
