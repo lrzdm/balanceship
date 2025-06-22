@@ -215,14 +215,13 @@ html_code = f"""
     position: fixed;
     top: 110px;
     left: 0;
-    right: 0;
-    bottom: 0;
-    min-width: 100%;
-    height: calc(100% - 110px);
+    width: 100vw;
+    height: calc(100vh - 110px);
     z-index: -1;
     object-fit: cover;
     opacity: 0.8;
     background-color: black;
+    pointer-events: none;
   }}
   @media (max-width: 768px) {{
     .navbar-right {{ flex-wrap: wrap; margin-left: 0; }}
