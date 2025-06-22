@@ -9,6 +9,7 @@ from data_utils import read_exchanges, read_companies
 import base64
 import os
 from PIL import Image
+import random
 
 st.set_page_config(layout="wide")
 
@@ -18,11 +19,26 @@ quotes = [
     "The stock market is designed to transfer money from the Active to the Patient.",
     "Risk comes from not knowing what you’re doing.",
     "Don’t put all your eggs in one basket.",
+    "The goal of investing is to grow your money, not to impress others.",
+    "Time in the market beats timing the market.",
+    "Discipline is the bridge between goals and accomplishment.",
+    "If you don’t find a way to make money while you sleep, you will work until you die.",
+    "Every great achievement was once considered impossible.",
+    "Your income can grow only to the extent you do.",
+    "In investing, what is comfortable is rarely profitable.",
+    "Success usually comes to those who are too busy to be looking for it.",
+    "Small daily improvements are the key to staggering long-term results.",
+    "Courage is being scared to death and saddling up anyway.",
+    "A budget is telling your money where to go instead of wondering where it went.",
+    "Wealth is the ability to fully experience life.",
+    "It’s not about having more money. It’s about having more freedom.",
+    "Opportunities don't happen. You create them.",
+    "The best investment you can make is in your own knowledge."
 ]
 
+
 # Quote del giorno basata sul giorno dell’anno
-day_of_year = datetime.datetime.now().timetuple().tm_yday
-quote_of_the_day = quotes[day_of_year % len(quotes)]
+quote_of_the_day = random.choice(quotes)
 
 # Base64 helper
 def get_base64(path):
