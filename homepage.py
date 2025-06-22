@@ -9,7 +9,6 @@ from data_utils import read_exchanges, read_companies
 import base64
 import os
 from PIL import Image
-import datetime
 
 st.set_page_config(layout="wide")
 
@@ -17,25 +16,7 @@ st.set_page_config(layout="wide")
 # Base64 helper
 def get_base64(path):
     with open(path, 'rb') as f: return base64.b64encode(f.read()).decode()
-
-quotes = [
-    "Success is not final, failure is not fatal: It is the courage to continue that counts.",
-    "Invest in yourself. Your career is the engine of your wealth.",
-    "The stock market is designed to transfer money from the Active to the Patient.",
-    "Risk comes from not knowing what you’re doing.",
-    "Don’t put all your eggs in one basket.",
-]
-
-# Quote del giorno basata sul giorno dell’anno
-day_of_year = datetime.datetime.now().timetuple().tm_yday
-quote_of_the_day = quotes[day_of_year % len(quotes)]
-
-# Ora e data formattate
-now = datetime.datetime.now()
-current_time = now.strftime("%H:%M:%S")
-current_date = now.strftime("%Y-%m-%d")
-
-
+        
 # ---- KPI & AI PHRASE CONFIG ----
 kpi_fields = [
     ("total_revenue", "revenue", "reported a revenue of {val}B USD"),
@@ -122,8 +103,6 @@ html_code = f"""
     color: black;
   }}
   body, .block-container {{
-    margin: 0 !important;
-    padding: 0 !important;
     padding-left: 0 !important;
     padding-right: 0 !important;
     margin-left: 0 !important;
@@ -142,7 +121,7 @@ html_code = f"""
     background: rgba(255, 255, 255, 1);
     padding: 0.5rem 1rem;
     z-index: 999;
-    gap: 0rem;
+    gap: 2rem;
     color: black;
     margin-bottom: 50px;
   }}
@@ -183,9 +162,6 @@ html_code = f"""
     background-color: black;
     overflow: hidden;
     height: 40px;
-    padding: 0.5rem 1rem;
-    box-sizing: border-box;
-    margin: 0;
     border-top: 2px solid #333;
     border-bottom: 2px solid #333;
     z-index: 998;
@@ -211,16 +187,13 @@ html_code = f"""
   .video-background {{
     position: fixed;
     top: 110px;
-    left: 0;
     right: 0;
     bottom: 0;
-    width: 100vw;
+    min-width: 100%;
     height: calc(100% - 110px);
     z-index: -1;
     object-fit: cover;
     opacity: 0.8;
-    margin: 0;         /* togli margini */
-    padding: 0;  
     background-color: black;
   }}
   @media (max-width: 768px) {{
@@ -240,18 +213,19 @@ html_code = f"""
     <img src="data:image/png;base64,{logo1}" />
     <img src="data:image/png;base64,{logo2}" />
   </div>
-  <div class="navbar-right" style="display: flex; align-items: center; gap: 1rem; max-width: 600px; color: #0173C4; font-size: 14px;">
-  <div style="flex: 1; font-style: italic; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-    💡 {quote_of_the_day}
-  </div>
-  <div style="white-space: nowrap; font-weight: 600;">
-    🕒 {current_time} | 📅 {current_date}
+  <div class="navbar-right">
+    <a>Home</a>
+    <a>Database</a>
+    <a>Dashboard</a>
+    <a>Graphs</a>
+    <a>Our Team</a>
   </div>
 </div>
 
 <div class="ticker-bar">
   <div class="ticker-content" id="ticker-content">
 """
+
 # Riduce lo spazio sopra (puoi regolare)
 st.markdown("<style>.main {{padding-top: 0rem !important;}}</style>", unsafe_allow_html=True)
 
@@ -454,4 +428,3 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
-
