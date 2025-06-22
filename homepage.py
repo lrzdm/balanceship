@@ -224,9 +224,10 @@ html_code = f"""
     <img src="data:image/png;base64,{logo1}" />
     <img src="data:image/png;base64,{logo2}" />
   </div>
-  <div class="navbar-right" style="display: flex; align-items: center; gap: 1rem; max-width: 600px; color: #0173C4; font-size: 14px;">
-  <div style="flex: 1; font-style: italic; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-    💡 {quote_of_the_day}
+  <div class="navbar-right" style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; max-width: 100%; color: #0173C4; font-size: 14px; flex-grow: 1; overflow: hidden;">
+    <div style="font-style: italic; flex-grow: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+      💡 {quote_of_the_day}
+    </div>
   </div>
 </div>
 
