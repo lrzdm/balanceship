@@ -181,6 +181,7 @@ html_code = f"""
     background-color: black;
     overflow: hidden;
     height: 40px;
+    padding: 0 1rem;
     border-top: 2px solid #333;
     border-bottom: 2px solid #333;
     z-index: 998;
@@ -206,9 +207,10 @@ html_code = f"""
   .video-background {{
     position: fixed;
     top: 110px;
+    left: 0;
     right: 0;
     bottom: 0;
-    min-width: 100%;
+    width: 100%;
     height: calc(100% - 110px);
     z-index: -1;
     object-fit: cover;
