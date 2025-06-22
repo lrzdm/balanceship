@@ -214,6 +214,7 @@ html_code = f"""
   .video-background {{
     position: fixed;
     top: 110px;
+    left: 0;
     right: 0;
     bottom: 0;
     min-width: 100%;
