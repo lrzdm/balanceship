@@ -9,6 +9,7 @@ from data_utils import read_exchanges, read_companies
 import base64
 import os
 from PIL import Image
+import datetime
 
 st.set_page_config(layout="wide")
 
@@ -16,9 +17,6 @@ st.set_page_config(layout="wide")
 # Base64 helper
 def get_base64(path):
     with open(path, 'rb') as f: return base64.b64encode(f.read()).decode()
-
-
-import datetime
 
 quotes = [
     "Success is not final, failure is not fatal: It is the courage to continue that counts.",
@@ -243,11 +241,9 @@ html_code = f"""
   </div>
 </div>
 
-
 <div class="ticker-bar">
   <div class="ticker-content" id="ticker-content">
 """
-
 # Riduce lo spazio sopra (puoi regolare)
 st.markdown("<style>.main {{padding-top: 0rem !important;}}</style>", unsafe_allow_html=True)
 
