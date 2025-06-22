@@ -227,9 +227,9 @@ html_code = f"""
     background-color: black;
   }}
   @media (max-width: 768px) {{
-    .navbar-right { flex-wrap: wrap; margin-left: 0; }
-    .profile-grid { flex-direction: column; align-items: center; }
-    .ticker-item { font-size: 0.8rem; margin: 0 1rem; }
+    .navbar-right {{ flex-wrap: wrap; margin-left: 0; }}
+    .profile-grid {{ flex-direction: column; align-items: center; }}
+    .ticker-item {{ font-size: 0.8rem; margin: 0 1rem; }}
   }}
 </style>
 
