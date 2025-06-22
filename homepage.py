@@ -9,27 +9,8 @@ from data_utils import read_exchanges, read_companies
 import base64
 import os
 from PIL import Image
-import Who_we_are
 
 st.set_page_config(layout="wide")
-
-query_params = st.query_params
-selected_page = query_params.get("page", ["Home"])[0]
-
-# Routing logico in base al parametro
-if selected_page == "Home":
-    st.title("Home")
-    st.write("Benvenuto nella homepage.")
-elif selected_page == "Database":
-    Financials.app()
-elif selected_page == "Dashboard":
-    Insights.app()
-elif selected_page == "Graphs":
-    About.app()
-elif selected_page == "Our Team":
-    Who_we_are.app()
-else:
-    st.error("Pagina non trovata.")
 
 
 # Base64 helper
@@ -109,17 +90,6 @@ def get_base64_image(image_path):
 
 logo1 = get_base64_image("images/logo1.png")
 logo2 = get_base64_image("images/logo2.png")
-
-bg_home = "#0173C4" if selected_page == "Home" else "transparent"
-color_home = "white" if selected_page == "Home" else "#0173C4"
-bg_db = "#0173C4" if selected_page == "Database" else "transparent"
-color_db = "white" if selected_page == "Database" else "#0173C4"
-bg_ds = "#0173C4" if selected_page == "Dashboard" else "transparent"
-color_ds = "white" if selected_page == "Dashboard" else "#0173C4"
-bg_gr = "#0173C4" if selected_page == "Graphs" else "transparent"
-color_gr = "white" if selected_page == "Graphs" else "#0173C4"
-bg_our = "#0173C4" if selected_page == "Our Team" else "transparent"
-color_our = "white" if selected_page == "Our Team" else "#0173C4"
 
 
 # Inizio stringa HTML/CSS
