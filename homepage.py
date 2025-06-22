@@ -214,11 +214,11 @@ html_code = f"""
     <img src="data:image/png;base64,{logo2}" />
   </div>
   <div class="navbar-right">
-    <a href="/?page=Home" style="background-color: {bg_home}; color: {color_home};">Home</a>
-    <a href="/?page=Database" style="background-color: {bg_db}; color: {color_db};">Database</a>
-    <a href="/?page=Dashboard" style="background-color: {bg_ds}; color: {color_ds};">Dashboard</a>
-    <a href="/?page=Graphs" style="background-color: {bg_gr}; color: {color_gr};">Graphs</a>
-    <a href="/?page=Our Team" style="background-color: {bg_our}; color: {color_our};">Our Team</a>
+    <a>Home</a>
+    <a>Database</a>
+    <a>Dashboard</a>
+    <a>Graphs</a>
+    <a>Our Team</a>
   </div>
 </div>
 
