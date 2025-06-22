@@ -9,7 +9,6 @@ from data_utils import read_exchanges, read_companies
 import base64
 import os
 from PIL import Image
-import datetime
 
 st.set_page_config(layout="wide")
 
@@ -229,36 +228,13 @@ html_code = f"""
   <div class="navbar-left">
     <img src="data:image/png;base64,{logo1}" />
     <img src="data:image/png;base64,{logo2}" />
-</div>
-<div class="navbar-right" style="
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  max-width: 500px;
-  color: #0173C4;
-  font-size: 14px;
-  overflow: hidden;
-  white-space: nowrap;
-">
-  <div style="
-    flex-grow: 1;
-    font-style: italic;
-    text-align: center;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  ">
-    💡 {quote_of_the_day}
   </div>
-  <div style="
-    flex-shrink: 0;
-    font-weight: 600;
-    white-space: nowrap;
-  ">
+  <div class="navbar-right">
+    <div style="white-space: nowrap; font-weight: 600;">
     🕒 {current_time} | 📅 {current_date}
+    </div>
   </div>
 </div>
-
 
 <div class="ticker-bar">
   <div class="ticker-content" id="ticker-content">
