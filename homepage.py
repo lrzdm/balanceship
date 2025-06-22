@@ -9,7 +9,23 @@ from data_utils import read_exchanges, read_companies
 import base64
 import os
 from PIL import Image
+import KPI_Dashboard, ew, Graph, Who_we_are
 
+# Recupera il parametro dalla URL
+query_params = st.query_params
+selected_page = query_params.get("page", ["Home"])[0]
+
+# Routing personalizzato
+if selected_page == "Home":
+elif selected_page == "Database":
+    ew.app()
+elif selected_page == "Dashboard":
+    KPI_Dashboard.app()
+elif selected_page == "Graphs":
+    Graphs.app()
+elif selected_page == "Our Team":
+    Who_we_are.app()
+    
 st.set_page_config(layout="wide")
 
 
@@ -96,6 +112,7 @@ logo2 = get_base64_image("images/logo2.png")
 html_code = f"""
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
+  @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
 
   html, body, .main {{
     font-family: 'Open Sans', sans-serif !important;
@@ -134,23 +151,25 @@ html_code = f"""
   .navbar-right {{
     display: flex;
     align-items: center;
-    gap: 1.5rem;
-    margin-left: 7rem;
+    gap: 2rem;
+    margin-left: auto;
   }}
   .navbar-left img {{
     height: 50px;
   }}
-  .navbar a {{
+  .icon-link {{
     color: #0173C4;
     text-decoration: none;
     font-weight: bold;
-    margin-left: 2rem;
     padding: 0.3rem 0.6rem;
     border-radius: 5px;
     transition: background-color 0.3s, color 0.3s;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    font-size: 1.1rem;
+    gap: 0.4rem;
   }}
-  .navbar a:hover {{
+  .icon-link:hover {{
     background-color: #0173C4;
     color: white;
     cursor: pointer;
@@ -214,11 +233,11 @@ html_code = f"""
     <img src="data:image/png;base64,{logo2}" />
   </div>
   <div class="navbar-right">
-    <a>Home</a>
-    <a>Database</a>
-    <a>Dashboard</a>
-    <a>Graphs</a>
-    <a>Our Team</a>
+    <a class="icon-link" href="/?page=Home"><i class="fas fa-home"></i>Home</a>
+    <a class="icon-link" href="/?page=Database"><i class="fas fa-database"></i>Database</a>
+    <a class="icon-link" href="/?page=Dashboard"><i class="fas fa-chart-line"></i>Dashboard</a>
+    <a class="icon-link" href="/?page=Graphs"><i class="fas fa-project-diagram"></i>Graphs</a>
+    <a class="icon-link" href="/?page=Our Team"><i class="fas fa-users"></i>Team</a>
   </div>
 </div>
 
