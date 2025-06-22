@@ -233,8 +233,8 @@ html_code = f"""
 <div class="navbar-right" style="
   display: flex;
   align-items: center;
-  gap: 1rem;
-  max-width: 600px;
+  gap: 0.5rem;
+  max-width: 500px;
   color: #0173C4;
   font-size: 14px;
   overflow: hidden;
