@@ -122,6 +122,8 @@ html_code = f"""
     color: black;
   }}
   body, .block-container {{
+    margin: 0 !important;
+    padding: 0 !important;
     padding-left: 0 !important;
     padding-right: 0 !important;
     margin-left: 0 !important;
@@ -140,7 +142,7 @@ html_code = f"""
     background: rgba(255, 255, 255, 1);
     padding: 0.5rem 1rem;
     z-index: 999;
-    gap: 2rem;
+    gap: 0rem;
     color: black;
     margin-bottom: 50px;
   }}
@@ -181,7 +183,9 @@ html_code = f"""
     background-color: black;
     overflow: hidden;
     height: 40px;
-    padding: 0 1rem;
+    padding: 0.5rem 1rem;
+    box-sizing: border-box;
+    margin: 0;
     border-top: 2px solid #333;
     border-bottom: 2px solid #333;
     z-index: 998;
