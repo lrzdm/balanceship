@@ -214,11 +214,13 @@ html_code = f"""
     left: 0;
     right: 0;
     bottom: 0;
-    width: 100%;
+    width: 100vw;
     height: calc(100% - 110px);
     z-index: -1;
     object-fit: cover;
     opacity: 0.8;
+    margin: 0;         /* togli margini */
+    padding: 0;  
     background-color: black;
   }}
   @media (max-width: 768px) {{
