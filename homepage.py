@@ -16,7 +16,28 @@ st.set_page_config(layout="wide")
 # Base64 helper
 def get_base64(path):
     with open(path, 'rb') as f: return base64.b64encode(f.read()).decode()
-        
+
+
+import datetime
+
+quotes = [
+    "Success is not final, failure is not fatal: It is the courage to continue that counts.",
+    "Invest in yourself. Your career is the engine of your wealth.",
+    "The stock market is designed to transfer money from the Active to the Patient.",
+    "Risk comes from not knowing what you’re doing.",
+    "Don’t put all your eggs in one basket.",
+]
+
+# Quote del giorno basata sul giorno dell’anno
+day_of_year = datetime.datetime.now().timetuple().tm_yday
+quote_of_the_day = quotes[day_of_year % len(quotes)]
+
+# Ora e data formattate
+now = datetime.datetime.now()
+current_time = now.strftime("%H:%M:%S")
+current_date = now.strftime("%Y-%m-%d")
+
+
 # ---- KPI & AI PHRASE CONFIG ----
 kpi_fields = [
     ("total_revenue", "revenue", "reported a revenue of {val}B USD"),
@@ -214,11 +235,12 @@ html_code = f"""
     <img src="data:image/png;base64,{logo2}" />
   </div>
   <div class="navbar-right">
-    <a>Home</a>
-    <a>Database</a>
-    <a>Dashboard</a>
-    <a>Graphs</a>
-    <a>Our Team</a>
+  <form action="" method="get" style="margin-right: 1rem;">
+    <input name="search" class="search-input" placeholder="Search ticker..." />
+  </form>
+  <div style="color:#555; font-size:12px; font-style:italic; max-width: 300px;">
+    💡 {quote_of_the_day}<br/>
+    🕒 {current_time} | 📅 {current_date}
   </div>
 </div>
 
