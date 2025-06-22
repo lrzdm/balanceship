@@ -235,10 +235,7 @@ html_code = f"""
     <img src="data:image/png;base64,{logo2}" />
   </div>
   <div class="navbar-right">
-  <form action="" method="get" style="margin-right: 1rem;">
-    <input name="search" class="search-input" placeholder="Search ticker..." />
-  </form>
-  <div style="color:#555; font-size:12px; font-style:italic; max-width: 300px;">
+  <div style="color:#0173C4; font-size:14px; font-style:italic; max-width: 300px;">
     💡 {quote_of_the_day}<br/>
     🕒 {current_time} | 📅 {current_date}
   </div>
