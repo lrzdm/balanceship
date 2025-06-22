@@ -234,12 +234,15 @@ html_code = f"""
     <img src="data:image/png;base64,{logo1}" />
     <img src="data:image/png;base64,{logo2}" />
   </div>
-  <div class="navbar-right">
-  <div style="color:#0173C4; font-size:14px; font-style:italic; max-width: 300px;">
-    💡 {quote_of_the_day}<br/>
+  <div class="navbar-right" style="display: flex; align-items: center; gap: 1rem; max-width: 600px; color: #0173C4; font-size: 14px;">
+  <div style="flex: 1; font-style: italic; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+    💡 {quote_of_the_day}
+  </div>
+  <div style="white-space: nowrap; font-weight: 600;">
     🕒 {current_time} | 📅 {current_date}
   </div>
 </div>
+
 
 <div class="ticker-bar">
   <div class="ticker-content" id="ticker-content">
