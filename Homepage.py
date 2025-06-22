@@ -9,8 +9,28 @@ from data_utils import read_exchanges, read_companies
 import base64
 import os
 from PIL import Image
+from pages import Financials, Insights, About, Contact  # importa le tue pagine .py
 
 st.set_page_config(layout="wide")
+
+query_params = st.query_params
+selected_page = query_params.get("page", ["Home"])[0]
+
+# Routing logico in base al parametro
+if selected_page == "Home":
+    st.title("Home")
+    st.write("Benvenuto nella homepage.")
+elif selected_page == "Financials":
+    Financials.app()
+elif selected_page == "Insights":
+    Insights.app()
+elif selected_page == "About":
+    About.app()
+elif selected_page == "Contact":
+    Contact.app()
+else:
+    st.error("Pagina non trovata.")
+
 
 # Base64 helper
 def get_base64(path):
@@ -43,6 +63,9 @@ def get_all_tickers():
                 tickers.append(c['ticker'])
     return list(set(tickers))
     
+@st.cache_data
+def cached_all_tickers():
+    return get_all_tickers()
 
 # ---- LOAD TICKER DATA FOR BAR ----
 def load_ticker_bar_data():
@@ -87,6 +110,18 @@ def get_base64_image(image_path):
 logo1 = get_base64_image("images/logo1.png")
 logo2 = get_base64_image("images/logo2.png")
 
+bg_home = "#0173C4" if selected_page == "Home" else "transparent"
+color_home = "white" if selected_page == "Home" else "#0173C4"
+bg_db = "#0173C4" if selected_page == "Database" else "transparent"
+color_db = "white" if selected_page == "Database" else "#0173C4"
+bg_ds = "#0173C4" if selected_page == "Dashboard" else "transparent"
+color_ds = "white" if selected_page == "Dashboard" else "#0173C4"
+bg_gr = "#0173C4" if selected_page == "Graphs" else "transparent"
+color_gr = "white" if selected_page == "Graphs" else "#0173C4"
+bg_our = "#0173C4" if selected_page == "Our Team" else "transparent"
+color_our = "white" if selected_page == "Our Team" else "#0173C4"
+
+
 # Inizio stringa HTML/CSS
 html_code = f"""
 <style>
@@ -94,7 +129,7 @@ html_code = f"""
 
   html, body, .main {{
     font-family: 'Open Sans', sans-serif !important;
-    font-size: 18px !important;
+    font-size: 16px !important;
     color: black;
   }}
   body, .block-container {{
@@ -191,6 +226,11 @@ html_code = f"""
     opacity: 0.8;
     background-color: black;
   }}
+  @media (max-width: 768px) {{
+    .navbar-right { flex-wrap: wrap; margin-left: 0; }
+    .profile-grid { flex-direction: column; align-items: center; }
+    .ticker-item { font-size: 0.8rem; margin: 0 1rem; }
+  }}
 </style>
 
 <video autoplay loop class="video-background">
@@ -204,11 +244,11 @@ html_code = f"""
     <img src="data:image/png;base64,{logo2}" />
   </div>
   <div class="navbar-right">
-    <a href="#">Home</a>
-    <a href="#">Financials</a>
-    <a href="#">Insights</a>
-    <a href="#">About Us</a>
-    <a href="#">Contact</a>
+    <a href="/?page=Home" style="background-color: {bg_home}; color: {color_home};">Home</a>
+    <a href="/?page=Database" style="background-color: {bg_db}; color: {color_db};">Database</a>
+    <a href="/?page=Dashboard" style="background-color: {bg_ds}; color: {color_ds};">Dashboard</a>
+    <a href="/?page=Graphs" style="background-color: {bg_gr}; color: {color_gr};">Graphs</a>
+    <a href="/?page=Our Team" style="background-color: {bg_our}; color: {color_our};">Our Team</a>
   </div>
 </div>
 
@@ -410,3 +450,11 @@ st.sidebar.markdown(f"""
   <a href='#'><img src='data:image/png;base64,{lin}' width='30' style='margin:5px'></a>
 </div>
 """, unsafe_allow_html=True)
+
+st.markdown("""
+<hr style="margin-top:50px;"/>
+<div style='text-align: center; font-size: 0.9rem; color: grey;'>
+    &copy; 2025 BalanceShip. All rights reserved.
+</div>
+""", unsafe_allow_html=True)
+
