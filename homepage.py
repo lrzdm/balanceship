@@ -9,7 +9,7 @@ from data_utils import read_exchanges, read_companies
 import base64
 import os
 from PIL import Image
-import KPI_Dashboard, ew, Graph, Who_we_are
+import KPI_Dashboard, Database, Graph, Who_we_are
 
 # Recupera il parametro dalla URL
 query_params = st.query_params
