@@ -43,7 +43,12 @@ quote_of_the_day = random.choice(quotes)
 # Base64 helper
 def get_base64(path):
     with open(path, 'rb') as f: return base64.b64encode(f.read()).decode()
-        
+
+def get_base64_of_bin_file(bin_file):
+    with open(bin_file, 'rb') as f:
+        data = f.read()
+    return base64.b64encode(data).decode()
+
 # ---- KPI & AI PHRASE CONFIG ----
 kpi_fields = [
     ("total_revenue", "revenue", "reported a revenue of {val}B USD"),
