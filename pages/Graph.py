@@ -568,6 +568,13 @@ st.sidebar.markdown(f"""
 
 """, unsafe_allow_html=True)
 
+st.markdown("""
+<hr style="margin-top:50px;"/>
+<div style='text-align: center; font-size: 0.9rem; color: grey;'>
+    &copy; 2025 BalanceShip. All rights reserved.
+</div>
+""", unsafe_allow_html=True)
+
 def run():
     render_logos()
     render_kpis(df_all_kpis, exchanges)
