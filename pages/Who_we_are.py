@@ -8,6 +8,12 @@ st.set_page_config(page_title="Who We Are", layout="wide")
 def get_base64(path):
     with open(path, 'rb') as f: return base64.b64encode(f.read()).decode()
 
+def get_base64_of_bin_file(bin_file):
+    with open(bin_file, 'rb') as f:
+        data = f.read()
+    return base64.b64encode(data).decode()
+
+
 # --- CSS ---
 st.markdown("""
 <style>
