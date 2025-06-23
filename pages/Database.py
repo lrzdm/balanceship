@@ -240,7 +240,7 @@ linkedin_icon_base64 = get_base64_of_bin_file(linkedin_icon_path)
 st.sidebar.markdown(f"""
     <div style='text-align: center;'>
         <img src="data:image/png;base64,{logo_base64}" style="height: 70px; display: inline-block; margin-top: 20px;"><br>
-        <span style='font-size: 14px;'>Navigate financial sea with clarity!</span><br>
+        <span style='font-size: 14px;'>Navigate financial sea with clarity ⚓</span><br>
         <a href='https://www.instagram.com/tuo_profilo' target='_blank' style="display: inline-block; margin-top: 20px;">
             <img src='data:image/png;base64,{instagram_icon_base64}' width='40' height='40'>
         <a href='https://www.linkedin.com/in/tuo_profilo' target='_blank' style="display: inline-block; margin-top: 20px;">
@@ -250,3 +250,10 @@ st.sidebar.markdown(f"""
 """, unsafe_allow_html=True)
 
 st.markdown("</div>", unsafe_allow_html=True)
+
+st.markdown("""
+<hr style="margin-top:50px;"/>
+<div style='text-align: center; font-size: 0.9rem; color: grey;'>
+    &copy; 2025 BalanceShip. All rights reserved.
+</div>
+""", unsafe_allow_html=True)
