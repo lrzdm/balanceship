@@ -1,7 +1,6 @@
-NASDAQ - USA,nasdaq_companies.txt
-FTSE MIB - Italy,ftsemib_companies.txt
-DAX,dax_companies.txt
-FTSE 100 - UK,lse_companies.txt
-Nikkei 225 - Japan,japan_companies.txt
-Shanghai - China,shanghai_companies.txt
+NASDAQ-USA,nasdaq_companies.txt
+FTSE MIB-Italy,ftsemib_companies.txt
+FTSE 100-UK,lse_companies.txt
+Nikkei 225-Japan,japan_companies.txt
+Shanghai-China,shanghai_companies.txt
 Hong Kong,hk_companies.txt
