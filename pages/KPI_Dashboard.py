@@ -266,3 +266,10 @@ with col3:
     st.plotly_chart(kpi_chart(df_visible, df_kpi_all, "FCF Margin", "Free Cash Flow Margin"), use_container_width=True)
 with col4:
     st.plotly_chart(kpi_chart(df_visible, df_kpi_all, "EPS", "Earnings Per Share (EPS)"), use_container_width=True)
+
+st.markdown("""
+<hr style="margin-top:50px;"/>
+<div style='text-align: center; font-size: 0.9rem; color: grey;'>
+    &copy; 2025 BalanceShip. All rights reserved.
+</div>
+""", unsafe_allow_html=True)
