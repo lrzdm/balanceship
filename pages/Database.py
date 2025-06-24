@@ -126,39 +126,42 @@ financial_data = []
 
 for exchange in selected_exchanges:
     companies = read_companies(exchanges[exchange])
-    for company in companies:
-        symbol = company['ticker']
+    symbols = [c['ticker'] for c in companies]
+    symbol_to_company = {c['ticker']: c for c in companies}
+    db_data = load_many_from_db(symbols, selected_years)
+
+    for symbol in symbols:
+        company = symbol_to_company[symbol]
         description = company['description']
         stock_exchange = exchange
 
+        data_list = []
+        missing_years = []
+
+        for year in selected_years:
+            data = db_data.get((symbol, year))
+            if data:
+                data['description'] = description
+                data['stock_exchange'] = stock_exchange
+                data_list.append(data)
+            else:
+                missing_years.append(year)
+                data_list.append(None)
+
         if use_cache:
-            # SOLO load dal DB, senza fetch o save
-            data_list = load_from_db(symbol, selected_years)
-        else:
-            # Provo a caricare dal DB
-            data_list = load_from_db(symbol, selected_years)
+            financial_data.extend([d for d in data_list if d])
+            continue  # salta fetch/salvataggio se in modalità solo-cache
 
-            # Trovo anni mancanti o dati None
-            missing_years = [year for i, year in enumerate(selected_years) if not data_list[i]]
-
-            if missing_years:
-                # Fetch dati mancanti
-                fetched_data = get_or_fetch_data(symbol, missing_years, description, stock_exchange)
-                # Salvo nel DB
-                save_to_db(symbol, missing_years, fetched_data)
-
-                # Aggiorno la lista dati completa
-                for i, year in enumerate(selected_years):
-                    if not data_list[i]:
-                        # Trovo indice in fetched_data corrispondente a year
-                        try:
-                            idx = missing_years.index(year)
-                            data_list[i] = fetched_data[idx]
-                        except ValueError:
-                            # In teoria non dovrebbe succedere
-                            data_list[i] = None
+        if missing_years:
+            fetched_data = get_financial_data(symbol, missing_years, description, stock_exchange)
+            save_to_db(symbol, missing_years, fetched_data)
+            for i, year in enumerate(selected_years):
+                if not data_list[i] and year in missing_years:
+                    idx = missing_years.index(year)
+                    data_list[i] = fetched_data[idx]
 
         financial_data.extend(data_list)
+
        
 
 financial_data = remove_duplicates(financial_data)
