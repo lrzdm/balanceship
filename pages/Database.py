@@ -122,17 +122,24 @@ st.markdown(f"<div class='currency-info'>{currency_messages.get(currency, 'Numbe
    #     financial_data.extend(data_list)
 
 use_cache = True
-financial_data = []
 
+financial_data = []
+import copy
 for exchange in selected_exchanges:
     companies = read_companies(exchanges[exchange])
     symbols = [c['ticker'] for c in companies]
     symbol_to_company = {c['ticker']: c for c in companies}
+
+    print(f"Carico dati dal DB per {len(symbols)} simboli su {exchange}...")
     db_data = load_many_from_db(symbols, selected_years)
+    print(f"Caricati dal DB: {len(db_data)} record")
+
+    for k, v in list(db_data.items())[:5]:
+        print(f"DB record esempio: {k} keys={list(v.keys()) if v else None}")
 
     for symbol in symbols:
         company = symbol_to_company[symbol]
-        description = company['description']
+        description = company.get('description', '')
         stock_exchange = exchange
 
         data_list = []
@@ -141,26 +148,27 @@ for exchange in selected_exchanges:
         for year in selected_years:
             data = db_data.get((symbol, year))
             if data:
-                data['description'] = description
-                data['stock_exchange'] = stock_exchange
-                data_list.append(data)
+                data_copy = copy.deepcopy(data)
+                data_copy['description'] = description
+                data_copy['stock_exchange'] = stock_exchange
+                data_list.append(data_copy)
             else:
                 missing_years.append(year)
                 data_list.append(None)
 
-        if use_cache:
-            financial_data.extend([d for d in data_list if d])
-            continue  # salta fetch/salvataggio se in modalità solo-cache
-
-        if missing_years:
+        if not use_cache and missing_years:
+            print(f"Fetch dati mancanti per {symbol}: anni {missing_years}")
             fetched_data = get_financial_data(symbol, missing_years, description, stock_exchange)
             save_to_db(symbol, missing_years, fetched_data)
             for i, year in enumerate(selected_years):
-                if not data_list[i] and year in missing_years:
+                if data_list[i] is None and year in missing_years:
                     idx = missing_years.index(year)
                     data_list[i] = fetched_data[idx]
 
-        financial_data.extend(data_list)
+        financial_data.extend([d for d in data_list if d is not None])
+
+print(f"Totale dati caricati in financial_data: {len(financial_data)}")
+print("Esempio dati caricati:", financial_data[:3])
 
        
 
