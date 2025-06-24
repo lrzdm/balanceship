@@ -7,7 +7,7 @@ import os
 import io
 from xlsxwriter import Workbook
 from PIL import Image
-#from pages import Graph, Who_we_are
+import copy
 
 st.set_page_config(page_title="Financials", layout="wide")
 
