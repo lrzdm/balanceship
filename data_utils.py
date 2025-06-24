@@ -326,7 +326,7 @@ def compute_kpis(financial_data):
 
 
 def get_or_fetch_data(symbol, years, description, stock_exchange):
-    print(f"get_or_fetch_data chiamata per {symbol} anni {years}")
+    print(f"get_or_fetch_data chiamata per {symbol} anni {years}", flush=True)
     db_data = load_from_db(symbol, years)
 
     final_data = []
@@ -335,36 +335,37 @@ def get_or_fetch_data(symbol, years, description, stock_exchange):
     for i, year in enumerate(years):
         record = db_data[i]
         if isinstance(record, dict) and record:
-            print(f"Dati da DB per {symbol} anno {year} trovati.")
+            print(f"Dati da DB per {symbol} anno {year} trovati.", flush=True)
             record['description'] = description
             record['stock_exchange'] = stock_exchange
             final_data.append(record)
         else:
-            print(f"Dati da DB per {symbol} anno {year} MANCANTI, da scaricare.")
+            print(f"Dati da DB per {symbol} anno {year} MANCANTI, da scaricare.", flush=True)
             years_to_fetch.append(year)
 
     if years_to_fetch:
-        print(f"Scarico dati per {symbol} anni: {years_to_fetch}")
+        print(f"Scarico dati per {symbol} anni: {years_to_fetch}", flush=True)
         fetched_data = get_financial_data(symbol, years_to_fetch, description=description, stock_exchange=stock_exchange)
         valid_data = []
 
         for i, data in enumerate(fetched_data):
             if isinstance(data, dict) and data:
-                print(f"Dati scaricati validi per {symbol} anno {years_to_fetch[i]}")
+                print(f"Dati scaricati validi per {symbol} anno {years_to_fetch[i]}", flush=True)
                 data['description'] = description
                 data['stock_exchange'] = stock_exchange
                 final_data.append(data)
                 valid_data.append(data)
             else:
-                print(f"Dati scaricati NON validi per {symbol} anno {years_to_fetch[i]}")
+                print(f"Dati scaricati NON validi per {symbol} anno {years_to_fetch[i]}", flush=True)
 
         if valid_data:
-            print(f"Salvo dati nuovi nel DB per {symbol} anni {years_to_fetch}")
+            print(f"Salvo dati nuovi nel DB per {symbol} anni {years_to_fetch}", flush=True)
             save_to_db(symbol, years_to_fetch, valid_data)
         else:
-            print(f"Nessun dato valido da salvare per {symbol}")
+            print(f"Nessun dato valido da salvare per {symbol}", flush=True)
 
     return final_data
+
 
 
 
