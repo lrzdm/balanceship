@@ -121,6 +121,7 @@ st.markdown(f"<div class='currency-info'>{currency_messages.get(currency, 'Numbe
   #      data_list = get_or_fetch_data(symbol, selected_years, description, stock_exchange)
    #     financial_data.extend(data_list)
 
+use_cache == True
 financial_data = []
 
 for exchange in selected_exchanges:
