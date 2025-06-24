@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from data_utils import read_exchanges, read_companies, get_financial_data, remove_duplicates
+from data_utils import read_exchanges, read_companies, get_financial_data, remove_duplicates, get_or_fetch_data
 from cache_db import save_to_db, load_from_db, load_many_from_db
 import base64
 import os
@@ -160,7 +160,7 @@ for exchange in selected_exchanges:
 
         if not use_cache and missing_years:
             print(f"Fetch dati mancanti per {symbol}: anni {missing_years}")
-            fetched_data = get_financial_data(symbol, missing_years, description, stock_exchange)
+            fetched_data = get_or_fetch_data(symbol, missing_years, description, stock_exchange)
             save_to_db(symbol, missing_years, fetched_data)
             for i, year in enumerate(selected_years):
                 if data_list[i] is None and year in missing_years:
