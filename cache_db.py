@@ -188,7 +188,7 @@ def load_many_from_db(symbols, years):
     finally:
         session.close()
 
--------------------------------------------------------------
+#-------------------------------------------------------------
 
 def save_kpis_to_db(kpi_df):
     session = Session()
