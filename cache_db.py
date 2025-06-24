@@ -161,6 +161,34 @@ def load_from_db(symbol, years):
     finally:
         session.close()
 
+def load_many_from_db(symbols, years):
+    session = Session()
+    try:
+        query = session.query(FinancialCache).filter(
+            FinancialCache.symbol.in_(symbols),
+            FinancialCache.year.in_([int(y) for y in years])
+        )
+        results = query.all()
+
+        data_by_symbol_year = {}
+        for row in results:
+            try:
+                parsed = json.loads(row.data_json) if isinstance(row.data_json, str) else row.data_json
+                parsed['year'] = row.year
+                data_by_symbol_year[(row.symbol, row.year)] = parsed
+            except Exception as e:
+                print(f"Errore parsing {row.symbol}-{row.year}: {e}")
+                data_by_symbol_year[(row.symbol, row.year)] = None
+
+        return data_by_symbol_year
+
+    except Exception as e:
+        print(f"Errore batch load: {e}")
+        return {}
+    finally:
+        session.close()
+
+-------------------------------------------------------------
 
 def save_kpis_to_db(kpi_df):
     session = Session()
