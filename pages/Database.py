@@ -107,21 +107,58 @@ currency_messages = {
 
 st.markdown(f"<div class='currency-info'>{currency_messages.get(currency, 'Numbers reported are in billions of the local currency.')}</div>", unsafe_allow_html=True)
 
+#for exchange in selected_exchanges:
+#    companies = read_companies(exchanges[exchange])
+#    for company in companies:
+#        symbol = company['ticker']
+#        description = company['description']
+#        stock_exchange = exchange
+#        data_list = get_financial_data(symbol, selected_years)
+
+        # Filtra i dati validi e crea lista di anni corrispondenti
+ #        from data_utils import get_or_fetch_data
+
+  #      data_list = get_or_fetch_data(symbol, selected_years, description, stock_exchange)
+   #     financial_data.extend(data_list)
+
+financial_data = []
+
 for exchange in selected_exchanges:
     companies = read_companies(exchanges[exchange])
     for company in companies:
         symbol = company['ticker']
         description = company['description']
         stock_exchange = exchange
-        data_list = get_financial_data(symbol, selected_years)
 
-        # Filtra i dati validi e crea lista di anni corrispondenti
-        from data_utils import get_or_fetch_data
+        if use_cache:
+            # SOLO load dal DB, senza fetch o save
+            data_list = load_from_db(symbol, selected_years)
+        else:
+            # Provo a caricare dal DB
+            data_list = load_from_db(symbol, selected_years)
 
-        data_list = get_or_fetch_data(symbol, selected_years, description, stock_exchange)
+            # Trovo anni mancanti o dati None
+            missing_years = [year for i, year in enumerate(selected_years) if not data_list[i]]
+
+            if missing_years:
+                # Fetch dati mancanti
+                fetched_data = get_or_fetch_data(symbol, missing_years, description, stock_exchange)
+                # Salvo nel DB
+                save_to_db(symbol, missing_years, fetched_data)
+
+                # Aggiorno la lista dati completa
+                for i, year in enumerate(selected_years):
+                    if not data_list[i]:
+                        # Trovo indice in fetched_data corrispondente a year
+                        try:
+                            idx = missing_years.index(year)
+                            data_list[i] = fetched_data[idx]
+                        except ValueError:
+                            # In teoria non dovrebbe succedere
+                            data_list[i] = None
+
         financial_data.extend(data_list)
-
-        
+       
 
 financial_data = remove_duplicates(financial_data)
 if selected_sectors:
