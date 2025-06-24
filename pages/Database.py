@@ -124,7 +124,6 @@ st.markdown(f"<div class='currency-info'>{currency_messages.get(currency, 'Numbe
 use_cache = False
 
 financial_data = []
-import copy
 for exchange in selected_exchanges:
     companies = read_companies(exchanges[exchange])
     symbols = [c['ticker'] for c in companies]
@@ -157,11 +156,10 @@ for exchange in selected_exchanges:
                 missing_years.append(y)
                 data_list.append(None)
 
-
         if not use_cache and missing_years:
-            print(f"Fetch dati mancanti per {symbol}: anni {missing_years}")
+            print(f"Fetch dati mancanti per {symbol}: anni {missing_years}", flush=True)
             fetched_data = get_or_fetch_data(symbol, missing_years, description, stock_exchange)
-            save_to_db(symbol, missing_years, fetched_data)
+            # NON serve save_to_db qui perché già fatto dentro get_or_fetch_data
             for i, year in enumerate(selected_years):
                 if data_list[i] is None and year in missing_years:
                     idx = missing_years.index(year)
