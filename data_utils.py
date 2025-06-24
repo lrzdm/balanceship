@@ -166,11 +166,14 @@ def remove_duplicates(data):
     seen = set()
     unique_data = []
     for item in data:
+        if not isinstance(item, dict):  # Salta None o altri tipi non validi
+            continue
         item_tuple = tuple(item.items())
         if item_tuple not in seen:
             seen.add(item_tuple)
             unique_data.append(item)
     return unique_data
+
 
 
 def get_all_financial_data(force_refresh=True):
