@@ -59,7 +59,17 @@ def get_financial_data_from_source(symbol, years, description=None, stock_exchan
             return []
 
         # Ottieni anni disponibili nei dati
-        columns_years = [col.year for col in financials.columns if isinstance(col, pd.Timestamp)]
+        #columns_years = [col.year for col in financials.columns if isinstance(col, pd.Timestamp)]
+        columns_years = []
+        for col in financials.columns:
+            try:
+                parsed = pd.to_datetime(col)
+                columns_years.append(parsed.year)
+            except:
+                continue
+        print(f"[{symbol}] Anni trovati in financials: {columns_years}")
+
+
 
         for year in years:
             sleep_time = random.uniform(4, 8)
