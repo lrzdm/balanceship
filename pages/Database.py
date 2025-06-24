@@ -141,20 +141,22 @@ for exchange in selected_exchanges:
         company = symbol_to_company[symbol]
         description = company.get('description', '')
         stock_exchange = exchange
-
+    
         data_list = []
         missing_years = []
-
+    
         for year in selected_years:
-            data = db_data.get((symbol, year))
+            y = int(year)
+            data = db_data.get((symbol, y))
             if data:
                 data_copy = copy.deepcopy(data)
                 data_copy['description'] = description
                 data_copy['stock_exchange'] = stock_exchange
                 data_list.append(data_copy)
             else:
-                missing_years.append(year)
+                missing_years.append(y)
                 data_list.append(None)
+
 
         if not use_cache and missing_years:
             print(f"Fetch dati mancanti per {symbol}: anni {missing_years}")
