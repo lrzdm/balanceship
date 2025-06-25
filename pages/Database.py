@@ -1,4 +1,4 @@
-import streamlit as stMore actions
+import streamlit as st
 import pandas as pd
 from data_utils import read_exchanges, read_companies, get_financial_data, remove_duplicates, get_or_fetch_data
 from cache_db import save_to_db, load_from_db, load_many_from_db
