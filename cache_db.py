@@ -7,7 +7,6 @@ from sqlalchemy import create_engine, Column, String, Text, Integer
 from sqlalchemy.orm import declarative_base, scoped_session, sessionmaker
 from sqlalchemy.orm import Session
 import math
-from sqlalchemy.dialects.postgresql import insert
 
 # Logging
 logging.basicConfig(level=logging.INFO)
@@ -92,6 +91,8 @@ def convert_numpy(obj):
         return obj
 
 def save_to_db(symbol, years, data_list):
+    #print(f"DEBUG: save_to_db chiamata per {symbol} anni {years}")
+    #logger.info(f"save_to_db chiamata per {symbol} anni {years}")
     session = Session()
     try:
         for i, year in enumerate(years):
@@ -100,28 +101,31 @@ def save_to_db(symbol, years, data_list):
                 logger.debug(f"Salvataggio SKIPPED per {symbol} anno {year}: no data.")
                 continue
 
-            data_for_year = convert_numpy(data_list[i])
+            data_for_year = data_list[i]
+            data_for_year = convert_numpy(data_for_year)
             json_data = json.dumps(data_for_year, ensure_ascii=False, allow_nan=False)
 
-            stmt = insert(FinancialCache).values(
-                symbol=symbol,
-                year=year_int,
-                data_json=json_data
-            ).on_conflict_do_update(
-                index_elements=['symbol', 'year'],
-                set_={'data_json': json_data}
-            )
+            entry = session.query(FinancialCache).filter_by(symbol=symbol, year=year_int).first()
+            if entry:
+                if entry.data_json != json_data:
+                    entry.data_json = json_data
+                    #logger.info(f"Aggiornato FinancialCache per {symbol} anno {year_int}")
+                else:
+                    logger.debug(f"Nessuna modifica per {symbol} anno {year_int}")
+            else:
+                entry = FinancialCache(symbol=symbol, year=year_int, data_json=json_data)
+                session.add(entry)
+                #logger.info(f"Inserito FinancialCache per {symbol} anno {year_int}")
 
-            session.execute(stmt)
-
+        #logger.info("Prima del commit, oggetti in sessione: %s", session.new)
         session.commit()
+        #logger.info("Commit effettuato correttamente")
     except Exception as e:
-        logger.error(f"Errore salvataggio FinancialCache (UPSERT): {e}")
+        logger.error(f"Errore salvataggio FinancialCache: {e}")
         session.rollback()
         raise
     finally:
         session.close()
-
 
 
 
