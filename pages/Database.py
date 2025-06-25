@@ -8,6 +8,8 @@ import io
 from xlsxwriter import Workbook
 from PIL import Image
 import copy
+import time
+import random
 
 st.set_page_config(page_title="Financials", layout="wide")
 
@@ -107,23 +109,26 @@ currency_messages = {
 
 st.markdown(f"<div class='currency-info'>{currency_messages.get(currency, 'Numbers reported are in billions of the local currency.')}</div>", unsafe_allow_html=True)
 
-#for exchange in selected_exchanges:
-#    companies = read_companies(exchanges[exchange])
-#    for company in companies:
-#        symbol = company['ticker']
-#        description = company['description']
-#        stock_exchange = exchange
-#        data_list = get_financial_data(symbol, selected_years)
 
-        # Filtra i dati validi e crea lista di anni corrispondenti
- #        from data_utils import get_or_fetch_data
 
-  #      data_list = get_or_fetch_data(symbol, selected_years, description, stock_exchange)
-   #     financial_data.extend(data_list)
+MAX_RETRIES = 5
+
+def safe_get_or_fetch_data(symbol, missing_years, description, stock_exchange):
+    for attempt in range(MAX_RETRIES):
+        try:
+            return get_or_fetch_data(symbol, missing_years, description, stock_exchange)
+        except Exception as e:
+            if "Too Many Requests" in str(e) or "429" in str(e):
+                wait_time = 5 + random.uniform(0, 5)
+                print(f"Rate limit su {symbol}, retry tra {wait_time:.1f}s...")
+                time.sleep(wait_time)
+            else:
+                raise
+    raise Exception(f"Troppi tentativi falliti su {symbol}")
 
 use_cache = False
-
 financial_data = []
+
 for exchange in selected_exchanges:
     companies = read_companies(exchanges[exchange])
     symbols = [c['ticker'] for c in companies]
@@ -140,10 +145,12 @@ for exchange in selected_exchanges:
         company = symbol_to_company[symbol]
         description = company.get('description', '')
         stock_exchange = exchange
-    
+
+        time.sleep(1.5)  # Pausa per evitare rate limit
+
         data_list = []
         missing_years = []
-    
+
         for year in selected_years:
             y = int(year)
             data = db_data.get((symbol, y))
@@ -158,14 +165,15 @@ for exchange in selected_exchanges:
 
         if not use_cache and missing_years:
             print(f"Fetch dati mancanti per {symbol}: anni {missing_years}", flush=True)
-            fetched_data = get_or_fetch_data(symbol, missing_years, description, stock_exchange)
-            # NON serve save_to_db qui perché già fatto dentro get_or_fetch_data
+            fetched_data = safe_get_or_fetch_data(symbol, missing_years, description, stock_exchange)
+            
             for i, year in enumerate(selected_years):
                 if data_list[i] is None and year in missing_years:
                     idx = missing_years.index(year)
                     data_list[i] = fetched_data[idx]
 
         financial_data.extend([d for d in data_list if d is not None])
+
 
 print(f"Totale dati caricati in financial_data: {len(financial_data)}")
 print("Esempio dati caricati:", financial_data[:3])
