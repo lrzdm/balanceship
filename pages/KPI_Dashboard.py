@@ -274,6 +274,7 @@ from random import shuffle
 insight_list = []
 
 for index, row in df_visible.iterrows():
+    st.write(df_visible.columns.tolist())
     company = row["company_name"]
     sector = row["sector"]
     ebitda_margin = row["EBITDA Margin"]
