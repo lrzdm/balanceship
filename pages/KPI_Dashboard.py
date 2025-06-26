@@ -38,6 +38,15 @@ st.sidebar.markdown(f"""
 
 """, unsafe_allow_html=True)
 
+#-----footer-------
+st.markdown("""
+<hr style="margin-top:50px;"/>
+<div style='text-align: center; font-size: 0.9rem; color: grey;'>
+    &copy; 2025 BalanceShip. All rights reserved.
+</div>
+""", unsafe_allow_html=True)
+
+
 color_palette = [
     "#6495ED",  # Cornflower Blue
     "#3CB371",  # Medium Sea Green
@@ -397,13 +406,6 @@ if insight_list:
     """
     st.markdown(full_html, unsafe_allow_html=True)
     
-    else:
-        st.info("No insights available for the current filters.")
+else:
+    st.info("No insights available for the current filters.")
 
-
-st.markdown("""
-<hr style="margin-top:50px;"/>
-<div style='text-align: center; font-size: 0.9rem; color: grey;'>
-    &copy; 2025 BalanceShip. All rights reserved.
-</div>
-""", unsafe_allow_html=True)
