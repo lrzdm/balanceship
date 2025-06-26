@@ -342,66 +342,41 @@ if insight_list:
     st.markdown("---")
     st.subheader("💡 Key Insights")
 
-    # CSS: solo lo stile, niente <div> qui
-    insight_box_style = """
-    <style>
-    .insight-box {
-        background-color: #0173C4;
-        padding: 18px 24px;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.03);
-        font-size: 15px;
-        line-height: 1.5;
-        margin-bottom: 40px;
-    }
-    .insight-item {
-        margin-bottom: 8px;
-        padding: 10px 14px;
-        border-left: 3px solid #0173C4;
-        background-color: #ffffff;
-        border-radius: 6px;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.02);
-        display: flex;
-        gap: 8px;
-        align-items: baseline;
-    }
-    .insight-arrow {
-        color: #0173C4;
-        font-weight: bold;
-    }
-    .insight-text b {
-        color: #111827;
-    }
-    </style>
-    """
-
-    # Convert **text** to <b>text</b> for HTML formatting
+    # Convert **text** to real <b>text</b> without style
     def markdown_to_html(text):
         import re
         return re.sub(r"\*\*(.*?)\*\*", r"<b>\1</b>", text)
 
-    insight_items = ""
-    for insight in insight_list:
-        html_insight = markdown_to_html(insight)
-        insight_items += f"""
-            <div class='insight-item'>
-                <div class='insight-arrow'>&rarr;</div>
-                <div class='insight-text'>{html_insight}</div>
+    for insight in insight_list[:30]:
+        html = markdown_to_html(insight)
+
+        # Emoji logica (positivi/negativi neutri)
+        if any(x in insight.lower() for x in ["strong", "above", "leads", "efficient", "outpacing", "robust", "solid", "positive"]):
+            icon = "📈"
+        elif any(x in insight.lower() for x in ["below", "weak", "underperform", "negative", "lag", "risk", "fall", "short"]):
+            icon = "📉"
+        else:
+            icon = "➡️"
+
+        st.markdown(
+            f"""
+            <div style="
+                background-color: #f8f9fa;
+                padding: 10px 14px;
+                border-radius: 8px;
+                margin-bottom: 8px;
+                border-left: 4px solid #0173C4;
+                font-size: 15px;
+                line-height: 1.5;">
+                <span style="margin-right: 6px;">{icon}</span>{html}
             </div>
-        """
-
-    # Unione finale: stile + contenuto
-    full_html = f"""
-    {insight_box_style}
-    <div class="insight-box">
-        {insight_items}
-    </div>
-    """
-
-    st.markdown(full_html, unsafe_allow_html=True)
+            """,
+            unsafe_allow_html=True
+        )
 
 else:
     st.info("No insights available for the current filters.")
+
 
 
 #-----footer-------
