@@ -280,7 +280,6 @@ from random import shuffle
 insight_list = []
 
 for index, row in df_visible.iterrows():
-    st.write(df_visible.columns.tolist())
     company = row["company_name"]
     sector = row["sector"]
     ebitda_margin = row["EBITDA Margin"]
@@ -340,12 +339,41 @@ insight_list = insight_list[:30]
 # Output nel frontend
 if insight_list:
     st.markdown("---")
-    st.subheader("Key Insights")
+    st.subheader("💡 Key Insights")
+    
+    insight_box_style = """
+    <style>
+    .insight-box {
+        background-color: #f9fafc;
+        padding: 18px 24px;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+        max-height: 480px;
+        overflow-y: auto;
+        font-size: 16px;
+        line-height: 1.6;
+        margin-bottom: 40px;
+    }
+    .insight-item {
+        margin-bottom: 12px;
+        padding: 12px;
+        border-left: 4px solid #4c83f1;
+        background-color: #ffffff;
+        border-radius: 6px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    }
+    </style>
+    <div class="insight-box">
+    """
+    
+    insight_items = ""
     for insight in insight_list:
-        st.markdown(f"- {insight}")
+        insight_items += f"<div class='insight-item'>🟦 {insight}</div>"
+    
+    insight_box_html = insight_box_style + insight_items + "</div>"
+    st.markdown(insight_box_html, unsafe_allow_html=True)
 else:
     st.info("No insights available for the current filters.")
-
 
 
 st.markdown("""
