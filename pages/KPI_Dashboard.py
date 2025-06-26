@@ -341,7 +341,8 @@ insight_list = insight_list[:30]
 if insight_list:
     st.markdown("---")
     st.subheader("💡 Key Insights")
-    
+
+    # CSS: solo lo stile, niente <div> qui
     insight_box_style = """
     <style>
     .insight-box {
@@ -372,14 +373,13 @@ if insight_list:
         color: #111827;
     }
     </style>
-    <div class="insight-box">
     """
-    
-    # Format each insight: convert **text** to <b>text</b> for HTML rendering
+
+    # Convert **text** to <b>text</b> for HTML formatting
     def markdown_to_html(text):
         import re
         return re.sub(r"\*\*(.*?)\*\*", r"<b>\1</b>", text)
-    
+
     insight_items = ""
     for insight in insight_list:
         html_insight = markdown_to_html(insight)
@@ -389,17 +389,20 @@ if insight_list:
                 <div class='insight-text'>{html_insight}</div>
             </div>
         """
-    
+
+    # Unione finale: stile + contenuto
     full_html = f"""
     {insight_box_style}
     <div class="insight-box">
         {insight_items}
     </div>
     """
+
     st.markdown(full_html, unsafe_allow_html=True)
-    
+
 else:
     st.info("No insights available for the current filters.")
+
 
 #-----footer-------
 st.markdown("""
