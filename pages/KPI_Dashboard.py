@@ -267,6 +267,78 @@ with col3:
 with col4:
     st.plotly_chart(kpi_chart(df_visible, df_kpi_all, "EPS", "Earnings Per Share (EPS)"), use_container_width=True)
 
+#-----BOX INSIGHTS------
+from random import shuffle
+
+# Lista finale di insight
+insight_list = []
+
+for index, row in df_visible.iterrows():
+    company = row["company_name"]
+    sector = row["sector"]
+    ebitda_margin = row["EBITDA Margin"]
+    fcf_margin = row["FCF Margin"]
+    debt_equity = row["Debt to Equity"]
+    eps = row["EPS"]
+
+    # Media settoriale
+    sector_df = df_kpi_all[df_kpi_all["sector"] == sector]
+    avg_ebitda = sector_df["EBITDA Margin"].mean()
+    avg_fcf = sector_df["FCF Margin"].mean()
+    avg_debt_equity = sector_df["Debt to Equity"].mean()
+    avg_eps = sector_df["EPS"].mean()
+
+    # EBITDA Margin
+    if not pd.isna(ebitda_margin):
+        if ebitda_margin > avg_ebitda * 1.2:
+            insight_list.append(f"**{company}** demonstrates operational efficiency well above the sector norm, with an EBITDA margin of {ebitda_margin:.2f}%.")
+            insight_list.append(f"The EBITDA margin of **{company}** ({ebitda_margin:.2f}%) exceeds its industry average.")
+        elif ebitda_margin < avg_ebitda * 0.8:
+            insight_list.append(f"**{company}** struggles to convert revenue into operating profit, with an EBITDA margin of only {ebitda_margin:.2f}%.")
+            insight_list.append(f"The EBITDA performance of **{company}** ({ebitda_margin:.2f}%) lags well behind sector peers.")
+
+    # FCF Margin
+    if not pd.isna(fcf_margin):
+        if fcf_margin > avg_fcf * 1.2:
+            insight_list.append(f"**{company}** stands out for its excellent cash flow generation, posting a FCF margin of {fcf_margin:.2f}%.")
+            insight_list.append(f"With a FCF margin of {fcf_margin:.2f}%, **{company}** ranks among the top in cash conversion.")
+        elif fcf_margin < avg_fcf * 0.8:
+            insight_list.append(f"**{company}** underperforms in turning revenue into free cash flow, with a margin of {fcf_margin:.2f}%.")
+            insight_list.append(f"**{company}** shows weakness in FCF efficiency compared to the sector (only {fcf_margin:.2f}%).")
+
+    # Debt to Equity
+    if not pd.isna(debt_equity):
+        if debt_equity > avg_debt_equity * 1.3:
+            insight_list.append(f"**{company}** is highly leveraged, with a debt-to-equity ratio of {debt_equity:.2f}, above the sector average.")
+            insight_list.append(f"Financial leverage is a concern for **{company}**, with D/E at {debt_equity:.2f}.")
+        elif debt_equity < avg_debt_equity * 0.7:
+            insight_list.append(f"**{company}** maintains a solid balance sheet with low reliance on debt (D/E: {debt_equity:.2f}).")
+            insight_list.append(f"**{company}** shows strong capital structure, with low debt levels (D/E: {debt_equity:.2f}).")
+
+    # EPS
+    if not pd.isna(eps):
+        if eps > avg_eps * 1.2:
+            insight_list.append(f"**{company}** delivers strong earnings per share of {eps:.2f}, outpacing its industry.")
+            insight_list.append(f"**{company}** posts robust EPS ({eps:.2f}) compared to the sector average.")
+        elif eps < avg_eps * 0.8:
+            insight_list.append(f"**{company}** trails the sector in earnings, with an EPS of just {eps:.2f}.")
+            insight_list.append(f"Earnings per share of **{company}** ({eps:.2f}) fall short of peer performance.")
+
+# Mescola e mostra 30 insight
+shuffle(insight_list)
+insight_list = insight_list[:30]
+
+# Output nel frontend
+if insight_list:
+    st.markdown("---")
+    st.subheader("Key Insights")
+    for insight in insight_list:
+        st.markdown(f"- {insight}")
+else:
+    st.info("No insights available for the current filters.")
+
+
+
 st.markdown("""
 <hr style="margin-top:50px;"/>
 <div style='text-align: center; font-size: 0.9rem; color: grey;'>
