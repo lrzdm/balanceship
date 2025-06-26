@@ -91,17 +91,25 @@ def convert_numpy(obj):
         return obj
 
 def save_to_db(symbol, years, data_list):
-    #print(f"DEBUG: save_to_db chiamata per {symbol} anni {years}")
-    #logger.info(f"save_to_db chiamata per {symbol} anni {years}")
     session = Session()
     try:
         for i, year in enumerate(years):
             year_int = int(year)
+
+            # Salta se il dato manca o è malformato
             if i >= len(data_list) or not isinstance(data_list[i], dict) or not data_list[i]:
                 logger.debug(f"Salvataggio SKIPPED per {symbol} anno {year}: no data.")
                 continue
 
             data_for_year = data_list[i]
+
+            # Validazione dell'anno nei dati
+            data_year = data_for_year.get("year")
+            if data_year != year_int:
+                logger.warning(f"❌ Mismatch anno nei dati per {symbol}: atteso {year_int}, trovato {data_year}. Salvataggio saltato.")
+                continue
+
+            # Conversione dati e serializzazione JSON
             data_for_year = convert_numpy(data_for_year)
             json_data = json.dumps(data_for_year, ensure_ascii=False, allow_nan=False)
 
@@ -109,17 +117,15 @@ def save_to_db(symbol, years, data_list):
             if entry:
                 if entry.data_json != json_data:
                     entry.data_json = json_data
-                    #logger.info(f"Aggiornato FinancialCache per {symbol} anno {year_int}")
+                    logger.info(f"Aggiornato FinancialCache per {symbol} anno {year_int}")
                 else:
                     logger.debug(f"Nessuna modifica per {symbol} anno {year_int}")
             else:
                 entry = FinancialCache(symbol=symbol, year=year_int, data_json=json_data)
                 session.add(entry)
-                #logger.info(f"Inserito FinancialCache per {symbol} anno {year_int}")
+                logger.info(f"Inserito FinancialCache per {symbol} anno {year_int}")
 
-        #logger.info("Prima del commit, oggetti in sessione: %s", session.new)
         session.commit()
-        #logger.info("Commit effettuato correttamente")
     except Exception as e:
         logger.error(f"Errore salvataggio FinancialCache: {e}")
         session.rollback()
