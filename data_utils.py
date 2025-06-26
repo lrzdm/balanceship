@@ -356,25 +356,33 @@ def get_or_fetch_data(symbol, years, description, stock_exchange):
     if years_to_fetch:
         print(f"Scarico dati per {symbol} anni: {years_to_fetch}", flush=True)
         fetched_data = get_financial_data(symbol, years_to_fetch, description=description, stock_exchange=stock_exchange)
+
         valid_data = []
 
         for i, data in enumerate(fetched_data):
             if isinstance(data, dict) and data:
-                print(f"Dati scaricati validi per {symbol} anno {years_to_fetch[i]}", flush=True)
-                data['description'] = description
-                data['stock_exchange'] = stock_exchange
-                final_data.append(data)
-                valid_data.append(data)
+                data_year = data.get("year")
+                expected_year = years_to_fetch[i]
+
+                if data_year == expected_year:
+                    print(f"Dati scaricati validi per {symbol} anno {expected_year}", flush=True)
+                    data['description'] = description
+                    data['stock_exchange'] = stock_exchange
+                    final_data.append(data)
+                    valid_data.append(data)
+                else:
+                    print(f"⚠️ ATTENZIONE: Anno nei dati = {data_year}, ma ci si aspettava {expected_year}. Dato SCARTATO.", flush=True)
             else:
                 print(f"Dati scaricati NON validi per {symbol} anno {years_to_fetch[i]}", flush=True)
 
         if valid_data:
-            print(f"Salvo dati nuovi nel DB per {symbol} anni {years_to_fetch}", flush=True)
-            save_to_db(symbol, years_to_fetch, valid_data)
+            print(f"Salvo dati nuovi nel DB per {symbol} anni {[d['year'] for d in valid_data]}", flush=True)
+            save_to_db(symbol, [d['year'] for d in valid_data], valid_data)
         else:
             print(f"Nessun dato valido da salvare per {symbol}", flush=True)
 
     return final_data
+
 
 
 
