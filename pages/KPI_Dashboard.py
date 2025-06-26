@@ -344,31 +344,50 @@ if insight_list:
     insight_box_style = """
     <style>
     .insight-box {
-        background-color: #f9fafc;
+        background-color: #0173C4;
         padding: 18px 24px;
         border-radius: 12px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.04);
-        max-height: 480px;
-        overflow-y: auto;
-        font-size: 16px;
-        line-height: 1.6;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        font-size: 15px;
+        line-height: 1.5;
         margin-bottom: 40px;
     }
     .insight-item {
-        margin-bottom: 12px;
-        padding: 12px;
-        border-left: 4px solid #4c83f1;
+        margin-bottom: 8px;
+        padding: 10px 14px;
+        border-left: 3px solid #0173C4;
         background-color: #ffffff;
         border-radius: 6px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+        box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        display: flex;
+        gap: 8px;
+        align-items: baseline;
+    }
+    .insight-arrow {
+        color: #0173C4;
+        font-weight: bold;
+    }
+    .insight-text b {
+        color: #111827;
     }
     </style>
     <div class="insight-box">
     """
     
+    # Format each insight: convert **text** to <b>text</b> for HTML rendering
+    def markdown_to_html(text):
+        import re
+        return re.sub(r"\*\*(.*?)\*\*", r"<b>\1</b>", text)
+    
     insight_items = ""
     for insight in insight_list:
-        insight_items += f"<div class='insight-item'>🟦 {insight}</div>"
+        html_insight = markdown_to_html(insight)
+        insight_items += f"""
+            <div class='insight-item'>
+                <div class='insight-arrow'>&rarr;</div>
+                <div class='insight-text'>{html_insight}</div>
+            </div>
+        """
     
     insight_box_html = insight_box_style + insight_items + "</div>"
     st.markdown(insight_box_html, unsafe_allow_html=True)
