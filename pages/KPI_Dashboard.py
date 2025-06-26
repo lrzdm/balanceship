@@ -107,7 +107,13 @@ df_kpi_all = df_kpi_all[df_kpi_all["year"] == int(selected_year)]
 df_raw = pd.DataFrame(combined_data)
 if "ticker" in df_raw.columns and "symbol" not in df_raw.columns:
     df_raw.rename(columns={"ticker": "symbol"}, inplace=True)
-df_kpi_all = pd.merge(df_kpi_all, df_raw[["symbol", "basic_eps", "sector"]], on="symbol", how="left")
+#df_kpi_all = pd.merge(df_kpi_all, df_raw[["symbol", "basic_eps", "sector"]], on="symbol", how="left")
+df_kpi_all = pd.merge(
+    df_kpi_all,
+    df_raw[["symbol", "basic_eps", "sector"]],
+    on="symbol",
+    how="left"
+)
 
 
 # Rinomina chiara
@@ -283,6 +289,8 @@ for index, row in df_visible.iterrows():
     eps = row["EPS"]
 
     # Media settoriale
+    if pd.isna(sector):
+    continue  # salta se manca il settore
     sector_df = df_kpi_all[df_kpi_all["sector"] == sector]
     avg_ebitda = sector_df["EBITDA Margin"].mean()
     avg_fcf = sector_df["FCF Margin"].mean()
