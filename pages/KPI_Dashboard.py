@@ -389,10 +389,16 @@ if insight_list:
             </div>
         """
     
-    insight_box_html = insight_box_style + insight_items + "</div>"
-    st.markdown(insight_box_html, unsafe_allow_html=True)
-else:
-    st.info("No insights available for the current filters.")
+    full_html = f"""
+    {insight_box_style}
+    <div class="insight-box">
+        {insight_items}
+    </div>
+    """
+    st.markdown(full_html, unsafe_allow_html=True)
+    
+    else:
+        st.info("No insights available for the current filters.")
 
 
 st.markdown("""
