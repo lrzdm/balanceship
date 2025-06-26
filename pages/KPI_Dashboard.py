@@ -290,7 +290,7 @@ for index, row in df_visible.iterrows():
 
     # Media settoriale
     if pd.isna(sector):
-    continue  # salta se manca il settore
+        continue  # salta se manca il settore
     sector_df = df_kpi_all[df_kpi_all["sector"] == sector]
     avg_ebitda = sector_df["EBITDA Margin"].mean()
     avg_fcf = sector_df["FCF Margin"].mean()
