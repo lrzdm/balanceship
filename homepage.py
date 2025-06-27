@@ -236,7 +236,7 @@ html_code = f"""
 </style>
 
 <video autoplay loop class="video-background">
-  <source src="https://www.dropbox.com/scl/fi/zpyh82bkpbhoi2dkf78f4/test_video.mp4?rlkey=td6g1wyi08kt6ko59fmsdzqa7&st=ly84c83k&raw=1" type="video/mp4">
+  <source src="https://www.dropbox.com/scl/fi/ua937izl1la1hh2yp0xyk/Balanceship_video.mp4?rlkey=uztuba8wh6lgsbxqk5ne37h2n&raw=1" type="video/mp4">
   Your browser does not support the video tag.
 </video>
 
