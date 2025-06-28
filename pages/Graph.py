@@ -199,7 +199,7 @@ def load_all_kpis_read_only():
         st.error(f"Errore durante il caricamento KPI: {e}")
         return pd.DataFrame()
 
-USE_READ_ONLY = True
+USE_READ_ONLY = False
 
 if USE_READ_ONLY:
     df_all_kpis = load_all_kpis_read_only()
