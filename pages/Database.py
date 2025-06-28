@@ -108,7 +108,7 @@ currency_messages = {
 
 st.markdown(f"<div class='currency-info'>{currency_messages.get(currency, 'Numbers reported are in billions of the local currency.')}</div>", unsafe_allow_html=True)
 
-use_cache = True
+use_cache = False
 
 financial_data = []
 for exchange in selected_exchanges:
