@@ -360,23 +360,29 @@ st.markdown("""
 .profile-front i {
     font-size: 2.8rem;
     margin-bottom: 0.5rem;
+    display: block;
 }
 
 .profile-front h4 {
     font-size: 1.2rem;
     margin: 0;
     font-weight: 600;
+    text-align: center;
 }
 
 .profile-back {
     background-color: #01c4a7;
     color: white;
     transform: rotateY(180deg);
-    font-size: 1rem;
-    font-weight: 600;
+    font-size: 2.2rem;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 </style>
 """, unsafe_allow_html=True)
+
 
 # Header
 st.markdown("<h3 style='text-align:center; color:#0173C4;'>📊 Our Data in Numbers</h3>", unsafe_allow_html=True)
