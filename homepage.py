@@ -346,10 +346,10 @@ st.markdown("""
     font-family: 'Open Sans', sans-serif;
     display: flex;
     flex-direction: column;
-    align-items: center;
     justify-content: center;
+    align-items: center;
     text-align: center;
-    padding: 0rem;
+    padding: 1rem;
 }
 
 .profile-front {
@@ -359,7 +359,7 @@ st.markdown("""
 
 .profile-front i {
     font-size: 2.8rem;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.6rem;
     display: block;
 }
 
@@ -382,6 +382,7 @@ st.markdown("""
 }
 </style>
 """, unsafe_allow_html=True)
+
 
 
 # Header
