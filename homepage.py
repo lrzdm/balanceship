@@ -346,19 +346,20 @@ st.markdown("""
     font-family: 'Open Sans', sans-serif;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
     text-align: center;
-    padding: 1rem;
+    padding: 0 1rem;
 }
 
 .profile-front {
     background-color: #0173C4;
     color: white;
+    padding-top: 1.2rem;
 }
 
 .profile-front i {
-    font-size: 2.8rem;
+    font-size: 3rem;
     margin-bottom: 0.6rem;
     display: block;
 }
@@ -367,6 +368,7 @@ st.markdown("""
     font-size: 1.2rem;
     margin: 0;
     font-weight: 600;
+    line-height: 1.3;
     text-align: center;
 }
 
@@ -379,6 +381,7 @@ st.markdown("""
     display: flex;
     justify-content: center;
     align-items: center;
+    padding: 1rem;
 }
 </style>
 """, unsafe_allow_html=True)
