@@ -291,10 +291,13 @@ st.markdown("""
 n_companies = len(get_all_tickers())
 n_years = 3
 n_records = n_companies * n_years * 34
+stock_exchanges = 6
 
 n_companies_fmt = format(n_companies, ",")
 n_years_fmt = format(n_years, ",")
 n_records_fmt = format(n_records, ",")
+stock_exchanges_fmt = format(stock_exchanges, ",")
+
 
 new_width = 300
 map_base64 = get_base64_image("images/Map_Chart.png")
@@ -340,20 +343,18 @@ st.markdown("""
     backface-visibility: hidden;
     border-radius: 15px;
     box-shadow: 0 4px 15px rgba(1, 115, 196, 0.2);
+    font-family: 'Open Sans', sans-serif;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-    font-family: 'Open Sans', sans-serif;
+    justify-content: center;
+    text-align: center;
+    padding: 1rem;
 }
+
 .profile-front {
     background-color: #0173C4;
     color: white;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
 }
 
 .profile-front i {
@@ -364,20 +365,15 @@ st.markdown("""
 .profile-front h4 {
     font-size: 1.2rem;
     margin: 0;
-    margin-top: 0.5rem 0 0 0;
+    font-weight: 600;
 }
 
 .profile-back {
     background-color: #01c4a7;
     color: white;
     transform: rotateY(180deg);
-    font-size: 2.2rem;
-    font-weight: bold;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    padding: 1rem;
+    font-size: 1rem;
+    font-weight: 600;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -385,7 +381,6 @@ st.markdown("""
 # Header
 st.markdown("<h3 style='text-align:center; color:#0173C4;'>📊 Our Data in Numbers</h3>", unsafe_allow_html=True)
 
-# HTML delle card (tutte concatenate correttamente)
 # HTML delle card con variabili dinamiche
 cards = f"""
 <div class='profile-grid'>
@@ -419,6 +414,17 @@ cards = f"""
       </div>
       <div class='profile-back'>
         {n_years_fmt}
+      </div>
+    </div>
+  </div>
+  <div class='profile-card'>
+    <div class='profile-inner'>
+      <div class='profile-front'>
+        <i class='fas fa-chart-line'></i>
+        <h4>Stock Exchanges</h4>
+      </div>
+      <div class='profile-back'>
+        {stock_exchanges_fmt}
       </div>
     </div>
   </div>
