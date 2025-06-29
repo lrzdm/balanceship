@@ -306,6 +306,14 @@ map_base64 = get_base64_image("images/Map_Chart.png")
 # CSS per le card animate in stile profili
 st.markdown("""
 <style>
+/* RESET h4 default margins */
+.profile-front h4 {
+    margin: 0 !important;
+    padding: 0;
+    text-align: center;
+}
+
+/* Font e icone */
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
 
@@ -366,10 +374,8 @@ st.markdown("""
 
 .profile-front h4 {
     font-size: 1.2rem;
-    margin: 0;
     font-weight: 600;
     line-height: 1.3;
-    text-align: center;
 }
 
 .profile-back {
@@ -385,6 +391,7 @@ st.markdown("""
 }
 </style>
 """, unsafe_allow_html=True)
+
 
 
 
