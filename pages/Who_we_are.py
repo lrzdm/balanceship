@@ -183,6 +183,24 @@ st.sidebar.markdown(f"""
 
 """, unsafe_allow_html=True)
 
+st.markdown("""
+<div style="
+    margin: 40px auto 20px auto;
+    max-width: 800px;
+    font-style: italic;
+    color: #666666;
+    font-size: 0.85rem;
+    text-align: center;
+    padding: 10px 20px;
+    border-top: 1px solid #ccc;
+    opacity: 0.7;
+">
+    ⚠️ Disclaimer: The financial data presented on this site is for informational purposes only and does not constitute financial advice or investment recommendations.\
+    The information is obtained from publicly available sources and is subject to change. This site is not affiliated with or endorsed by Yahoo Finance or any other data \
+    providers.
+</div>
+""", unsafe_allow_html=True)
+
 
 st.markdown("""
 <hr style="margin-top:50px;"/>
