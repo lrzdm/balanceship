@@ -172,7 +172,6 @@ def render_kpis(exchanges_dict):
         st.plotly_chart(fig, use_container_width=True)
 
 # === GRAFICO SEPARATO ===
-# === GRAFICO SEPARATO ===
 def render_sector_average_chart():
     st.header("📊 Metric Average per Sector")
     exchanges = read_exchanges("exchanges.txt")
@@ -216,13 +215,21 @@ def render_sector_average_chart():
 # === GRAFICI INTERATTIVI ===
 def render_general_graphs():
     st.header("📈 Interactive Graphs")
+
     exchanges = read_exchanges("exchanges.txt")
+    exchange_names = list(exchanges.keys())
+    selected_exchange = st.selectbox("Select Exchange", ["All"] + exchange_names, index=0)
+
     companies_all = []
-    for path in exchanges.values():
-        companies_all += read_companies(path)
+    if selected_exchange == "All":
+        for path in exchanges.values():
+            companies_all += read_companies(path)
+    else:
+        companies_all = read_companies(exchanges[selected_exchange])
 
     descriptions_dict = {c['description']: c['ticker'] for c in companies_all if 'description' in c and 'ticker' in c}
     descriptions_available = sorted(descriptions_dict.keys())
+
     selected_desc = st.multiselect("Select Companies", descriptions_available, default=descriptions_available[:1])
 
     if not selected_desc:
