@@ -1,3 +1,5 @@
+### FILE CORRETTO: graphs_dashboard.py
+
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -73,7 +75,7 @@ def render_kpis(exchanges_dict):
         st.warning("Nessun dato disponibile.")
         return
 
-    descriptions_dict = df_all_kpis.groupby("description")["symbol"].apply(list).to_dict()
+    descriptions_dict = df_all_kpis.groupby("description")["symbol"].apply(lambda x: list(sorted(set(x)))).to_dict()
     descriptions_available = sorted(k for k in descriptions_dict if k is not None)
     years_available = sorted(df_all_kpis["year"].astype(str).unique())
 
@@ -84,7 +86,10 @@ def render_kpis(exchanges_dict):
         st.warning("Seleziona almeno un'azienda e un anno.")
         return
 
-    selected_symbols = [s for d in selected_desc for s in descriptions_dict.get(d, [])]
+    selected_symbols = []
+    for d in selected_desc:
+        selected_symbols.extend(descriptions_dict.get(d, []))
+
     df_filtered = df_all_kpis[
         (df_all_kpis['symbol'].isin(selected_symbols)) &
         (df_all_kpis['year'].astype(str).isin(selected_years)) &
@@ -92,10 +97,23 @@ def render_kpis(exchanges_dict):
     ]
 
     if df_filtered.empty:
-        st.warning("Nessun dato trovato.")
+        st.warning("Nessun dato trovato per i filtri selezionati.")
         return
 
-    st.dataframe(df_filtered)
+    # Pivot per visualizzazione tabellare
+    id_vars = ['symbol', 'description', 'year']
+    value_vars = [col for col in df_filtered.columns if col not in id_vars and df_filtered[col].dtype != 'object']
+    df_melt = df_filtered.melt(id_vars=id_vars, value_vars=value_vars, var_name='KPI', value_name='Value')
+    df_melt['desc_year'] = df_melt['description'] + ' ' + df_melt['year'].astype(str)
+    df_pivot = df_melt.pivot(index='KPI', columns='desc_year', values='Value')
+
+    df_pivot = df_pivot.apply(pd.to_numeric, errors='coerce')
+    df_clean = df_pivot.fillna(np.nan)
+
+    st.subheader("📋 Elenco KPI")
+    num_cols = df_clean.select_dtypes(include=['number']).columns
+    styled = df_clean.style.format({col: "{:.2%}" for col in num_cols})
+    st.dataframe(styled, height=600)
 
 # === GRAFICO SEPARATO ===
 def render_sector_average_chart():
