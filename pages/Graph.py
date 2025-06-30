@@ -15,6 +15,18 @@ logger = logging.getLogger("Graph.py")
 
 st.set_page_config(page_title="Graphs", layout="wide")
 
+
+COLUMN_LABELS = {
+    "total_revenue": "Revenues",
+    "net_income": "Net Income",
+    "ebitda": "EBITDA",
+    "gross_profit": "Gross Profit",
+    "stockholders_equity": "Equity",
+    "total_assets": "Total Assets",
+    "basic_eps": "Basic EPS",
+    "diluted_eps": "Diluted EPS"
+}
+
 # === FUNZIONI MIGLIORATE ===
 
 @st.cache_data(show_spinner=False)
@@ -103,6 +115,7 @@ def render_kpis(exchanges_dict):
     value_vars = [col for col in df_filtered.columns if col not in id_vars and df_filtered[col].dtype != 'object']
     df_melt = df_filtered.melt(id_vars=id_vars, value_vars=value_vars, var_name='KPI', value_name='Value')
     df_melt['desc_year'] = df_melt['description'] + ' ' + df_melt['year'].astype(str)
+    df_melt['KPI'] = df_melt['KPI'].apply(lambda k: COLUMN_LABELS.get(k, k))
     df_pivot = df_melt.pivot(index='KPI', columns='desc_year', values='Value')
 
     df_pivot = df_pivot.apply(pd.to_numeric, errors='coerce')
@@ -131,11 +144,11 @@ def render_kpis(exchanges_dict):
     if len(bubble_cols) >= 3:
         col1, col2, col3 = st.columns(3)
         with col1:
-            x_axis = st.selectbox("X Axis", bubble_cols)
+            x_axis = st.selectbox("X Axis", bubble_cols, format_func=lambda x: COLUMN_LABELS.get(x, x))
         with col2:
-            y_axis = st.selectbox("Y Axis", bubble_cols, index=1)
+            y_axis = st.selectbox("Y Axis", bubble_cols, index=1, format_func=lambda x: COLUMN_LABELS.get(x, x))
         with col3:
-            size_axis = st.selectbox("Bubble Size", bubble_cols, index=2)
+            size_axis = st.selectbox("Bubble Size", bubble_cols, index=2, format_func=lambda x: COLUMN_LABELS.get(x, x))
 
         df_plot = df_filtered.dropna(subset=[x_axis, y_axis, size_axis]).copy()
         df_plot[size_axis] = df_plot[size_axis].clip(lower=0.1)
@@ -148,15 +161,24 @@ def render_kpis(exchanges_dict):
             size=size_axis,
             color='description',
             hover_name='label',
-            title="KPI Bubble Chart"
+            title="KPI Bubble Chart",
+            x_axis: COLUMN_LABELS.get(x_axis, x_axis),
+            y_axis: COLUMN_LABELS.get(y_axis, y_axis),
+            size_axis: COLUMN_LABELS.get(size_axis, size_axis)
         )
         st.plotly_chart(fig, use_container_width=True)
 
 # === GRAFICO SEPARATO ===
+# === GRAFICO SEPARATO ===
 def render_sector_average_chart():
     st.header("📊 Metric Average per Sector")
     exchanges = read_exchanges("exchanges.txt")
-    metric_sector = st.selectbox("Metric", ["ebitda", "total_revenue", "net_income"], index=0)
+
+    metrics_available = ["ebitda", "total_revenue", "net_income"]
+    metric_sector_label = st.selectbox("Metric", [COLUMN_LABELS.get(m, m) for m in metrics_available], index=0)
+    reverse_labels = {v: k for k, v in COLUMN_LABELS.items()}
+    metric_sector = reverse_labels.get(metric_sector_label, metric_sector_label)
+
     selected_exchange = st.selectbox("Exchange", list(exchanges.keys()))
     selected_year = st.selectbox("Year", ['2021', '2022', '2023'], index=2)
 
@@ -178,8 +200,15 @@ def render_sector_average_chart():
         return
 
     sector_avg = df_sector.groupby("sector")[metric_sector].mean().reset_index()
-    fig = px.bar(sector_avg, x="sector", y=metric_sector, title=f"Average {metric_sector} in {selected_year} ({selected_exchange})")
+    fig = px.bar(
+        sector_avg,
+        x="sector",
+        y=metric_sector,
+        title=f"Average {COLUMN_LABELS.get(metric_sector, metric_sector)} in {selected_year} ({selected_exchange})",
+        labels={metric_sector: COLUMN_LABELS.get(metric_sector, metric_sector), "sector": "Sector"}
+    )
     st.plotly_chart(fig, use_container_width=True)
+
 
 # === GRAFICI INTERATTIVI ===
 def render_general_graphs():
@@ -211,21 +240,28 @@ def render_general_graphs():
         "total_revenue", "net_income", "ebitda", "gross_profit",
         "stockholders_equity", "total_assets", "basic_eps", "diluted_eps"
     ]
+    display_to_code = {COLUMN_LABELS.get(k, k): k for k in columns_to_plot}
+    display_columns = list(display_to_code.keys())
 
     # GRAFICO 1
     st.subheader("📉 Graph 1: Metric over Time per Company")
-    metric = st.selectbox("Select Metric", columns_to_plot, index=0)
+    metric_label = st.selectbox("Select Metric", display_columns, index=0)
+    metric = display_to_code[metric_label]
     df[metric] = pd.to_numeric(df[metric], errors='coerce')
-    fig = px.line(df, x="year", y=metric, color="description", markers=True, title=f"{metric} over time")
+    fig = px.line(df, x="year", y=metric, color="description", markers=True,
+                  title=f"{COLUMN_LABELS.get(metric, metric)} over time")
     st.plotly_chart(fig, use_container_width=True)
 
     # GRAFICO 2
     st.subheader("📐 Graph 2: Custom Ratio Over Time")
     col1, col2 = st.columns(2)
     with col1:
-        numerator = st.selectbox("Numerator", columns_to_plot, index=2)
+        numerator_label = st.selectbox("Numerator", display_columns, index=2)
     with col2:
-        denominator = st.selectbox("Denominator", columns_to_plot, index=0)
+        denominator_label = st.selectbox("Denominator", display_columns, index=0)
+
+    numerator = display_to_code[numerator_label]
+    denominator = display_to_code[denominator_label]
 
     if numerator != denominator:
         df_ratio = df.copy()
@@ -239,7 +275,7 @@ def render_general_graphs():
             y='ratio',
             color='description',
             markers=True,
-            title=f"{numerator} / {denominator} Over Time"
+            title=f"{COLUMN_LABELS.get(numerator, numerator)} / {COLUMN_LABELS.get(denominator, denominator)} Over Time"
         )
         st.plotly_chart(fig2, use_container_width=True)
 
