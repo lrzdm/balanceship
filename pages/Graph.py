@@ -56,7 +56,7 @@ def load_kpis_filtered_by_exchange(symbols_filter=None):
         st.error(f"Errore durante il caricamento KPI: {e}")
         return pd.DataFrame()
 
-@st.cache_data(show_spinner=False)
+@st.cache_data(show_spinner=True)
 def load_data_for_selection(selected_symbols, selected_years):
     from data_utils import load_from_db
     data = []
