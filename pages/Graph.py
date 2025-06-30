@@ -162,10 +162,13 @@ def render_kpis(exchanges_dict):
             color='description',
             hover_name='label',
             title="KPI Bubble Chart",
-            x_axis: COLUMN_LABELS.get(x_axis, x_axis),
-            y_axis: COLUMN_LABELS.get(y_axis, y_axis),
-            size_axis: COLUMN_LABELS.get(size_axis, size_axis)
+            labels={
+                x_axis: COLUMN_LABELS.get(x_axis, x_axis),
+                y_axis: COLUMN_LABELS.get(y_axis, y_axis),
+                size_axis: COLUMN_LABELS.get(size_axis, size_axis)
+            }
         )
+
         st.plotly_chart(fig, use_container_width=True)
 
 # === GRAFICO SEPARATO ===
