@@ -1,5 +1,3 @@
-### FILE CORRETTO: graphs_dashboard.py
-
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -115,6 +113,45 @@ def render_kpis(exchanges_dict):
     styled = df_clean.style.format({col: "{:.2%}" for col in num_cols})
     st.dataframe(styled, height=600)
 
+    # Download Excel
+    buffer = io.BytesIO()
+    df_filtered_clean = df_filtered.copy().replace({np.nan: ""})
+    with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+        df_filtered_clean.to_excel(writer, index=False, sheet_name='KPI')
+    st.download_button(
+        label="📥 Scarica Excel",
+        data=buffer.getvalue(),
+        file_name="kpi_filtered.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+
+    # Bubble Chart
+    st.subheader("🔵 Bubble Chart")
+    bubble_cols = [col for col in df_filtered.columns if col not in ['symbol', 'description', 'year', 'exchange']]
+    if len(bubble_cols) >= 3:
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            x_axis = st.selectbox("X Axis", bubble_cols)
+        with col2:
+            y_axis = st.selectbox("Y Axis", bubble_cols, index=1)
+        with col3:
+            size_axis = st.selectbox("Bubble Size", bubble_cols, index=2)
+
+        df_plot = df_filtered.dropna(subset=[x_axis, y_axis, size_axis]).copy()
+        df_plot[size_axis] = df_plot[size_axis].clip(lower=0.1)
+        df_plot['label'] = df_plot['description'] + ' ' + df_plot['year'].astype(str)
+
+        fig = px.scatter(
+            df_plot,
+            x=x_axis,
+            y=y_axis,
+            size=size_axis,
+            color='description',
+            hover_name='label',
+            title="KPI Bubble Chart"
+        )
+        st.plotly_chart(fig, use_container_width=True)
+
 # === GRAFICO SEPARATO ===
 def render_sector_average_chart():
     st.header("📊 Metric Average per Sector")
@@ -169,20 +206,51 @@ def render_general_graphs():
         return
 
     df['year'] = df['year'].astype(str)
-    metric = st.selectbox("Select Metric", ["ebitda", "total_revenue", "net_income"], index=0)
 
+    columns_to_plot = [
+        "total_revenue", "net_income", "ebitda", "gross_profit",
+        "stockholders_equity", "total_assets", "basic_eps", "diluted_eps"
+    ]
+
+    # GRAFICO 1
+    st.subheader("📉 Graph 1: Metric over Time per Company")
+    metric = st.selectbox("Select Metric", columns_to_plot, index=0)
     df[metric] = pd.to_numeric(df[metric], errors='coerce')
     fig = px.line(df, x="year", y=metric, color="description", markers=True, title=f"{metric} over time")
     st.plotly_chart(fig, use_container_width=True)
+
+    # GRAFICO 2
+    st.subheader("📐 Graph 2: Custom Ratio Over Time")
+    col1, col2 = st.columns(2)
+    with col1:
+        numerator = st.selectbox("Numerator", columns_to_plot, index=2)
+    with col2:
+        denominator = st.selectbox("Denominator", columns_to_plot, index=0)
+
+    if numerator != denominator:
+        df_ratio = df.copy()
+        df_ratio[numerator] = pd.to_numeric(df_ratio[numerator], errors='coerce')
+        df_ratio[denominator] = pd.to_numeric(df_ratio[denominator], errors='coerce')
+        df_ratio['ratio'] = df_ratio[numerator] / df_ratio[denominator]
+
+        fig2 = px.line(
+            df_ratio,
+            x='year',
+            y='ratio',
+            color='description',
+            markers=True,
+            title=f"{numerator} / {denominator} Over Time"
+        )
+        st.plotly_chart(fig2, use_container_width=True)
 
 # === MAIN ===
 def run():
     exchanges = read_exchanges("exchanges.txt")
     render_kpis(exchanges)
     st.markdown("---")
-    render_general_graphs()
-    st.markdown("---")
     render_sector_average_chart()
+    st.markdown("---")
+    render_general_graphs()
 
 if __name__ == "__main__":
     run()
