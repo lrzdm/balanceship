@@ -1,5 +1,3 @@
-### FILE CORRETTO: graphs_dashboard.py
-
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -36,6 +34,8 @@ def load_kpis_filtered_by_exchange(symbols_filter=None):
                         val['symbol'] = e.symbol
                         val['year'] = e.year
                         val['description'] = e.description
+                        val['stock_exchange'] = e.stock_exchange if hasattr(e, 'stock_exchange') else None
+                        val['sector'] = e.sector if hasattr(e, 'sector') else None
                         kpi_data.append(val)
                 except Exception as exc:
                     logger.warning(f"Errore parsing JSON per {e.symbol} {e.year}: {exc}")
@@ -97,7 +97,36 @@ def render_kpis(exchanges_dict):
 
     st.dataframe(df_filtered)
 
-# === GRAFICI ===
+# === GRAFICO SEPARATO ===
+def render_sector_average_chart():
+    st.header("📊 Metric Average per Sector")
+    exchanges = read_exchanges("exchanges.txt")
+    metric_sector = st.selectbox("Metric", ["ebitda", "total_revenue", "net_income"], index=0)
+    selected_exchange = st.selectbox("Exchange", list(exchanges.keys()))
+    selected_year = st.selectbox("Year", ['2021', '2022', '2023'], index=2)
+
+    companies_exchange = read_companies(exchanges[selected_exchange])
+    symbols_exchange = [c['ticker'] for c in companies_exchange]
+    df_sector = pd.DataFrame(load_data_for_selection(symbols_exchange, [selected_year]))
+
+    if df_sector.empty:
+        st.warning("Nessun dato disponibile per l'exchange selezionato.")
+        return
+
+    df_sector['year'] = df_sector['year'].astype(str)
+    df_sector['sector'] = df_sector['sector'].replace("null", np.nan)
+    df_sector[metric_sector] = pd.to_numeric(df_sector[metric_sector], errors='coerce')
+    df_sector = df_sector.dropna(subset=["sector", metric_sector])
+
+    if df_sector.empty:
+        st.warning("Nessun dato valido per il grafico.")
+        return
+
+    sector_avg = df_sector.groupby("sector")[metric_sector].mean().reset_index()
+    fig = px.bar(sector_avg, x="sector", y=metric_sector, title=f"Average {metric_sector} in {selected_year} ({selected_exchange})")
+    st.plotly_chart(fig, use_container_width=True)
+
+# === GRAFICI INTERATTIVI ===
 def render_general_graphs():
     st.header("📈 Interactive Graphs")
     exchanges = read_exchanges("exchanges.txt")
@@ -122,21 +151,10 @@ def render_general_graphs():
         return
 
     df['year'] = df['year'].astype(str)
-    metric_sector = st.selectbox("Metric", ["ebitda", "total_revenue", "net_income"], index=0)
-    selected_exchange = st.selectbox("Exchange", list(exchanges.keys()))
-    selected_year = st.selectbox("Year", selected_years, index=2)
+    metric = st.selectbox("Select Metric", ["ebitda", "total_revenue", "net_income"], index=0)
 
-    # Ricarica dati da tutte le aziende di quell'exchange
-    companies_exchange = read_companies(exchanges[selected_exchange])
-    symbols_exchange = [c['ticker'] for c in companies_exchange]
-    df_sector = pd.DataFrame(load_data_for_selection(symbols_exchange, [selected_year]))
-    df_sector['year'] = df_sector['year'].astype(str)
-    df_sector['sector'] = df_sector['sector'].replace("null", np.nan)
-    df_sector[metric_sector] = pd.to_numeric(df_sector[metric_sector], errors='coerce')
-    df_sector = df_sector.dropna(subset=["sector", metric_sector])
-    sector_avg = df_sector.groupby("sector")[metric_sector].mean().reset_index()
-
-    fig = px.bar(sector_avg, x="sector", y=metric_sector, title=f"Average {metric_sector} in {selected_year} ({selected_exchange})")
+    df[metric] = pd.to_numeric(df[metric], errors='coerce')
+    fig = px.line(df, x="year", y=metric, color="description", markers=True, title=f"{metric} over time")
     st.plotly_chart(fig, use_container_width=True)
 
 # === MAIN ===
@@ -145,6 +163,8 @@ def run():
     render_kpis(exchanges)
     st.markdown("---")
     render_general_graphs()
+    st.markdown("---")
+    render_sector_average_chart()
 
 if __name__ == "__main__":
     run()
