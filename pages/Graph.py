@@ -58,14 +58,18 @@ def load_kpis_filtered_by_exchange(symbols_filter=None):
 
 @st.cache_data(show_spinner=True)
 def load_data_for_selection(selected_symbols, selected_years):
-    from data_utils import load_from_db
+    from data_utils import load_many_from_db
+
+    # Caricamento batch
+    results_dict = load_many_from_db(selected_symbols, selected_years)
+
+    # Ricostruzione della lista dei dizionari
     data = []
-    for symbol in selected_symbols:
-        records = load_from_db(symbol, selected_years)
-        for r in records:
-            if isinstance(r, dict) and r:
-                r['symbol'] = symbol
-                data.append(r)
+    for (symbol, year), record in results_dict.items():
+        if isinstance(record, dict) and record:
+            record['symbol'] = symbol
+            data.append(record)
+
     return data
 
 # === RENDER KPIs ===
@@ -186,8 +190,11 @@ def render_sector_average_chart():
 
     companies_exchange = read_companies(exchanges[selected_exchange])
     symbols_exchange = [c['ticker'] for c in companies_exchange]
-    df_sector = pd.DataFrame(load_data_for_selection(symbols_exchange, [selected_year]))
-
+    #df_sector = pd.DataFrame(load_data_for_selection(symbols_exchange, [selected_year]))
+    df_sector = pd.DataFrame(
+    load_data_for_selection(tuple(symbols_exchange), tuple([selected_year]))
+    )
+    
     if df_sector.empty:
         st.warning("Nessun dato disponibile per l'exchange selezionato.")
         return
