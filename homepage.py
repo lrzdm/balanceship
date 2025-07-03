@@ -235,7 +235,7 @@ html_code = f"""
   }}
 </style>
 
-<video autoplay loop class="video-background">
+<video autoplay muted loop class="video-background">
   <source src="https://www.dropbox.com/scl/fi/ua937izl1la1hh2yp0xyk/Balanceship_video.mp4?rlkey=uztuba8wh6lgsbxqk5ne37h2n&raw=1" type="video/mp4">
   Your browser does not support the video tag.
 </video>
