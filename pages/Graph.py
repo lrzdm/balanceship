@@ -58,7 +58,7 @@ def load_kpis_filtered_by_exchange(symbols_filter=None):
 
 @st.cache_data(show_spinner=True)
 def load_data_for_selection(selected_symbols, selected_years):
-    from data_utils import load_many_from_db
+    from cache_db import load_many_from_db
 
     # Caricamento batch
     results_dict = load_many_from_db(selected_symbols, selected_years)
