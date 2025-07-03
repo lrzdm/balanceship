@@ -301,6 +301,19 @@ def render_general_graphs():
         )
         st.plotly_chart(fig2, use_container_width=True)
 
+
+# === MAIN ===
+def run():
+    exchanges = read_exchanges("exchanges.txt")
+    render_kpis(exchanges)
+    st.markdown("---")
+    render_sector_average_chart()
+    st.markdown("---")
+    render_general_graphs()
+
+if __name__ == "__main__":
+    run()
+
 # --- SIDEBAR ---
 logo_path = os.path.join("images", "logo4.png")
 logo_base64 = get_base64_of_bin_file(logo_path) if os.path.exists(logo_path) else ""
@@ -333,15 +346,3 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
-
-# === MAIN ===
-def run():
-    exchanges = read_exchanges("exchanges.txt")
-    render_kpis(exchanges)
-    st.markdown("---")
-    render_sector_average_chart()
-    st.markdown("---")
-    render_general_graphs()
-
-if __name__ == "__main__":
-    run()
