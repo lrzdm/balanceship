@@ -191,7 +191,7 @@ def render_sector_average_chart():
     metric_sector = reverse_labels.get(metric_sector_label, metric_sector_label)
 
     selected_exchange = st.selectbox("Exchange", list(exchanges.keys()))
-    selected_year = st.selectbox("Year", ['2021', '2022', '2023'], index=2)
+    selected_year = st.selectbox("Year", ['2021', '2022', '2023', '2024'], index=2)
 
     companies_exchange = read_companies(exchanges[selected_exchange])
     symbols_exchange = [c['ticker'] for c in companies_exchange]
@@ -249,7 +249,7 @@ def render_general_graphs():
         return
 
     selected_symbols = [descriptions_dict[d] for d in selected_desc]
-    selected_years = ['2021', '2022', '2023']
+    selected_years = ['2021', '2022', '2023', '2024']
     df = pd.DataFrame(load_data_for_selection(selected_symbols, selected_years))
 
     if df.empty:
