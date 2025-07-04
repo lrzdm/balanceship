@@ -56,7 +56,7 @@ color_palette = [
 # Lettura borse e aziende
 exchanges = read_exchanges("exchanges.txt")
 exchange_names = list(exchanges.keys())
-years_available = ['2021', '2022', '2023']
+years_available = ['2021', '2022', '2023', '2024']
 sectors_available = ['Communication Services', 'Consumer Cyclical', 'Consumer Defensive', 'Energy', 'Finance Services', 'Healthcare', 'Industrials', 'Real Estate', 'Technology', 'Utilities']
 
 # --- Layout filtri in riga ---
