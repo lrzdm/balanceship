@@ -289,7 +289,7 @@ st.markdown("""
 #----BOX COUNTER AND MAP--------
 
 n_companies = len(get_all_tickers())
-n_years = 3
+n_years = 4
 n_records = n_companies * n_years * 34
 stock_exchanges = 6
 
