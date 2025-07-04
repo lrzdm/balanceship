@@ -62,7 +62,7 @@ st.title("📊 Financial Data")
 # Selezione anni, borse, settore, industria
 exchanges = read_exchanges('exchanges.txt')
 exchange_names = list(exchanges.keys())
-years_available = ['2021', '2022', '2023']
+years_available = ['2021', '2022', '2023', '2024']
 sectors_available = ['Communication Services', 'Consumer Cyclical', 'Consumer Defensive', 'Energy', 'Finance Services', 'Healthcare', 'Industrials', 'Real Estate', 'Technology', 'Utilities']
 
 financial_data = []
