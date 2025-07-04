@@ -34,7 +34,7 @@ COLUMN_LABELS = {
 
 # === FUNZIONI MIGLIORATE ===
 
-USE_DB = True
+USE_DB = False
 
 @st.cache_data(show_spinner=False)
 def load_kpis_filtered_by_exchange(symbols_filter=None):
