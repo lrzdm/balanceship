@@ -94,21 +94,25 @@ exchange_currency_mapping = {
     'FTSE MIB': 'EUR',
     'FTSE 100': 'GBP',
     'Nikkei 225': 'JPY',
+    'Hong Kong': 'HKD',
+    'Shanghai': 'CNY',
 }
 
 if selected_exchanges:
     currency = exchange_currency_mapping.get(selected_exchanges[0], 'local currency')
 
 currency_messages = {
-    'USD': 'Numbers reported are in billions of Dollars ($).',
-    'EUR': 'Numbers reported are in billions of Euros (€).',
-    'GBP': 'Numbers reported are in billions of Pounds (£).',
-    'JPY': 'Numbers reported are in billions of Yens (¥).'
+    'USD': 'Numbers reported are in billions of USD.',
+    'EUR': 'Numbers reported are in billions of EUR.',
+    'GBP': 'Numbers reported are in billions of GBP.',
+    'JPY': 'Numbers reported are in billions of JPY.',
+    'HKD': 'Numbers reported are in billions of HKD.',
+    'CNY': 'Numbers reported are in billions of CNY.'
 }
 
 st.markdown(f"<div class='currency-info'>{currency_messages.get(currency, 'Numbers reported are in billions of the local currency.')}</div>", unsafe_allow_html=True)
 
-use_cache = True
+use_cache = False
 
 financial_data = []
 for exchange in selected_exchanges:
