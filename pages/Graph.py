@@ -34,6 +34,8 @@ COLUMN_LABELS = {
 
 # === FUNZIONI MIGLIORATE ===
 
+USE_DB = True
+
 @st.cache_data(show_spinner=False)
 def load_kpis_filtered_by_exchange(symbols_filter=None):
     try:
@@ -63,19 +65,66 @@ def load_kpis_filtered_by_exchange(symbols_filter=None):
 
 @st.cache_data(show_spinner=True)
 def load_data_for_selection(selected_symbols, selected_years):
-    from cache_db import load_many_from_db
+    from cache_db import load_many_from_db, save_kpis_to_db, Session, KPICache
+    from data_utils import get_financial_data, compute_kpis
 
-    # Caricamento batch
-    results_dict = load_many_from_db(selected_symbols, selected_years)
+    results = {}
+    to_fetch = []
 
-    # Ricostruzione della lista dei dizionari
+    if USE_DB:
+        # ✅ Caso semplice: carica dal DB tutto
+        results = load_many_from_db(selected_symbols, selected_years)
+
+    else:
+        # 🔍 Verifica cosa manca nel DB
+        with Session() as session:
+            for symbol in selected_symbols:
+                for year in selected_years:
+                    exists = session.query(KPICache).filter_by(symbol=symbol, year=int(year)).first()
+                    if exists:
+                        logger.info(f"✅ KPI esistente per {symbol} {year}, carico da DB")
+                        results[(symbol, year)] = json.loads(exists.kpi_json)
+                        results[(symbol, year)]['symbol'] = symbol
+                        results[(symbol, year)]['year'] = year
+                        results[(symbol, year)]['description'] = exists.description
+                    else:
+                        logger.info(f"🔄 KPI mancanti per {symbol} {year}, vanno calcolati")
+                        to_fetch.append((symbol, year))
+
+        # 🔁 Calcolo e salvataggio solo per i mancanti
+        for symbol, year in to_fetch:
+            try:
+                raw_data = get_financial_data(symbol, int(year))
+                if not raw_data:
+                    logger.warning(f"Nessun dato finanziario per {symbol} {year}")
+                    continue
+
+                df_kpis = compute_kpis(raw_data)
+                if df_kpis.empty:
+                    logger.warning(f"KPI vuoti per {symbol} {year}")
+                    continue
+
+                save_kpis_to_db(df_kpis)
+
+                for _, row in df_kpis.iterrows():
+                    record = row.to_dict()
+                    record['symbol'] = symbol
+                    record['year'] = year
+                    results[(symbol, year)] = record
+
+            except Exception as e:
+                logger.error(f"Errore nel calcolo o salvataggio KPI per {symbol} {year}: {e}")
+
+    # 🔄 Ricostruzione lista di dizionari per DataFrame
     data = []
-    for (symbol, year), record in results_dict.items():
+    for (symbol, year), record in results.items():
         if isinstance(record, dict) and record:
             record['symbol'] = symbol
+            record['year'] = year
             data.append(record)
 
     return data
+
 
 # === RENDER KPIs ===
 def render_kpis(exchanges_dict):
