@@ -198,7 +198,7 @@ def get_all_financial_data(force_refresh=True):
             stock_exchange = exchange
 
             data_list = get_financial_data(
-                symbol, ['2021', '2022', '2023'],
+                symbol, ['2021', '2022', '2023', '2024'],
                 force_refresh=force_refresh,
                 description=description,
                 stock_exchange=stock_exchange
