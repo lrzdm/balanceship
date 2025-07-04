@@ -84,7 +84,7 @@ def cached_all_tickers():
 def load_ticker_bar_data():
     tickers = get_all_tickers()
     sampled = random.sample(tickers, min(25, len(tickers)))  # genera 25
-    years = ["2021", "2022", "2023"]
+    years = ["2021", "2022", "2023", "2024"]
     result = []
     for t in sampled:
         y = random.choice(years)
