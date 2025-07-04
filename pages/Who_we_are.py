@@ -89,7 +89,7 @@ st.markdown("<h2 style='text-align:center; margin-top:40px;'>👥 Our Team</h2>"
 profiles = [
   ("Lorenzo De Meo","Professional with an engineering background and an MBA, specializing in financial reporting, internal audit, and risk management.\
  Experienced in financial analysis, accounting, and managing financial risks to support strategic decision-making. Proficient in Power BI and \
-Python for data-driven insights.","images/Lorenzo De Meo_01.jpg"),
+Python.","images/Lorenzo De Meo_01.jpg"),
   ("William Herbert Gazzo","Professional with a solid business background and a professional training from SDA Bocconi. \
 Specializing in project management and business planning. He boasts extensive experience in consulting firms \
 and multinational companies, where he has held managerial roles.","images/William H Gazzo_01.jpg"),
