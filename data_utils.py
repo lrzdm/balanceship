@@ -210,7 +210,7 @@ def get_all_financial_data(force_refresh=True):
                     data['description'] = description
                     data['stock_exchange'] = stock_exchange
                     financial_data.append(data)
-                save_to_db(symbol, selected_years, data_list)
+                #save_to_db(symbol, selected_years, data_list)
             time.sleep(random.uniform(5, 9))
 
     financial_data = remove_duplicates(financial_data)
