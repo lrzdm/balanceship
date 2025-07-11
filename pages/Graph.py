@@ -293,20 +293,26 @@ def render_general_graphs():
     descriptions_available = sorted(descriptions_dict.keys())
 
     selected_desc = st.multiselect("Select Companies", descriptions_available, default=descriptions_available[:1])
-
     if not selected_desc:
         st.warning("Please select at least one company.")
         return
 
+    # Anni disponibili fissi nel range richiesto
+    all_years = ['2021', '2022', '2023', '2024']
+    selected_years = st.multiselect("Select Years", all_years, default=all_years)
+
     selected_symbols = [descriptions_dict[d] for d in selected_desc]
-    selected_years = ['2021', '2022', '2023', '2024']
     df = pd.DataFrame(load_data_for_selection(selected_symbols, selected_years))
 
     if df.empty:
         st.warning("No data found.")
         return
 
+    # Forza la conversione a stringa per uniformità
     df['year'] = df['year'].astype(str)
+
+    # Filtra solo gli anni selezionati
+    df = df[df['year'].isin(selected_years)]
 
     columns_to_plot = [
         "total_revenue", "net_income", "ebitda", "gross_profit",
@@ -320,8 +326,19 @@ def render_general_graphs():
     metric_label = st.selectbox("Select Metric", display_columns, index=0)
     metric = display_to_code[metric_label]
     df[metric] = pd.to_numeric(df[metric], errors='coerce')
-    fig = px.line(df, x="year", y=metric, color="description", markers=True,
-                  title=f"{COLUMN_LABELS.get(metric, metric)} over time")
+
+    # Ordina gli anni in ordine naturale per evitare problemi sull'asse X
+    df['year'] = pd.Categorical(df['year'], categories=all_years, ordered=True)
+
+    fig = px.line(
+        df,
+        x="year",
+        y=metric,
+        color="description",
+        markers=True,
+        title=f"{COLUMN_LABELS.get(metric, metric)} over time"
+    )
+    fig.update_xaxes(type='category')  # forza asse discreto
     st.plotly_chart(fig, use_container_width=True)
 
     # GRAFICO 2
@@ -349,7 +366,9 @@ def render_general_graphs():
             markers=True,
             title=f"{COLUMN_LABELS.get(numerator, numerator)} / {COLUMN_LABELS.get(denominator, denominator)} Over Time"
         )
+        fig2.update_xaxes(type='category')  # asse discreto
         st.plotly_chart(fig2, use_container_width=True)
+
 
 
 # === MAIN ===
