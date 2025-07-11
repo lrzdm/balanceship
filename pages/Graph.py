@@ -34,7 +34,7 @@ COLUMN_LABELS = {
 
 # === FUNZIONI MIGLIORATE ===
 
-USE_DB = True
+USE_DB = False
 
 @st.cache_data(show_spinner=False)
 def load_kpis_filtered_by_exchange(symbols_filter=None):
@@ -131,7 +131,15 @@ def load_data_for_selection(selected_symbols, selected_years):
 def render_kpis(exchanges_dict):
     st.header("📊 KPI Dashboard")
     exchange_names = list(exchanges_dict.keys())
-    selected_exchange = st.selectbox("Seleziona Exchange", ["All"] + exchange_names, index=0)
+
+    # Modifica qui per impostare "FTSE MIB" come default
+    exchange_options = ["All"] + exchange_names
+    try:
+        default_exchange_index = exchange_options.index("FTSE MIB")
+    except ValueError:
+        default_exchange_index = 0 # Torna a "All" se "FTSE MIB" non è trovato
+
+    selected_exchange = st.selectbox("Seleziona Exchange", exchange_options, index=default_exchange_index)
 
     if selected_exchange != "All":
         companies_exchange = read_companies(exchanges_dict[selected_exchange])
@@ -149,7 +157,10 @@ def render_kpis(exchanges_dict):
     years_available = sorted(df_all_kpis["year"].astype(str).unique())
 
     selected_desc = st.multiselect("Seleziona aziende", descriptions_available, default=descriptions_available[:1])
-    selected_years = st.multiselect("Seleziona anni", years_available, default=years_available[-1:])
+
+    # Modifica qui per impostare "2024" come default per gli anni
+    default_years_selection = ['2024'] if '2024' in years_available else years_available[-1:]
+    selected_years = st.multiselect("Seleziona anni", years_available, default=default_years_selection)
 
     if not selected_desc or not selected_years:
         st.warning("Seleziona almeno un'azienda e un anno.")
@@ -196,7 +207,6 @@ def render_kpis(exchanges_dict):
         file_name="kpi_filtered.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
-
     # Bubble Chart
     st.subheader("🔵 Bubble Chart")
     bubble_cols = [col for col in df_filtered.columns if col not in ['symbol', 'description', 'year', 'exchange']]
