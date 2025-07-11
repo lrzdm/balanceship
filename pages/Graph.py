@@ -34,7 +34,7 @@ COLUMN_LABELS = {
 
 # === FUNZIONI MIGLIORATE ===
 
-USE_DB = True
+USE_DB = False
 
 @st.cache_data(show_spinner=False)
 def load_kpis_filtered_by_exchange(symbols_filter=None):
@@ -241,7 +241,7 @@ def render_sector_average_chart():
     metric_sector = reverse_labels.get(metric_sector_label, metric_sector_label)
 
     selected_exchange = st.selectbox("Exchange", list(exchanges.keys()))
-    selected_year = st.selectbox("Year", ['2021', '2022', '2023'], index=2)
+    selected_year = st.selectbox("Year", ['2021', '2022', '2023', '2024'], index=3)
 
     companies_exchange = read_companies(exchanges[selected_exchange])
     symbols_exchange = [c['ticker'] for c in companies_exchange]
@@ -298,7 +298,7 @@ def render_general_graphs():
         return
 
     # Anni disponibili fissi nel range richiesto
-    all_years = ['2021', '2022', '2023']
+    all_years = ['2021', '2022', '2023', '2024']
     selected_years = st.multiselect("Select Years", all_years, default=all_years)
 
     selected_symbols = [descriptions_dict[d] for d in selected_desc]
