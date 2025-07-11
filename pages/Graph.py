@@ -63,7 +63,7 @@ def load_kpis_filtered_by_exchange(symbols_filter=None):
         st.error(f"Errore durante il caricamento KPI: {e}")
         return pd.DataFrame()
 
-@st.cache_data(show_spinner=True)
+#@st.cache_data(show_spinner=True)
 def load_data_for_selection(selected_symbols, selected_years):
     from cache_db import load_many_from_db, save_kpis_to_db, Session, KPICache
     from data_utils import get_financial_data, compute_kpis
@@ -152,18 +152,12 @@ def render_kpis(exchanges_dict):
         symbols_for_exchange = None
 
     # 🔄 Se mancano i KPI 2024, proviamo a caricarli
-    years_present = df_all_kpis["year"].astype(str).unique().tolist()
-    if selected_exchange != "All" and '2024' not in years_present:
+    if selected_exchange != "All" and not df_all_kpis[df_all_kpis['year'] == 2024].any().any():
         try:
-            st.info("Caricamento dati 2024 in corso...")
+            st.info(f"Caricamento KPI 2024 per {selected_exchange}...")
             load_data_for_selection(list(symbols_for_exchange), ['2024'])
-
-            # Ricarico i dati dopo l'import
             df_all_kpis = load_kpis_filtered_by_exchange(symbols_for_exchange)
-            years_present = df_all_kpis["year"].astype(str).unique().tolist()
-
-            if '2024' not in years_present:
-                st.warning("I dati per il 2024 non sono ancora disponibili dopo il caricamento.")
+            st.success("✅ KPI 2024 caricati correttamente!")
         except Exception as e:
             st.error(f"Errore nel caricamento dati 2024: {e}")
             return
@@ -171,6 +165,9 @@ def render_kpis(exchanges_dict):
     if df_all_kpis.empty:
         st.warning("Nessun dato disponibile.")
         return
+
+    # Qui puoi continuare a costruire grafici o tabelle con df_all_kpis
+
 
     # UI per selezione azienda e anni
     descriptions_dict = df_all_kpis.groupby("description")["symbol"].apply(lambda x: list(sorted(set(x)))).to_dict()
