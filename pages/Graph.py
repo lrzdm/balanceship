@@ -134,6 +134,7 @@ def render_kpis(exchanges_dict):
     exchange_names = list(exchanges_dict.keys())
     exchange_options = ["All"] + exchange_names
 
+    # Imposta default "FTSE MIB"
     try:
         default_index = exchange_options.index("FTSE MIB")
     except ValueError:
@@ -141,6 +142,7 @@ def render_kpis(exchanges_dict):
 
     selected_exchange = st.selectbox("Seleziona Exchange", exchange_options, index=default_index)
 
+    # Caricamento dati
     if selected_exchange != "All":
         companies_exchange = read_companies(exchanges_dict[selected_exchange])
         symbols_for_exchange = {c["ticker"] for c in companies_exchange if "ticker" in c}
@@ -149,22 +151,33 @@ def render_kpis(exchanges_dict):
         df_all_kpis = load_kpis_filtered_by_exchange()
         symbols_for_exchange = None
 
-    # Precarica dati 2024 se mancanti
-    years_available = sorted(df_all_kpis["year"].astype(str).unique())
-    if selected_exchange != "All" and '2024' not in years_available:
+    # 🔄 Se mancano i KPI 2024, proviamo a caricarli
+    years_present = df_all_kpis["year"].astype(str).unique().tolist()
+    if selected_exchange != "All" and '2024' not in years_present:
         try:
+            st.info("Caricamento dati 2024 in corso...")
             load_data_for_selection(list(symbols_for_exchange), ['2024'])
-            df_all_kpis = load_kpis_filtered_by_exchange(symbols_for_exchange)
-        except Exception as e:
-            st.warning(f"Errore nel precaricamento KPI 2024 per {selected_exchange}: {e}")
 
+            # Ricarico i dati dopo l'import
+            df_all_kpis = load_kpis_filtered_by_exchange(symbols_for_exchange)
+            years_present = df_all_kpis["year"].astype(str).unique().tolist()
+
+            if '2024' not in years_present:
+                st.warning("I dati per il 2024 non sono ancora disponibili dopo il caricamento.")
+        except Exception as e:
+            st.error(f"Errore nel caricamento dati 2024: {e}")
+            return
+
+    if df_all_kpis.empty:
+        st.warning("Nessun dato disponibile.")
+        return
+
+    # UI per selezione azienda e anni
     descriptions_dict = df_all_kpis.groupby("description")["symbol"].apply(lambda x: list(sorted(set(x)))).to_dict()
     descriptions_available = sorted(k for k in descriptions_dict if k is not None)
     years_available = sorted(df_all_kpis["year"].astype(str).unique())
 
     selected_desc = st.multiselect("Seleziona aziende", descriptions_available, default=descriptions_available[:1])
-
-    # Modifica qui per impostare "2024" come default per gli anni
     default_years_selection = ['2024'] if '2024' in years_available else years_available[-1:]
     selected_years = st.multiselect("Seleziona anni", years_available, default=default_years_selection)
 
