@@ -144,6 +144,9 @@ def render_kpis(exchanges_dict):
 
     # Caricamento dati
     if selected_exchange != "All":
+        if st.button(f"📥 Carica/aggiorna KPI {selected_exchange} per il 2024"):
+            force_load_and_save_kpis(exchange_name=selected_exchange, year="2024")
+
         companies_exchange = read_companies(exchanges_dict[selected_exchange])
         symbols_for_exchange = {c["ticker"] for c in companies_exchange if "ticker" in c}
         df_all_kpis = load_kpis_filtered_by_exchange(symbols_for_exchange)
@@ -255,6 +258,19 @@ def render_kpis(exchanges_dict):
         )
 
         st.plotly_chart(fig, use_container_width=True)
+
+def force_load_and_save_kpis(exchange_name="FTSE MIB", year="2024"):
+    exchanges = read_exchanges("exchanges.txt")
+    if exchange_name not in exchanges:
+        st.error(f"Exchange '{exchange_name}' non trovata.")
+        return
+
+    companies = read_companies(exchanges[exchange_name])
+    symbols = [c['ticker'] for c in companies if "ticker" in c]
+    st.info(f"🔄 Caricamento forzato KPI per {exchange_name} ({len(symbols)} simboli) - Anno {year}")
+    results = load_data_for_selection(symbols, [year])
+    st.success(f"✅ KPI caricati e salvati per {len(results)} combinazioni simbolo-anno")
+
 
 # === MAIN ===
 def run():
