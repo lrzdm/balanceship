@@ -83,10 +83,11 @@ def load_data_for_selection(selected_symbols, selected_years):
                     exists = session.query(KPICache).filter_by(symbol=symbol, year=int(year)).first()
                     if exists:
                         logger.info(f"✅ KPI esistente per {symbol} {year}, carico da DB")
-                        results[(symbol, year)] = json.loads(exists.kpi_json)
-                        results[(symbol, year)]['symbol'] = symbol
-                        results[(symbol, year)]['year'] = year
-                        results[(symbol, year)]['description'] = exists.description
+                        val = json.loads(exists.kpi_json) if isinstance(exists.kpi_json, str) else exists.kpi_json
+                        val['symbol'] = symbol
+                        val['year'] = year
+                        val['description'] = exists.description
+                        results[(symbol, year)] = val
                     else:
                         logger.info(f"🔄 KPI mancanti per {symbol} {year}, vanno calcolati")
                         to_fetch.append((symbol, year))
