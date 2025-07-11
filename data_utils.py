@@ -197,29 +197,30 @@ def get_all_financial_data(force_refresh=True):
             description = company['description']
             stock_exchange = exchange
 
-            for year in ['2021', '2022', '2023', '2024']:
-                data_list = get_financial_data(
-                    symbol, year,
-                    force_refresh=force_refresh,
-                    description=description,
-                    stock_exchange=stock_exchange
-                )
+            data_list = get_financial_data(
+                symbol, ['2021', '2022', '2023', '2024'],
+                force_refresh=force_refresh,
+                description=description,
+                stock_exchange=stock_exchange
+            )
+            #print(f"Fetched {len(data_list)} records for {symbol}")
 
-                if data_list:
-                    for data in data_list:
-                        if data is not None and isinstance(data, dict):
-                            data['description'] = description
-                            data['stock_exchange'] = stock_exchange
-                            data['year'] = int(year)  # aggiungo anno esplicitamente
-                            financial_data.append(data)
-                time.sleep(random.uniform(5, 9))
+            for data in data_list:
+                if data is not None and isinstance(data, dict):
+                    data['description'] = description
+                    data['stock_exchange'] = stock_exchange
+                    financial_data.append(data)
+                #save_to_db(symbol, selected_years, data_list)
+            time.sleep(random.uniform(5, 9))
 
     financial_data = remove_duplicates(financial_data)
     financial_data = [x for x in financial_data if 'symbol' in x and 'year' in x]
 
+    # Ordina se la lista è rimasta valida
     if financial_data:
         financial_data.sort(key=lambda x: (x['symbol'], x['year']))
 
+    #financial_data.sort(key=lambda x: (x['symbol'], x['year']))
     return financial_data
 
 
