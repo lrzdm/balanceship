@@ -259,7 +259,14 @@ def render_kpis(exchanges_dict):
 
         st.plotly_chart(fig, use_container_width=True)
 
+# === MAIN ===
+def run():
+    exchanges = read_exchanges("exchanges.txt")
+    render_kpis(exchanges)
+    st.markdown("---")
 
+if __name__ == "__main__":
+    run()
 
 st.markdown("""
 <hr style="margin-top:50px;"/>
