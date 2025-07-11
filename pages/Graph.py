@@ -36,13 +36,6 @@ COLUMN_LABELS = {
 
 USE_DB = False
 
-# Precarica i KPI per i simboli mancanti (solo per l'anno 2024)
-if selected_exchange != "All" and '2024' in years_available:
-    try:
-        load_data_for_selection(list(symbols_for_exchange), ['2024'])  # ⚠️ questo popola il DB se mancano dati
-    except Exception as e:
-        st.warning(f"Errore nel precaricamento KPI 2024 per {selected_exchange}: {e}")
-
 @st.cache_data(show_spinner=False)
 def load_kpis_filtered_by_exchange(symbols_filter=None):
     try:
@@ -137,40 +130,33 @@ def load_data_for_selection(selected_symbols, selected_years):
 # === RENDER KPIs ===
 def render_kpis(exchanges_dict):
     st.header("📊 KPI Dashboard")
+
     exchange_names = list(exchanges_dict.keys())
-
-    # Modifica qui per impostare "FTSE MIB" come default
     exchange_options = ["All"] + exchange_names
+
     try:
-        default_exchange_index = exchange_options.index("FTSE MIB")
+        default_index = exchange_options.index("FTSE MIB")
     except ValueError:
-        default_exchange_index = 0  # Torna a "All" se "FTSE MIB" non è trovato
+        default_index = 0
 
-    selected_exchange = st.selectbox("Seleziona Exchange", exchange_options, index=default_exchange_index)
+    selected_exchange = st.selectbox("Seleziona Exchange", exchange_options, index=default_index)
 
-    # Caricamento aziende ed eventuali simboli filtrati
-    symbols_for_exchange = None
     if selected_exchange != "All":
         companies_exchange = read_companies(exchanges_dict[selected_exchange])
         symbols_for_exchange = {c["ticker"] for c in companies_exchange if "ticker" in c}
         df_all_kpis = load_kpis_filtered_by_exchange(symbols_for_exchange)
     else:
         df_all_kpis = load_kpis_filtered_by_exchange()
+        symbols_for_exchange = None
 
-    # Controlla se manca il 2024 e prova a caricare
-    if selected_exchange != "All":
-        kpi_2024_present = (df_all_kpis["year"] == 2024).any()
-        if not kpi_2024_present:
-            try:
-                load_data_for_selection(list(symbols_for_exchange), ['2024'])
-                # Ricarica i KPI aggiornati
-                df_all_kpis = load_kpis_filtered_by_exchange(symbols_for_exchange)
-            except Exception as e:
-                st.warning(f"Errore nel precaricamento KPI 2024 per {selected_exchange}: {e}")
-
-    if df_all_kpis.empty:
-        st.warning("Nessun dato disponibile.")
-        return
+    # Precarica dati 2024 se mancanti
+    years_available = sorted(df_all_kpis["year"].astype(str).unique())
+    if selected_exchange != "All" and '2024' not in years_available:
+        try:
+            load_data_for_selection(list(symbols_for_exchange), ['2024'])
+            df_all_kpis = load_kpis_filtered_by_exchange(symbols_for_exchange)
+        except Exception as e:
+            st.warning(f"Errore nel precaricamento KPI 2024 per {selected_exchange}: {e}")
 
     descriptions_dict = df_all_kpis.groupby("description")["symbol"].apply(lambda x: list(sorted(set(x)))).to_dict()
     descriptions_available = sorted(k for k in descriptions_dict if k is not None)
