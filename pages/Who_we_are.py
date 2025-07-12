@@ -128,13 +128,13 @@ st.markdown("""
     <div class='timeline-box left'>
         <div class='timeline-content'>
             <h4>Q3 2026 – AI Implementation</h4>
-            <p>We expanded our core team with experts in AI, engineering, and finance.</p>
+            <p>Expansion of our core team with experts in AI, engineering, and finance.</p>
         </div>
     </div>
     <div class='timeline-box right'>
         <div class='timeline-content'>
             <h4>Q2 2027 – Strategic partnerships</h4>
-            <p>Onboarded early enterprise clients and impemented data collection to boost our features.</p>
+            <p>Onboarding early enterprise clients and impementation of data collection to boost our features.</p>
         </div>
     </div>
 </div>
@@ -169,7 +169,7 @@ st.sidebar.markdown(f"""
         <span style='font-size: 14px;'>Navigate financial sea with clarity ⚓</span><br>
         <a href='https://www.instagram.com/tuo_profilo' target='_blank' style="display: inline-block; margin-top: 20px;">
             <img src='data:image/png;base64,{instagram_icon_base64}' width='40' height='40'>
-        <a href='https://www.linkedin.com/in/tuo_profilo' target='_blank' style="display: inline-block; margin-top: 20px;">
+        <a href='https://www.linkedin.com/company/balanceship/' target='_blank' style="display: inline-block; margin-top: 20px;">
             <img src='data:image/png;base64,{linkedin_icon_base64}' width='40' height='40'>
     </div>
 
