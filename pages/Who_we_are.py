@@ -56,7 +56,7 @@ st.markdown(f"<div class='logo-container'>{logo_html}</div>", unsafe_allow_html=
 # --- Startup Info + About us Side by Side ---
 st.markdown(""" 
   <div style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; align-items: stretch; min-height: 400px; margin: 40px 0;">
-  <div class='credo-box' style="max-width: 900px; width: 100%; margin: 0; height: 100%; box-sizing: border-box; display: flex; background-color: #f9f9f9; border-left: 6px solid #0173C4; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+  <div class='credo-box' style="max-width: 1100px; width: 100%; margin: 0; height: 100%; box-sizing: border-box; display: flex; background-color: #f9f9f9; border-left: 6px solid #0173C4; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
     <div style="width: 100%;">
     <h2 style="text-align:center;">🌟 Our Credo</h2>
 
