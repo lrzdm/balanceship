@@ -55,35 +55,27 @@ st.markdown(f"<div class='logo-container'>{logo_html}</div>", unsafe_allow_html=
 
 # --- Startup Info + About us Side by Side ---
 st.markdown(""" 
-  <div class='description-block' style="max-width: 600px; width: 100%; margin: 0; text-align: center; height: 100%; box-sizing: border-box; display: flex; flex-direction: column; justify-content: flex-start; color: black">
-    <h2>🏢 About Us</h2>
-    <p><strong>Balanceship</strong> means clarity and control over financial data. Just like steering a well-balanced ship, our tools help you navigate company financials with ease and confidence.</p>
-    <p>We believe financial analysis should be intuitive, actionable, and beautiful. That’s why we design tools that speak the language of business professionals—clear dashboards, strong KPIs, and powerful benchmarking.</p>
-    <div style='margin-top: auto; font-weight: bold; color: #0173C4;'>
-        Navigate the financial sea with clarity ⚓
-    </div>
-  </div>
+  <div style="max-width: 1000px; width: 100%; margin: 0 auto; padding: 30px; box-sizing: border-box; text-align: left; background-color: #f9f9f9; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); color: #000;">
+    <h2 style="text-align:center; color:#0173C4;">Our Credo</h2>
 
-  <div style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; align-items: stretch; min-height: 400px; margin: 40px 0;">
-    <div class='startup-box' style="max-width: 600px; width: 100%; margin: 0; text-align: left; height: 100%; box-sizing: border-box;">
-      <div style="margin-top: 20px;">
-        <p><strong>🧭 Purpose</strong><br/>
-        At BalanceShip, we believe that financial data should be accessible, understandable, and actionable for everyone. We exist to remove the barriers to financial information, enabling smarter decisions through clarity and transparency. Our purpose is to make financial information open, visual, and comparable.</p>
+    <p><strong>🧭 Purpose</strong><br/>
+    At BalanceShip, we believe that financial data should be accessible, understandable, and actionable for everyone. We exist to remove the barriers to financial information, enabling smarter decisions through clarity and transparency. Our purpose is to make financial information open, visual, and comparable.</p>
 
-        <p><strong>🌍 Vision</strong><br/>
-        We aim to become the go-to platform for financial comparison, insight, and monitoring — empowering anyone to see and understand the financial world. Democratizing access to high-quality financial data is our main objective.</p>
+    <p><strong>🌍 Vision</strong><br/>
+    We aim to become the go-to platform for financial comparison, insight, and monitoring — empowering anyone to see and understand the financial world. Democratizing access to high-quality financial data is our main objective.</p>
 
-        <p><strong>🚀 Mission</strong><br/>
-        Our mission is to provide a smart, user-friendly dashboard to explore, compare, and visualize financial KPIs across companies worldwide. By combining accuracy, clarity, and intuitive design, we help investors, analysts, and finance enthusiasts turn data into insight.</p>
-      </div>
+    <p><strong>🚀 Mission</strong><br/>
+    Our mission is to provide a smart, user-friendly dashboard to explore, compare, and visualize financial KPIs across companies worldwide. By combining accuracy, clarity, and intuitive design, we help investors, analysts, and finance enthusiasts turn data into insight.</p>
+
+    <div style='margin-top: 30px; text-align: center; font-weight: bold; font-size: 1.1em; color: #0173C4;'>
+      Navigate the financial sea with clarity ⚓
     </div>
   </div>
 """, unsafe_allow_html=True)
 
 
-
 # --- Team Profiles ---
-st.markdown("<h2 style='text-align:center; margin-top:40px;'>👥 Our Team</h2>", unsafe_allow_html=True)
+st.markdown("<h2 style='text-align:center; margin-top:40px;'>👥 About Us</h2>", unsafe_allow_html=True)
 profiles = [
   ("Lorenzo De Meo","Professional with an engineering background and an MBA, specializing in financial reporting, internal audit, and risk management.\
  Experienced in financial analysis, accounting, and managing financial risks to support strategic decision-making. Proficient in Power BI and \
