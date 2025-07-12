@@ -136,7 +136,7 @@ def render_kpis(exchanges_dict):
 
     # Imposta default "FTSE MIB"
     try:
-        default_index = exchange_options.index("FTSE MIB")
+        default_index = exchange_options.index("NASDAQ")
     except ValueError:
         default_index = 0
 
@@ -397,7 +397,6 @@ def render_general_graphs():
         )
         fig2.update_xaxes(type='category')  # asse discreto
         st.plotly_chart(fig2, use_container_width=True)
-
 
 
 # === MAIN ===
