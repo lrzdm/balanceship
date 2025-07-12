@@ -115,26 +115,26 @@ st.markdown("""
 <div class='timeline'>
     <div class='timeline-box left'>
         <div class='timeline-content'>
-            <h4>2025 – Foundation</h4>
-            <p>Balanceship is born in Rome with the goal of making financial insights accessible.</p>
+            <h4>Q3 2025 – MVP Launch</h4>
+            <p>Released the first version of our data platform for financial analysis and visualization.</p>
         </div>
     </div>
     <div class='timeline-box right'>
         <div class='timeline-content'>
-            <h4>2026 – MVP Launch</h4>
-            <p>Released the first version of our data platform for financial ratio visualization.</p>
+            <h4>Q4 2025 – Worldwide data</h4>
+            <p>Global Stock Exchanges full coverage.</p>
         </div>
     </div>
     <div class='timeline-box left'>
         <div class='timeline-content'>
-            <h4>2027 – Strategic Clients</h4>
-            <p>Onboarded early enterprise clients and improved benchmarking features.</p>
+            <h4>Q3 2026 – AI Implementation</h4>
+            <p>We expanded our core team with experts in AI, engineering, and finance.</p>
         </div>
     </div>
     <div class='timeline-box right'>
         <div class='timeline-content'>
-            <h4>2028 – Team Expansion</h4>
-            <p>We expanded our core team with experts in AI, engineering, and finance.</p>
+            <h4>Q2 2027 – Strategic partnerships</h4>
+            <p>Onboarded early enterprise clients and impemented data collection to boost our features.</p>
         </div>
     </div>
 </div>
