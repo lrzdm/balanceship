@@ -66,14 +66,6 @@ st.markdown("""
 
   <div style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; align-items: stretch; min-height: 400px; margin: 40px 0;">
     <div class='startup-box' style="max-width: 600px; width: 100%; margin: 0; text-align: left; height: 100%; box-sizing: border-box;">
-      <h2 style="text-align:center;">🚀 Our Startup</h2>
-      <ul style='list-style:none; padding-left:0; margin: 0;'>
-        <li><strong>Founded:</strong> 2025</li>
-        <li><strong>Sector:</strong> Finance & Data Analytics</li>
-        <li><strong>HQ:</strong> Rome, Italy</li>
-        <li><strong>Mission:</strong> Empower businesses with intelligent financial tools</li>
-      </ul>
-      <br/>
       <div style="margin-top: 20px;">
         <p><strong>🧭 Purpose</strong><br/>
         At BalanceShip, we believe that financial data should be accessible, understandable, and actionable for everyone. We exist to remove the barriers to financial information, enabling smarter decisions through clarity and transparency. Our purpose is to make financial information open, visual, and comparable.</p>
