@@ -34,7 +34,7 @@ COLUMN_LABELS = {
 
 # === FUNZIONI MIGLIORATE ===
 
-USE_DB = False
+USE_DB = True
 
 @st.cache_data(show_spinner=False)
 def load_kpis_filtered_by_exchange(symbols_filter=None):
@@ -63,7 +63,7 @@ def load_kpis_filtered_by_exchange(symbols_filter=None):
         st.error(f"Errore durante il caricamento KPI: {e}")
         return pd.DataFrame()
 
-#@st.cache_data(show_spinner=True)
+@st.cache_data(show_spinner=True)
 def load_data_for_selection(selected_symbols, selected_years):
     from cache_db import load_many_from_db, save_kpis_to_db, Session, KPICache
     from data_utils import get_financial_data, compute_kpis
@@ -144,9 +144,6 @@ def render_kpis(exchanges_dict):
 
     # Caricamento dati
     if selected_exchange != "All":
-        if st.button(f"📥 Carica/aggiorna KPI {selected_exchange} per il 2024"):
-            force_load_and_save_kpis(exchange_name=selected_exchange, year="2024")
-
         companies_exchange = read_companies(exchanges_dict[selected_exchange])
         symbols_for_exchange = {c["ticker"] for c in companies_exchange if "ticker" in c}
         df_all_kpis = load_kpis_filtered_by_exchange(symbols_for_exchange)
@@ -155,12 +152,18 @@ def render_kpis(exchanges_dict):
         symbols_for_exchange = None
 
     # 🔄 Se mancano i KPI 2024, proviamo a caricarli
-    if selected_exchange != "All" and not df_all_kpis[df_all_kpis['year'] == 2024].any().any():
+    years_present = df_all_kpis["year"].astype(str).unique().tolist()
+    if selected_exchange != "All" and '2024' not in years_present:
         try:
-            st.info(f"Caricamento KPI 2024 per {selected_exchange}...")
+            st.info("Caricamento dati 2024 in corso...")
             load_data_for_selection(list(symbols_for_exchange), ['2024'])
+
+            # Ricarico i dati dopo l'import
             df_all_kpis = load_kpis_filtered_by_exchange(symbols_for_exchange)
-            st.success("✅ KPI 2024 caricati correttamente!")
+            years_present = df_all_kpis["year"].astype(str).unique().tolist()
+
+            if '2024' not in years_present:
+                st.warning("I dati per il 2024 non sono ancora disponibili dopo il caricamento.")
         except Exception as e:
             st.error(f"Errore nel caricamento dati 2024: {e}")
             return
@@ -168,9 +171,6 @@ def render_kpis(exchanges_dict):
     if df_all_kpis.empty:
         st.warning("Nessun dato disponibile.")
         return
-
-    # Qui puoi continuare a costruire grafici o tabelle con df_all_kpis
-
 
     # UI per selezione azienda e anni
     descriptions_dict = df_all_kpis.groupby("description")["symbol"].apply(lambda x: list(sorted(set(x)))).to_dict()
@@ -259,17 +259,145 @@ def render_kpis(exchanges_dict):
 
         st.plotly_chart(fig, use_container_width=True)
 
-def force_load_and_save_kpis(exchange_name="FTSE MIB", year="2024"):
+# === GRAFICO SEPARATO ===
+def render_sector_average_chart():
+    st.header("📊 Metric Average per Sector")
     exchanges = read_exchanges("exchanges.txt")
-    if exchange_name not in exchanges:
-        st.error(f"Exchange '{exchange_name}' non trovata.")
+
+    metrics_available = ["ebitda", "total_revenue", "net_income"]
+    metric_sector_label = st.selectbox("Metric", [COLUMN_LABELS.get(m, m) for m in metrics_available], index=0)
+    reverse_labels = {v: k for k, v in COLUMN_LABELS.items()}
+    metric_sector = reverse_labels.get(metric_sector_label, metric_sector_label)
+
+    selected_exchange = st.selectbox("Exchange", list(exchanges.keys()))
+    selected_year = st.selectbox("Year", ['2021', '2022', '2023', '2024'], index=3)
+
+    companies_exchange = read_companies(exchanges[selected_exchange])
+    symbols_exchange = [c['ticker'] for c in companies_exchange]
+    #df_sector = pd.DataFrame(load_data_for_selection(symbols_exchange, [selected_year]))
+    df_sector = pd.DataFrame(
+    load_data_for_selection(tuple(symbols_exchange), tuple([selected_year]))
+    )
+    
+    if df_sector.empty:
+        st.warning("Nessun dato disponibile per l'exchange selezionato.")
         return
 
-    companies = read_companies(exchanges[exchange_name])
-    symbols = [c['ticker'] for c in companies if "ticker" in c]
-    st.info(f"🔄 Caricamento forzato KPI per {exchange_name} ({len(symbols)} simboli) - Anno {year}")
-    results = load_data_for_selection(symbols, [year])
-    st.success(f"✅ KPI caricati e salvati per {len(results)} combinazioni simbolo-anno")
+    df_sector['year'] = df_sector['year'].astype(str)
+    df_sector['sector'] = df_sector['sector'].replace("null", np.nan)
+    df_sector[metric_sector] = pd.to_numeric(df_sector[metric_sector], errors='coerce')
+    df_sector = df_sector.dropna(subset=["sector", metric_sector])
+
+    if df_sector.empty:
+        st.warning("Nessun dato valido per il grafico.")
+        return
+
+    sector_avg = df_sector.groupby("sector")[metric_sector].mean().reset_index()
+    fig = px.bar(
+        sector_avg,
+        x="sector",
+        y=metric_sector,
+        title=f"Average {COLUMN_LABELS.get(metric_sector, metric_sector)} in {selected_year} ({selected_exchange})",
+        labels={metric_sector: COLUMN_LABELS.get(metric_sector, metric_sector), "sector": "Sector"}
+    )
+    st.plotly_chart(fig, use_container_width=True)
+
+
+# === GRAFICI INTERATTIVI ===
+def render_general_graphs():
+    st.header("📈 Interactive Graphs")
+
+    exchanges = read_exchanges("exchanges.txt")
+    exchange_names = list(exchanges.keys())
+    selected_exchange = st.selectbox("Select Exchange", ["All"] + exchange_names, index=0)
+
+    companies_all = []
+    if selected_exchange == "All":
+        for path in exchanges.values():
+            companies_all += read_companies(path)
+    else:
+        companies_all = read_companies(exchanges[selected_exchange])
+
+    descriptions_dict = {c['description']: c['ticker'] for c in companies_all if 'description' in c and 'ticker' in c}
+    descriptions_available = sorted(descriptions_dict.keys())
+
+    selected_desc = st.multiselect("Select Companies", descriptions_available, default=descriptions_available[:1])
+    if not selected_desc:
+        st.warning("Please select at least one company.")
+        return
+
+    # Anni disponibili fissi nel range richiesto
+    all_years = ['2021', '2022', '2023', '2024']
+    selected_years = st.multiselect("Select Years", all_years, default=all_years)
+
+    selected_symbols = [descriptions_dict[d] for d in selected_desc]
+    df = pd.DataFrame(load_data_for_selection(selected_symbols, selected_years))
+
+    if df.empty:
+        st.warning("No data found.")
+        return
+
+    # Forza la conversione a stringa per uniformità
+    df['year'] = df['year'].astype(str)
+
+    # Filtra solo gli anni selezionati
+    df = df[df['year'].isin(selected_years)]
+
+    columns_to_plot = [
+        "total_revenue", "net_income", "ebitda", "gross_profit",
+        "stockholders_equity", "total_assets", "basic_eps", "diluted_eps"
+    ]
+    display_to_code = {COLUMN_LABELS.get(k, k): k for k in columns_to_plot}
+    display_columns = list(display_to_code.keys())
+
+    # GRAFICO 1
+    st.subheader("📉 Graph 1: Metric over Time per Company")
+    metric_label = st.selectbox("Select Metric", display_columns, index=0)
+    metric = display_to_code[metric_label]
+    df[metric] = pd.to_numeric(df[metric], errors='coerce')
+
+    # Ordina gli anni in ordine naturale per evitare problemi sull'asse X
+    df['year'] = pd.Categorical(df['year'], categories=all_years, ordered=True)
+
+    fig = px.line(
+        df,
+        x="year",
+        y=metric,
+        color="description",
+        markers=True,
+        title=f"{COLUMN_LABELS.get(metric, metric)} over time"
+    )
+    fig.update_xaxes(type='category')  # forza asse discreto
+    st.plotly_chart(fig, use_container_width=True)
+
+    # GRAFICO 2
+    st.subheader("📐 Graph 2: Custom Ratio Over Time")
+    col1, col2 = st.columns(2)
+    with col1:
+        numerator_label = st.selectbox("Numerator", display_columns, index=2)
+    with col2:
+        denominator_label = st.selectbox("Denominator", display_columns, index=0)
+
+    numerator = display_to_code[numerator_label]
+    denominator = display_to_code[denominator_label]
+
+    if numerator != denominator:
+        df_ratio = df.copy()
+        df_ratio[numerator] = pd.to_numeric(df_ratio[numerator], errors='coerce')
+        df_ratio[denominator] = pd.to_numeric(df_ratio[denominator], errors='coerce')
+        df_ratio['ratio'] = df_ratio[numerator] / df_ratio[denominator]
+
+        fig2 = px.line(
+            df_ratio,
+            x='year',
+            y='ratio',
+            color='description',
+            markers=True,
+            title=f"{COLUMN_LABELS.get(numerator, numerator)} / {COLUMN_LABELS.get(denominator, denominator)} Over Time"
+        )
+        fig2.update_xaxes(type='category')  # asse discreto
+        st.plotly_chart(fig2, use_container_width=True)
+
 
 
 # === MAIN ===
@@ -277,9 +405,38 @@ def run():
     exchanges = read_exchanges("exchanges.txt")
     render_kpis(exchanges)
     st.markdown("---")
+    render_sector_average_chart()
+    st.markdown("---")
+    render_general_graphs()
 
 if __name__ == "__main__":
     run()
+
+# --- SIDEBAR ---
+logo_path = os.path.join("images", "logo4.png")
+logo_base64 = get_base64_of_bin_file(logo_path) if os.path.exists(logo_path) else ""
+
+# Percorsi delle icone
+instagram_icon_path = os.path.join("images", "IG.png")
+linkedin_icon_path = os.path.join("images", "LIN.png")
+
+# Converti le immagini in base64
+instagram_icon_base64 = get_base64_of_bin_file(instagram_icon_path)
+linkedin_icon_base64 = get_base64_of_bin_file(linkedin_icon_path)
+
+st.sidebar.markdown(f"""
+    <div style='text-align: center;'>
+        <img src="data:image/png;base64,{logo_base64}" style="height: 70px; display: inline-block; margin-top: 20px;"><br>
+        <span style='font-size: 14px;'>Navigate financial sea with clarity ⚓</span><br>
+        <a href='https://www.instagram.com/tuo_profilo' target='_blank' style="display: inline-block; margin-top: 20px;">
+            <img src='data:image/png;base64,{instagram_icon_base64}' width='40' height='40'>
+        <a href='https://www.linkedin.com/in/tuo_profilo' target='_blank' style="display: inline-block; margin-top: 20px;">
+            <img src='data:image/png;base64,{linkedin_icon_base64}' width='40' height='40'>
+    </div>
+
+""", unsafe_allow_html=True)
+
+st.markdown("</div>", unsafe_allow_html=True)
 
 st.markdown("""
 <hr style="margin-top:50px;"/>
