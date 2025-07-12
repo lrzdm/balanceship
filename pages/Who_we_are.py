@@ -56,7 +56,7 @@ st.markdown(f"<div class='logo-container'>{logo_html}</div>", unsafe_allow_html=
 # --- Startup Info + About us Side by Side ---
 st.markdown(""" 
   <div style="max-width: 1000px; width: 100%; margin: 0 auto; padding: 30px; box-sizing: border-box; text-align: left; background-color: #f9f9f9; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); color: #000;">
-    <h2 style="text-align:center; color:#0173C4;">Our Credo</h2>
+    <h2 style="text-align:center;">🌟 Our Credo</h2>
 
     <p><strong>🧭 Purpose</strong><br/>
     At BalanceShip, we believe that financial data should be accessible, understandable, and actionable for everyone. We exist to remove the barriers to financial information, enabling smarter decisions through clarity and transparency. Our purpose is to make financial information open, visual, and comparable.</p>
