@@ -58,13 +58,13 @@ st.markdown("""
   <div style="max-width: 1000px; width: 100%; margin: 0 auto; padding: 30px; box-sizing: border-box; text-align: left; background-color: #f9f9f9; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); color: #000;">
     <h2 style="text-align:center;">🌟 Our Credo</h2>
 
-    <p><strong>🧭 Purpose</strong><br/>
+    <p><strong>🧭</strong><br/>
     At BalanceShip, we believe that financial data should be accessible, understandable, and actionable for everyone. We exist to remove the barriers to financial information, enabling smarter decisions through clarity and transparency. Our purpose is to make financial information open, visual, and comparable.</p>
 
-    <p><strong>🌍 Vision</strong><br/>
+    <p><strong>🌍</strong><br/>
     We aim to become the go-to platform for financial comparison, insight, and monitoring — empowering anyone to see and understand the financial world. Democratizing access to high-quality financial data is our main objective.</p>
 
-    <p><strong>🚀 Mission</strong><br/>
+    <p><strong>🚀</strong><br/>
     Our mission is to provide a smart, user-friendly dashboard to explore, compare, and visualize financial KPIs across companies worldwide. By combining accuracy, clarity, and intuitive design, we help investors, analysts, and finance enthusiasts turn data into insight.</p>
 
     <div style='margin-top: 30px; text-align: center; font-weight: bold; font-size: 1.1em; color: #0173C4;'>
