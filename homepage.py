@@ -13,12 +13,12 @@ import random
 
 st.set_page_config(layout="wide")
 
-# Verifica Google Search Console
-st.markdown(
+# ✅ Codice di verifica Google con iframe invisibile
+components.html(
     """
     <meta name="google-site-verification" content="7fZiLUkhMvvAKoaOvORSSPbPAtJpic7Vued1e4u_Adw" />
     """,
-    unsafe_allow_html=True
+    height=0,
 )
 
 quotes = [
