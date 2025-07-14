@@ -13,13 +13,11 @@ import random
 
 st.set_page_config(layout="wide")
 
-# ✅ Codice di verifica Google con iframe invisibile
-components.html(
-    """
-    <meta name="google-site-verification" content="7fZiLUkhMvvAKoaOvORSSPbPAtJpic7Vued1e4u_Adw" />
-    """,
-    height=0,
-)
+if "sitemap" in st.experimental_get_query_params():
+    st.markdown("Content-Type: application/xml", unsafe_allow_html=True)
+    with open("sitemap.xml", "r") as f:
+        st.code(f.read(), language="xml")
+    st.stop()
 
 quotes = [
     "Success is not final, failure is not fatal: It is the courage to continue that counts.",
