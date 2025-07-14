@@ -11,12 +11,15 @@ import os
 from PIL import Image
 import random
 
+st.set_page_config(layout="wide")
+
 # Verifica Google Search Console
 st.markdown(
     """
     <meta name="google-site-verification" content="7fZiLUkhMvvAKoaOvORSSPbPAtJpic7Vued1e4u_Adw" />
     """,
     unsafe_allow_html=True
+)
 
 quotes = [
     "Success is not final, failure is not fatal: It is the courage to continue that counts.",
