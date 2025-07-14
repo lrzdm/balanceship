@@ -12,10 +12,16 @@ from PIL import Image
 import random
 
 # Inserisci il codice Google qui:
-st.markdown(
-    '<meta name="google-site-verification" content="7fZiLUkhMvvAKoaOvORSSPbPAtJpic7Vued1e4u_Adw" />',
-    unsafe_allow_html=True
-)
+# Controlla se l'utente sta richiedendo il file HTML di verifica
+if st.query_params.get("verify") == "google":
+    try:
+        with open("google7c79e10bf1ff0166.html", "r") as f:
+            content = f.read()
+        st.markdown(f"<pre>{content}</pre>", unsafe_allow_html=True)
+        st.stop()
+    except FileNotFoundError:
+        st.error("File di verifica non trovato.")
+        st.stop()
 
 st.set_page_config(layout="wide")
 
