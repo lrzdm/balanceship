@@ -11,9 +11,9 @@ import os
 from PIL import Image
 import random
 
-# Inserisci il tuo codice Google qui:
+# Inserisci il codice Google qui:
 st.markdown(
-    <meta name="google-site-verification" content="7fZiLUkhMvvAKoaOvORSSPbPAtJpic7Vued1e4u_Adw" />,
+    '<meta name="google-site-verification" content="7fZiLUkhMvvAKoaOvORSSPbPAtJpic7Vued1e4u_Adw" />',
     unsafe_allow_html=True
 )
 
