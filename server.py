@@ -15,7 +15,7 @@ def streamlit_redirect(path):
     return redirect(f"/streamlit/{path}", code=302)
 
 def run_streamlit():
-    os.system("streamlit run streamlit_app.py --server.port=8501 --server.headless=true")
+    os.system("streamlit run homepage.py --server.port=8501 --server.headless=true")
 
 if __name__ == "__main__":
     threading.Thread(target=run_streamlit).start()
