@@ -5,14 +5,12 @@ import os
 
 app = Flask(__name__)
 
-# Serve il file sitemap.xml correttamente
 @app.route("/sitemap.xml")
 def serve_sitemap():
     path = os.path.join(os.path.dirname(__file__), "sitemap.xml")
     return send_file(path, mimetype="application/xml")
 
 def run_streamlit():
-    # Avvia streamlit in un thread separato
     subprocess.run(["streamlit", "run", "homepage.py", "--server.port=8501", "--server.headless=true"])
 
 if __name__ == "__main__":
