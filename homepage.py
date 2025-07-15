@@ -13,6 +13,21 @@ import random
 
 st.set_page_config(layout="wide")
 
+if st.query_params.get("page") == ["sitemap"]:
+    st.set_page_config(page_title="Sitemap - BalanceShip")
+    st.markdown("<h1>Sitemap XML</h1>", unsafe_allow_html=True)
+    st.markdown("La nostra sitemap è disponibile pubblicamente qui sotto:")
+    st.markdown("""
+    [Clicca per visualizzare la sitemap XML](https://lrzdm.github.io/balanceship-sitemap/sitemap.xml)
+
+    Oppure copia questo link e inseriscilo nella Search Console:
+    ```
+    https://lrzdm.github.io/balanceship-sitemap/sitemap.xml
+    ```
+    """)
+    st.stop()
+
+
 quotes = [
     "Success is not final, failure is not fatal: It is the courage to continue that counts.",
     "Invest in yourself. Your career is the engine of your wealth.",
