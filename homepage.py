@@ -14,10 +14,10 @@ import random
 st.set_page_config(layout="wide")
 
 # Mostra la sitemap se nella query c'è ?sitemap=1
-if "sitemap" in st.query_params:
-    st.markdown("Content-Type: application/xml", unsafe_allow_html=True)
+if st.query_params.get("file") == ["sitemap"]:
     with open("sitemap.xml", "r") as f:
-        st.code(f.read(), language="xml")
+        sitemap_content = f.read()
+    st.code(sitemap_content, language="xml")
     st.stop()
 
 quotes = [
