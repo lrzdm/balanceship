@@ -13,8 +13,6 @@ import random
 
 st.set_page_config(layout="wide")
 
-st.markdown("[Sitemap](./sitemap.xml)")
-
 quotes = [
     "Success is not final, failure is not fatal: It is the courage to continue that counts.",
     "Invest in yourself. Your career is the engine of your wealth.",
