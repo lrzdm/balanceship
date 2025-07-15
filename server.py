@@ -1,21 +1,19 @@
-from flask import Flask, send_file, redirect
-import subprocess
+from flask import Flask, send_file
 import threading
+import subprocess
 import os
 
 app = Flask(__name__)
 
+# Serve il file sitemap.xml correttamente
 @app.route("/sitemap.xml")
-def sitemap():
-    return send_file("sitemap.xml", mimetype="application/xml")
-
-@app.route("/", defaults={"path": ""})
-@app.route("/<path:path>")
-def streamlit_redirect(path):
-    return redirect(f"/streamlit/{path}", code=302)
+def serve_sitemap():
+    path = os.path.join(os.path.dirname(__file__), "sitemap.xml")
+    return send_file(path, mimetype="application/xml")
 
 def run_streamlit():
-    os.system("streamlit run homepage.py --server.port=8501 --server.headless=true")
+    # Avvia streamlit in un thread separato
+    subprocess.run(["streamlit", "run", "homepage.py", "--server.port=8501", "--server.headless=true"])
 
 if __name__ == "__main__":
     threading.Thread(target=run_streamlit).start()
