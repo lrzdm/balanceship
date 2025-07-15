@@ -13,12 +13,7 @@ import random
 
 st.set_page_config(layout="wide")
 
-# Mostra la sitemap se nella query c'è ?sitemap=1
-if st.query_params.get("file") == ["sitemap"]:
-    with open("sitemap.xml", "r") as f:
-        sitemap_content = f.read()
-    st.code(sitemap_content, language="xml")
-    st.stop()
+st.markdown("[Sitemap](./sitemap.xml)")
 
 quotes = [
     "Success is not final, failure is not fatal: It is the courage to continue that counts.",
