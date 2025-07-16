@@ -12,6 +12,9 @@ from PIL import Image
 import random
 from urllib.parse import urlparse
 
+import streamlit as st
+import streamlit.components.v1 as components
+
 # Gestione sitemap.xml
 query_params = st.query_params
 if query_params.get("page") == "sitemap":
@@ -49,21 +52,31 @@ if query_params.get("page") == "sitemap":
   </url>
 </urlset>'''
     
-    st.set_page_config(page_title="Sitemap")
-    st.markdown(f"```xml\n{sitemap_content}\n```")
-    st.stop()
-
-# Gestione robots.txt
-if query_params.get("page") == "robots":
-    robots_content = '''User-agent: *
-Allow: /
-
-Sitemap: https://balanceship.net/?page=sitemap'''
+    # Nascondi tutto l'UI di Streamlit
+    st.markdown("""
+    <style>
+    .stApp > header {visibility: hidden;}
+    .stApp > div[data-testid="stDecoration"] {visibility: hidden;}
+    .stApp > div[data-testid="stToolbar"] {visibility: hidden;}
+    footer {visibility: hidden;}
+    .stApp > div[data-testid="stSidebar"] {visibility: hidden;}
+    </style>
+    """, unsafe_allow_html=True)
     
-    st.set_page_config(page_title="Robots")
-    st.markdown(f"```\n{robots_content}\n```")
+    # Mostra solo il contenuto XML
+    components.html(f"""
+    <html>
+    <head>
+        <meta http-equiv="Content-Type" content="application/xml; charset=UTF-8">
+    </head>
+    <body>
+        <pre>{sitemap_content}</pre>
+    </body>
+    </html>
+    """, height=600)
     st.stop()
 
+# Il resto del tuo codice homepage.py continua qui...
 st.set_page_config(layout="wide")
 
 
