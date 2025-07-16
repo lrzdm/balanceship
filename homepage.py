@@ -10,22 +10,61 @@ import base64
 import os
 from PIL import Image
 import random
+from urllib.parse import urlparse
+
+# Gestione sitemap.xml
+query_params = st.query_params
+if query_params.get("page") == "sitemap":
+    sitemap_content = '''<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://balanceship.net/</loc>
+    <lastmod>2025-01-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://balanceship.net/Database</loc>
+    <lastmod>2025-01-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://balanceship.net/KPI_Dashboard</loc>
+    <lastmod>2025-01-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://balanceship.net/Graph</loc>
+    <lastmod>2025-01-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://balanceship.net/Who_we_are</loc>
+    <lastmod>2025-01-16</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+</urlset>'''
+    
+    st.set_page_config(page_title="Sitemap")
+    st.markdown(f"```xml\n{sitemap_content}\n```")
+    st.stop()
+
+# Gestione robots.txt
+if query_params.get("page") == "robots":
+    robots_content = '''User-agent: *
+Allow: /
+
+Sitemap: https://balanceship.net/?page=sitemap'''
+    
+    st.set_page_config(page_title="Robots")
+    st.markdown(f"```\n{robots_content}\n```")
+    st.stop()
 
 st.set_page_config(layout="wide")
-
-if st.query_params.get("page") == ["sitemap"]:
-    st.set_page_config(page_title="Sitemap - BalanceShip")
-    st.markdown("<h1>Sitemap XML</h1>", unsafe_allow_html=True)
-    st.markdown("La nostra sitemap è disponibile pubblicamente qui sotto:")
-    st.markdown("""
-    [Clicca per visualizzare la sitemap XML](https://lrzdm.github.io/balanceship-sitemap/sitemap.xml)
-
-    Oppure copia questo link e inseriscilo nella Search Console:
-    ```
-    https://lrzdm.github.io/balanceship-sitemap/sitemap.xml
-    ```
-    """)
-    st.stop()
 
 
 quotes = [
