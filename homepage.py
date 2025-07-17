@@ -13,7 +13,7 @@ import random
 from urllib.parse import urlparse
 
 st.set_page_config(
-    page_title="BalanceShip – Global Financial Dashboard",
+    page_title="Balanceship – Global Financial Dashboard",
     page_icon="📊",
     layout="wide"
 )
@@ -21,12 +21,12 @@ st.set_page_config(
 # ✅ SEO & LinkedIn metadata
 st.markdown("""
 <meta name="description" content="Explore company KPIs and financial data on BalanceShip. Use AI-powered insights to guide smart investment decisions.">
-<meta property="og:title" content="BalanceShip – Global Financial Dashboard">
+<meta property="og:title" content="Balanceship – Global Financial Dashboard">
 <meta property="og:description" content="Explore KPIs, revenue, and financial ratios for thousands of companies.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://balanceship.net">
 <meta property="og:image" content="https://balanceship.net/images/icon.png">
-<meta property="og:site_name" content="BalanceShip">
+<meta property="og:site_name" content="Balanceship">
 """, unsafe_allow_html=True)
 
 
