@@ -10,7 +10,7 @@ import datetime
 from cache_db import load_from_db
 from cache_db import save_to_db
 import random
-
+import streamlit as st
 
 def read_exchanges(filename):
     exchanges = {}
