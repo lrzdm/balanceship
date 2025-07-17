@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from data_utils import read_exchanges, read_companies, get_financial_data, remove_duplicates, get_or_fetch_data
+from data_utils import read_exchanges, read_companies, get_financial_data, remove_duplicates, get_or_fetch_data, add_meta_tags
 from cache_db import save_to_db, load_from_db, load_many_from_db
 import base64
 import os
@@ -9,6 +9,14 @@ from xlsxwriter import Workbook
 from PIL import Image
 #from pages import Graph, Who_we_are
 import copy
+
+#Google tag:
+add_meta_tags(
+    title="Database",
+    description="Explore company financial data in stock exchanges worldwide",
+    url_path="/Database"
+)
+
 
 st.set_page_config(page_title="Financials", layout="wide")
 
