@@ -385,6 +385,20 @@ def get_or_fetch_data(symbol, years, description, stock_exchange):
     return final_data
 
 
+def add_meta_tags(title, description, url_path=""):
+    base_url = "https://balanceship.net"
+    full_url = f"{base_url}{url_path}"
+    
+    st.markdown(f"""
+    <meta name="description" content="{description}">
+    <meta property="og:title" content="{title}">
+    <meta property="og:description" content="{description}">
+    <meta property="og:url" content="{full_url}">
+    <meta property="og:image" content="{base_url}/images/icon.png">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Balanceship">
+    """, unsafe_allow_html=True)
+
 
 
 
