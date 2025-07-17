@@ -4,22 +4,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    verification_tag = '<meta name="google-site-verification" content="P8TBKoEhxpfTVVZF7CTXHNp9dQVC0ynMTo18I9xdzvo" />'
-    return f'''
-    <html>
-    <head>
-        {verification_tag}
-        <title>Sitemap service for balanceship.net</title>
-    </head>
-    <body>
-        <h1>Sitemap service for balanceship.net</h1>
-        <p><a href="/sitemap.xml">View sitemap</a></p>
-    </body>
-    </html>
-    '''
-#@app.route('/')
-#def home():
-#    return "Sitemap service for balanceship.net"
+    return "Sitemap service for balanceship.net"
 
 @app.route('/sitemap.xml')
 def sitemap():
