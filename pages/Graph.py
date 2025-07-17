@@ -2,13 +2,21 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.express as px
-from data_utils import read_exchanges, read_companies, get_financial_data, compute_kpis
+from data_utils import read_exchanges, read_companies, get_financial_data, compute_kpis, add_meta_tags
 from cache_db import load_kpis_for_symbol_year, save_kpis_to_db, KPICache, Session
 import json
 import io
 import os
 import base64
 import logging
+
+#Google tag:
+add_meta_tags(
+    title="Graph",
+    description="Visualize company KPIs and financial data",
+    url_path="/Graph"
+)
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("Graph.py")
