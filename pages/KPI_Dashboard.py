@@ -6,6 +6,14 @@ from data_utils import get_or_fetch_data
 import os
 import base64
 
+#Google tag:
+add_meta_tags(
+    title="KPI Dashboard",
+    description="Explore company dashboards with smart insights",
+    url_path="/KPI_Dashboard"
+)
+
+
 st.set_page_config(page_title="KPI Dashboard", layout="wide")
 st.title("📊 KPI Dashboard")
 
