@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
-from data_utils import read_exchanges, read_companies, get_financial_data, remove_duplicates, compute_kpis
+from data_utils import read_exchanges, read_companies, get_financial_data, remove_duplicates, compute_kpis, add_meta_tags
 from data_utils import get_or_fetch_data 
 import os
 import base64
