@@ -1,7 +1,17 @@
 import streamlit as st
 import os, base64
 from PIL import Image
-    
+from data_utils import add_meta_tags
+
+
+#Google tag:
+add_meta_tags(
+    title="Who we are",
+    description="This is our team! Support us!",
+    url_path="/Who_we_are"
+)
+
+
 st.set_page_config(page_title="Who We Are", layout="wide")
     
 # Base64 helper
