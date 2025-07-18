@@ -12,6 +12,18 @@ from PIL import Image
 import random
 from urllib.parse import urlparse
 
+st.markdown(f"""
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PMRTNWT1ZZ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){{dataLayer.push(arguments);}}
+  gtag('js', new Date());
+  gtag('config', '{GA_MEASUREMENT_ID}');
+</script>
+""", unsafe_allow_html=True)
+
+
 st.set_page_config(
     page_title="Balanceship – Global Financial Dashboard",
     page_icon="📊",
