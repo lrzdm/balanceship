@@ -19,7 +19,7 @@ st.markdown(f"""
   window.dataLayer = window.dataLayer || [];
   function gtag(){{dataLayer.push(arguments);}}
   gtag('js', new Date());
-  gtag('config', '{GA_MEASUREMENT_ID}');
+  gtag('config', 'G-PMRTNWT1ZZ');
 </script>
 """, unsafe_allow_html=True)
 
