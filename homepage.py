@@ -30,6 +30,10 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
+if "robots" in st.query_params:
+    st.markdown("User-agent: *\nAllow: /\n\nSitemap: https://balanceship-sitemap.onrender.com/sitemap.xml", unsafe_allow_html=True)
+    st.stop()
+    
 st.set_page_config(layout="wide")
 
 
