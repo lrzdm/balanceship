@@ -53,8 +53,100 @@ body { background-color: #eceff1; color: #263238; }
 .timeline-box.right::after { left: -10px; }
 .timeline-content { background-color: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(1, 115, 196, 0.2); }
 .timeline-content h4 { margin-top: 0; }
+
+/* ---------------- DARK MODE VISIBILITY FIX ---------------- */
+.startup-box,
+.timeline-content,
+.contact-box,
+.description-block {
+  color: #263238 !important;          /* testo leggibile */
+}
+.startup-box a,
+.timeline-content a,
+.contact-box a,
+.description-block a {
+  color: #0173C4 !important;          /* link leggibili sul chiaro */
+  text-decoration: underline;
+}
+
+/* Se hai il box finale contatti senza classe, aggiungi questa regola globale
+   che prende i markdown chiari con sfondo f5f5f5 / #fff */
+div[style*="background:#f5f5f5"],
+div[style*="background: #f5f5f5"],
+div[style*="background:#fff"],
+div[style*="background: #fff"] {
+  color: #263238 !important;
+}
+
+/* ---------------- CARD: FLIP ALSO ON TOUCH ---------------- */
+/* Manteniamo hover desktop; aggiungiamo focus/active per tap */
+.profile-card:active .profile-inner,
+.profile-card:focus-within .profile-inner {
+  transform: rotateY(180deg);
+  outline: none;
+}
+
+/* Rendi la card focusabile (dovrai aggiungere tabindex="0" nell'HTML card) */
+.profile-card {
+  outline: none;
+}
+.profile-card:focus {
+  outline: 2px solid rgba(1,115,196,0.5);
+  outline-offset: 4px;
+}
+
+/* ---------------- MOBILE LAYOUT ---------------- */
+@media screen and (max-width: 768px) {
+  .profile-grid {
+    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    margin: 2rem auto;
+  }
+
+  .profile-card {
+    width: 90% !important;   /* pieno schermo quasi */
+    height: 300px;           /* un po' più alta per flip leggibile */
+  }
+
+  .profile-front img {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 12px;
+  }
+
+  /* manteniamo flip 3D anche mobile */
+  .profile-front,
+  .profile-back {
+    padding: 1.25rem !important;
+    font-size: 0.95rem;
+  }
+
+  /* Timeline mobile: tutta a sinistra, colonna singola */
+  .timeline::after {
+    left: 12px;
+    margin-left: 0;
+  }
+  .timeline-box {
+    width: 100% !important;
+    left: 0 !important;
+    padding: 0 0 0 40px !important;
+    margin-bottom: 40px;
+  }
+  .timeline-box::after,
+  .timeline-box.right::after {
+    left: 0 !important;
+    right: auto !important;
+    transform: translateX(-50%);
+  }
+  .timeline-content {
+    margin-left: 10px;
+  }
+}
 </style>
 """, unsafe_allow_html=True)
+
 
 # --- Logo Top ---
 logo_html = ""
@@ -66,7 +158,7 @@ st.markdown(f"<div class='logo-container'>{logo_html}</div>", unsafe_allow_html=
 # --- Startup Info + About us Side by Side ---
 st.markdown(""" 
   <div style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; align-items: stretch; min-height: 400px; margin: 40px 0;">
-  <div class='credo-box' style="max-width: 1200px; width: 100%; margin: 0; height: 100%; box-sizing: border-box; display: flex; background-color: #f9f9f9; border-left: 6px solid #0173C4; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+  <div class='startup-box' style="max-width: 1200px; width: 100%; margin: 0; height: 100%; box-sizing: border-box; display: flex; background-color: #f9f9f9; border-left: 6px solid #0173C4; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
     <div style="width: 100%;">
     <h2 style="text-align:center;">🌟 Our Credo</h2>
 
@@ -98,22 +190,22 @@ and multinational companies, where he has held managerial roles.","images/Willia
   ("Gabriele Schininà","Professional with a solid financial background and training from SDA Bocconi. Specialized in financial modelling, \
   strategic planning, and budget management. He boasts extensive experience in listed and non-listed multinational companies, with roles in \
 business controlling.","images/Gabriele Schinina_01.jpg"),
-  ("Giovanni Serusi","Professional with a solid scientific background, specializing in clinical and cognitive neuroscience and with economic training\
-from SDA Bocconi. Specialized in competitive intelligence and scouting new investment opportunities with a focus on the life-science sector.","images/Giovanni Serusi_01.jpg"),
+  ("Giovanni Serusi","Multidisciplinary business professional with a neuroscience background and executive pharma management training from SDA Bocconi. \
+  Specialized in competitive intelligence and scouting of new investment opportunities with a focus on the life science sector.","images/Giovanni Serusi_01.jpg"),
 ]
 cards = ""
 for name, desc, img in profiles:
     if not os.path.exists(img): continue
     cards += f"""
-    <div class='profile-card'>
+    <div class='profile-card' tabindex="0">
       <div class='profile-inner'>
         <div class='profile-front'>
-          <img src="data:image/jpeg;base64,{get_base64(img)}">
+          <img src="data:image/jpeg;base64,{get_base64(img)}" alt="{name} photo">
           <h4>{name}</h4>
         </div>
         <div class='profile-back'>
           <h4>{name}</h4>
-          <p style='font-size:14px;'>{desc}</p>
+          <p>{desc}</p>
         </div>
       </div>
     </div>"""
@@ -153,6 +245,7 @@ st.markdown("""
 # --- Contacts ---
 insta, lin = get_base64("images/IG.png"), get_base64("images/LIN.png")
 st.markdown(f"""
+<div class='contact-box'>
 <div style='background:#f5f5f5;padding:40px;border-radius:12px; text-align:center; box-shadow:0 3px 10px rgba(0,0,0,0.05); margin:30px'>
   <h3>📬 Contact Us</h3>
   <p>Interested in collaborating? <a href='mailto:your-email@example.com'>Send us an email</a></p>
@@ -186,6 +279,7 @@ st.sidebar.markdown(f"""
 """, unsafe_allow_html=True)
 
 st.markdown("""
+<div class='contact-box'> 
 <div style="
     margin: 40px auto 20px auto;
     max-width: 800px;
