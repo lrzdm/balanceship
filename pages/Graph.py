@@ -187,7 +187,7 @@ def render_kpis(exchanges_dict):
 
     selected_desc = st.multiselect("Select Companies", descriptions_available, default=descriptions_available[:1])
     default_years_selection = ['2024'] if '2024' in years_available else years_available[-1:]
-    selected_years = st.multiselect("Select years", years_available, default=default_years_selection)
+    selected_years = st.multiselect("Select Years", years_available, default=default_years_selection)
 
     if not selected_desc or not selected_years:
         st.warning("Please select at least one company.")
@@ -218,7 +218,7 @@ def render_kpis(exchanges_dict):
     df_pivot = df_pivot.apply(pd.to_numeric, errors='coerce')
     df_clean = df_pivot.fillna(np.nan)
 
-    st.subheader("📋 Elenco KPI")
+    st.subheader("📋 KPIs List")
     num_cols = df_clean.select_dtypes(include=['number']).columns
     styled = df_clean.style.format({col: "{:.2%}" for col in num_cols})
     st.dataframe(styled, height=600)
@@ -288,7 +288,7 @@ def render_sector_average_chart():
     )
     
     if df_sector.empty:
-        st.warning("Nessun dato disponibile per l'exchange selezionato.")
+        st.warning("Please select at least one exchange.")
         return
 
     df_sector['year'] = df_sector['year'].astype(str)
@@ -297,7 +297,7 @@ def render_sector_average_chart():
     df_sector = df_sector.dropna(subset=["sector", metric_sector])
 
     if df_sector.empty:
-        st.warning("Nessun dato valido per il grafico.")
+        st.warning("No data found.")
         return
 
     sector_avg = df_sector.groupby("sector")[metric_sector].mean().reset_index()
