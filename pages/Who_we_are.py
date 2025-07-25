@@ -181,7 +181,7 @@ st.markdown("""
 # --- Team Profiles ---
 st.markdown("<h2 style='text-align:center; margin-top:40px;'>👥 About Us</h2>", unsafe_allow_html=True)
 profiles = [
-  ("Lorenzo De Meo","Professional with an engineering background and an MBA, specializing in financial reporting, internal audit, and risk management.\
+  ("Lorenzo De Meo","Professional with an engineering background and an MBA, specialized in financial reporting, internal audit, and risk management.\
  Experienced in financial analysis, accounting, and managing financial risks to support strategic decision-making. Proficient in Power BI and \
 Python.","images/Lorenzo De Meo_01.jpg"),
   ("William Herbert Gazzo","Professional with a solid business background and a professional training from SDA Bocconi. \
@@ -248,7 +248,7 @@ st.markdown(f"""
 <div class='contact-box'>
 <div style='background:#f5f5f5;padding:40px;border-radius:12px; text-align:center; box-shadow:0 3px 10px rgba(0,0,0,0.05); margin:30px'>
   <h3>📬 Contact Us</h3>
-  <p>Interested in collaborating? <a href='mailto:your-email@example.com'>Send us an email</a></p>
+  <p>Interested in collaborating? <a href='mailto:balanceship12@gmail.com'>Send us an email</a></p>
   <a href='#'><img src='data:image/png;base64,{insta}' width='40' style='margin:10px'></a>
   <a href='#'><img src='data:image/png;base64,{lin}' width='40' style='margin:10px'></a>
 </div>
