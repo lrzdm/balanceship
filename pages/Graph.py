@@ -148,7 +148,7 @@ def render_kpis(exchanges_dict):
     except ValueError:
         default_index = 0
 
-    selected_exchange = st.selectbox("Seleziona Exchange", exchange_options, index=default_index)
+    selected_exchange = st.selectbox("Select Exchange", exchange_options, index=default_index)
 
     # Caricamento dati
     if selected_exchange != "All":
@@ -185,12 +185,12 @@ def render_kpis(exchanges_dict):
     descriptions_available = sorted(k for k in descriptions_dict if k is not None)
     years_available = sorted(df_all_kpis["year"].astype(str).unique())
 
-    selected_desc = st.multiselect("Seleziona aziende", descriptions_available, default=descriptions_available[:1])
+    selected_desc = st.multiselect("Select Companies", descriptions_available, default=descriptions_available[:1])
     default_years_selection = ['2024'] if '2024' in years_available else years_available[-1:]
-    selected_years = st.multiselect("Seleziona anni", years_available, default=default_years_selection)
+    selected_years = st.multiselect("Select years", years_available, default=default_years_selection)
 
     if not selected_desc or not selected_years:
-        st.warning("Seleziona almeno un'azienda e un anno.")
+        st.warning("Please select at least one company.")
         return
 
     selected_symbols = []
@@ -204,7 +204,7 @@ def render_kpis(exchanges_dict):
     ]
 
     if df_filtered.empty:
-        st.warning("Nessun dato trovato per i filtri selezionati.")
+        st.warning("No data found.")
         return
 
     # Pivot per visualizzazione tabellare
@@ -229,7 +229,7 @@ def render_kpis(exchanges_dict):
     with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
         df_filtered_clean.to_excel(writer, index=False, sheet_name='KPI')
     st.download_button(
-        label="📥 Scarica Excel",
+        label="📥 Download Excel",
         data=buffer.getvalue(),
         file_name="kpi_filtered.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
