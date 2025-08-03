@@ -179,37 +179,37 @@ st.markdown("""
 
 
 # --- Team Profiles ---
-st.markdown("<h2 style='text-align:center; margin-top:40px;'>👥 About Us</h2>", unsafe_allow_html=True)
-profiles = [
-  ("Lorenzo De Meo","Professional with an engineering background and an MBA, specialized in financial reporting, internal audit, and risk management.\
- Experienced in financial analysis, accounting, and managing financial risks to support strategic decision-making. Proficient in Power BI and \
-Python.","images/Lorenzo De Meo_01.jpg"),
-  ("William Herbert Gazzo","Professional with a solid business background and a professional training from SDA Bocconi. \
-Specialized in project management and business planning. He boasts extensive experience in consulting firms \
-and multinational companies, where he has held managerial roles.","images/William H Gazzo_01.jpg"),
-  ("Gabriele Schininà","Professional with a solid financial background and training from SDA Bocconi. Specialized in financial modelling, \
-  strategic planning, and budget management. He boasts extensive experience in listed and non-listed multinational companies, with roles in \
-business controlling.","images/Gabriele Schinina_01.jpg"),
-  ("Giovanni Serusi","Multidisciplinary business professional with a neuroscience background and executive pharma management training from SDA Bocconi. \
-  Specialized in competitive intelligence and scouting of new investment opportunities with a focus on the life science sector.","images/Giovanni Serusi_01.jpg"),
-]
-cards = ""
-for name, desc, img in profiles:
-    if not os.path.exists(img): continue
-    cards += f"""
-    <div class='profile-card' tabindex="0">
-      <div class='profile-inner'>
-        <div class='profile-front'>
-          <img src="data:image/jpeg;base64,{get_base64(img)}" alt="{name} photo">
-          <h4>{name}</h4>
-        </div>
-        <div class='profile-back'>
-          <h4>{name}</h4>
-          <p>{desc}</p>
-        </div>
-      </div>
-    </div>"""
-st.markdown(f"<div class='profile-grid'>{cards}</div>", unsafe_allow_html=True)
+#st.markdown("<h2 style='text-align:center; margin-top:40px;'>👥 About Us</h2>", unsafe_allow_html=True)
+#profiles = [
+#  ("Lorenzo De Meo","Professional with an engineering background and an MBA, specialized in financial reporting, internal audit, and risk management.\
+# Experienced in financial analysis, accounting, and managing financial risks to support strategic decision-making. Proficient in Power BI and \
+#Python.","images/Lorenzo De Meo_01.jpg"),
+#  ("William Herbert Gazzo","Professional with a solid business background and a professional training from SDA Bocconi. \
+#Specialized in project management and business planning. He boasts extensive experience in consulting firms \
+#and multinational companies, where he has held managerial roles.","images/William H Gazzo_01.jpg"),
+#  ("Gabriele Schininà","Professional with a solid financial background and training from SDA Bocconi. Specialized in financial modelling, \
+#  strategic planning, and budget management. He boasts extensive experience in listed and non-listed multinational companies, with roles in \
+#business controlling.","images/Gabriele Schinina_01.jpg"),
+#  ("Giovanni Serusi","Multidisciplinary business professional with a neuroscience background and executive pharma management training from SDA Bocconi. \
+#  Specialized in competitive intelligence and scouting of new investment opportunities with a focus on the life science sector.","images/Giovanni Serusi_01.jpg"),
+#]
+#cards = ""
+#for name, desc, img in profiles:
+#    if not os.path.exists(img): continue
+#    cards += f"""
+#    <div class='profile-card' tabindex="0">
+#      <div class='profile-inner'>
+#        <div class='profile-front'>
+#          <img src="data:image/jpeg;base64,{get_base64(img)}" alt="{name} photo">
+#          <h4>{name}</h4>
+#        </div>
+#        <div class='profile-back'>
+#          <h4>{name}</h4>
+#          <p>{desc}</p>
+#        </div>
+#      </div>
+#    </div>"""
+#st.markdown(f"<div class='profile-grid'>{cards}</div>", unsafe_allow_html=True)
 
 # --- TIMELINE ---
 st.markdown("<h2 style='text-align: center;'>📈 Our Journey</h2>", unsafe_allow_html=True)
@@ -304,3 +304,4 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
