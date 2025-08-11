@@ -183,7 +183,7 @@ html_code = f"""
     overflow: hidden !important; /* evita scroll indesiderati */
   }}
   .st-emotion-cache-1u02ojh {{
-    display: block !important;
+    display: none !important;
     flex: none !important;
   }}
   .navbar {{
@@ -286,7 +286,7 @@ html_code = f"""
 document.addEventListener("DOMContentLoaded", function() {{
   const elems = document.querySelectorAll("[class^='st-emotion-cache-']");
   elems.forEach(el => {{
-    el.style.setProperty("display", "block", "important");
+    el.style.setProperty("display", "none", "important");
     el.style.setProperty("flex", "none", "important");
   }});
 }});
@@ -540,6 +540,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
