@@ -182,6 +182,11 @@ html_code = f"""
     background: transparent !important;
     overflow: hidden !important; /* evita scroll indesiderati */
   }}
+  /* DISABILITA FLEX SULL'ELEMENTO PROBLEMATICO */
+  .stVerticalBlock {{
+    display: block !important;
+    background-color: transparent !important;
+  }}
   .navbar {{
     position: fixed;
     top: 0;
@@ -525,6 +530,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
