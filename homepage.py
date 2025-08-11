@@ -283,13 +283,13 @@ html_code = f"""
 </video>
 
 <script>
-  document.addEventListener("DOMContentLoaded", function() {
-    const elems = document.querySelectorAll("[class^='st-emotion-cache-']");
-    elems.forEach(el => {
-      el.style.setProperty("display", "block", "important");
-      el.style.setProperty("flex", "none", "important");
-    });
-  });
+document.addEventListener("DOMContentLoaded", function() {{
+  const elems = document.querySelectorAll("[class^='st-emotion-cache-']");
+  elems.forEach(el => {{
+    el.style.setProperty("display", "block", "important");
+    el.style.setProperty("flex", "none", "important");
+  }});
+}});
 </script>
 
 
@@ -540,6 +540,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
