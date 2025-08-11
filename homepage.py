@@ -46,6 +46,45 @@ if "robots" in st.query_params:
     st.markdown("User-agent: *\nAllow: /\n\nSitemap: https://sitemap.balanceship.net/sitemap.xml", unsafe_allow_html=True)
     st.stop()
 
+st.markdown("""
+<style>
+  /* trasparente su elementi di livello alto */
+  html, body, .stApp, .stApp > div, .block-container, .main {
+    background: transparent !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* regola generale per le classi dinamiche emotion */
+  [class^="st-emotion-cache-"] {
+    display: block !important;
+    flex: none !important;
+    background: transparent !important;
+  }
+
+  /* regola specifica (se vuoi nasconderla del tutto) */
+  .st-emotion-cache-1u02ojh {
+    /* prova prima display:block; se vuoi nasconderla usa display:none !important; */
+    display: block !important;
+    flex: none !important;
+    background: transparent !important;
+  }
+
+  /* forzano il container dell'iframe ad usare tutta la larghezza */
+  .stElementContainer {
+    width: 100% !important;
+    background: transparent !important;
+    overflow: visible !important;
+  }
+
+  .stIFrame {
+    width: 100% !important;
+    background: transparent !important;
+  }
+</style>
+""", unsafe_allow_html=True)
+
+
 quotes = [
     "Success is not final, failure is not fatal: It is the courage to continue that counts.",
     "Invest in yourself. Your career is the engine of your wealth.",
@@ -540,6 +579,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
