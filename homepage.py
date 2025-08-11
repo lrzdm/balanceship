@@ -48,44 +48,56 @@ if "robots" in st.query_params:
 
 st.markdown("""
 <style>
-  /* Sfondo trasparente */
+  /* Sfondo trasparente base */
   html, body, .stApp, .stApp > div, .main {
     background: transparent !important;
     margin: 0 !important;
     padding: 0 !important;
   }
 
-  /* Margini solo sul contenuto principale */
+  /* Margini laterali responsivi */
   .block-container {
-    margin-left: 3% !important;  /* proporzionale */
-    margin-right: 3% !important;
+    margin-left: 30px !important;
+    margin-right: 30px !important;
     padding: 0 !important;
     background: transparent !important;
   }
 
-  /* Forza display corretto per i container Streamlit */
-  [class^="st-emotion-cache-"],
+  @media (max-width: 1024px) {
+    .block-container {
+      margin-left: 5% !important;
+      margin-right: 5% !important;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .block-container {
+      margin-left: 2% !important;
+      margin-right: 2% !important;
+    }
+  }
+
+  /* SOLO il contenitore video/logo */
   .st-emotion-cache-1u02ojh {
     display: block !important;
     flex: none !important;
     background: transparent !important;
   }
 
+  /* Ripristino flex per l'header */
+  header.stAppHeader [class^="st-emotion-cache-"] {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    background: transparent !important;
+  }
+
+  /* Elementi iframe */
   .stElementContainer, .stIFrame {
     width: 100% !important;
     background: transparent !important;
     overflow: visible !important;
-  }
-
-  /* Header in posizione originale */
-  header.stAppHeader {
-    position: relative !important;
-    top: auto !important;
-    right: auto !important;
-    left: auto !important;
-    margin: 0 !important;
-    padding: 0.5rem 1rem !important;
-    z-index: 1000 !important;
   }
 </style>
 """, unsafe_allow_html=True)
@@ -573,6 +585,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
