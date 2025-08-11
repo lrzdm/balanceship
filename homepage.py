@@ -170,6 +170,13 @@ html_code = f"""
     padding: 0 !important;       /* rimuove padding */
     background-color: transparent !important;  /* sfondo trasparente */
   }}
+  /* Qui metti la modifica per disabilitare flex su .stVerticalBlock */
+  .stVerticalBlock {{
+    display: block !important;
+    background-color: transparent !important;
+    position: relative !important;
+    z-index: 0 !important;
+  }}
   body, .block-container {{
     padding-left: 0 !important;
     padding-right: 0 !important;
@@ -181,11 +188,6 @@ html_code = f"""
     background-color: transparent !important; /* già presente */
     background: transparent !important;
     overflow: hidden !important; /* evita scroll indesiderati */
-  }}
-  /* DISABILITA FLEX SULL'ELEMENTO PROBLEMATICO */
-  .stVerticalBlock {{
-    display: block !important;
-    background-color: transparent !important;
   }}
   .navbar {{
     position: fixed;
@@ -530,6 +532,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
