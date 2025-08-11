@@ -166,16 +166,21 @@ html_code = f"""
     font-family: 'Open Sans', sans-serif !important;
     font-size: 16px !important;
     color: black;
+    margin: 0 !important;        /* rimuove margini */
+    padding: 0 !important;       /* rimuove padding */
+    background-color: transparent !important;  /* sfondo trasparente */
   }}
   body, .block-container {{
     padding-left: 0 !important;
     padding-right: 0 !important;
     margin-left: 0 !important;
     margin-right: 0 !important;
+    background-color: transparent !important; /* aggiunto per sicurezza */
   }}
   .stApp, .main, .block-container {{
-    background-color: rgba(0, 0, 0, 0) !important;
+    background-color: transparent !important; /* già presente */
     background: transparent !important;
+    overflow: hidden !important; /* evita scroll indesiderati */
   }}
   .navbar {{
     position: fixed;
@@ -256,7 +261,7 @@ html_code = f"""
     width: 100vw;
     height: calc(100vh - 110px);
     z-index: -1;
-    object-fit: contain;
+    object-fit: cover;
     opacity: 0.8;
     background-color: black;
     pointer-events: none;
@@ -520,5 +525,6 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
