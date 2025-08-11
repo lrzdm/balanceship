@@ -182,6 +182,10 @@ html_code = f"""
     background: transparent !important;
     overflow: hidden !important; /* evita scroll indesiderati */
   }}
+  .st-emotion-cache-1u02ojh {{
+    display: block !important;
+    flex: none !important;
+  }}
   .navbar {{
     position: fixed;
     top: 0;
@@ -277,14 +281,18 @@ html_code = f"""
   <source src="https://www.dropbox.com/scl/fi/ua937izl1la1hh2yp0xyk/Balanceship_video.mp4?rlkey=uztuba8wh6lgsbxqk5ne37h2n&raw=1" type="video/mp4">
   Your browser does not support the video tag.
 </video>
+
 <script>
-  document.addEventListener("DOMContentLoaded", function() {{
+  document.addEventListener("DOMContentLoaded", function() {
     const elems = document.querySelectorAll("[class^='st-emotion-cache-']");
-    elems.forEach(el => {{
+    elems.forEach(el => {
       el.style.setProperty("display", "block", "important");
-    }});
-  }});
+      el.style.setProperty("flex", "none", "important");
+    });
+  });
 </script>
+
+
 <div class="navbar">
   <div class="navbar-left">
     <img src="data:image/png;base64,{logo1}" />
@@ -532,6 +540,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
