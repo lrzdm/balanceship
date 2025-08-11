@@ -25,7 +25,7 @@ st.markdown(f"""
 
 
 st.set_page_config(
-    page_title="Balanceship – Global Financial Dashboard",
+    page_title="Balanceship – Financial Dashboard",
     page_icon="📊",
     layout="wide"
 )
@@ -523,3 +523,4 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
