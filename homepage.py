@@ -356,7 +356,7 @@ html_code = f"""
   }}
 </style>
 
-<video autoplay muted loop class="video-background">
+<video autoplay muted loop playsinline class="video-background">
   <source src="https://www.dropbox.com/scl/fi/ua937izl1la1hh2yp0xyk/Balanceship_video.mp4?rlkey=uztuba8wh6lgsbxqk5ne37h2n&raw=1" type="video/mp4">
   Your browser does not support the video tag.
 </video>
@@ -568,7 +568,30 @@ cards = f"""
 st.markdown(cards, unsafe_allow_html=True)
 st.markdown("<div style='height: 50px;'></div>", unsafe_allow_html=True)
 
-# Map section
+# Map
+st.markdown("""
+<style>
+  .map-box {
+    max-width: 100%;
+    padding: 10px 0;
+  }
+  .map-img {
+    display: block;
+    margin: 0 auto;
+    max-width: 90%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  }
+
+  @media (max-width: 640px) {
+    .map-img {
+      max-width: 100%;
+    }
+  }
+</style>
+""", unsafe_allow_html=True)
+
 st.markdown(f"""
 <div class='map-box'>
   <h3 style='text-align:center; color:#0173C4;'>🌍 Stock Exchanges on our Databases</h3>
@@ -609,6 +632,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
