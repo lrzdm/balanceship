@@ -254,10 +254,10 @@ html_code = f"""
   }}
   .video-background {{
     position: fixed;
-    top: 110px;
+    top: 0;
     left: 0;
     width: 100vw;
-    height: calc(100vh - 110px);
+    height: 100vh;
     z-index: -1;
     object-fit: cover;
     opacity: 0.8;
@@ -523,4 +523,5 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
