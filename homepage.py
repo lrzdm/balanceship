@@ -48,18 +48,23 @@ if "robots" in st.query_params:
 
 st.markdown("""
 <style>
-  html, body, .stApp, .stApp > div, .block-container, .main {
+  /* Sfondo trasparente */
+  html, body, .stApp, .stApp > div, .main {
     background: transparent !important;
-    margin: 0 30px !important;  /* margini laterali */
+    margin: 0 !important;
     padding: 0 !important;
   }
 
-  [class^="st-emotion-cache-"] {
-    display: block !important;
-    flex: none !important;
+  /* Margini solo sul contenuto principale */
+  .block-container {
+    margin-left: 3% !important;  /* proporzionale */
+    margin-right: 3% !important;
+    padding: 0 !important;
     background: transparent !important;
   }
 
+  /* Forza display corretto per i container Streamlit */
+  [class^="st-emotion-cache-"],
   .st-emotion-cache-1u02ojh {
     display: block !important;
     flex: none !important;
@@ -72,11 +77,11 @@ st.markdown("""
     overflow: visible !important;
   }
 
-  /* Riposizionamento AppHeader */
+  /* Header in posizione originale */
   header.stAppHeader {
-    position: fixed !important;
-    top: 0 !important;
-    right: 0 !important;
+    position: relative !important;
+    top: auto !important;
+    right: auto !important;
     left: auto !important;
     margin: 0 !important;
     padding: 0.5rem 1rem !important;
@@ -84,6 +89,7 @@ st.markdown("""
   }
 </style>
 """, unsafe_allow_html=True)
+
 
 
 
@@ -567,6 +573,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
