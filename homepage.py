@@ -256,7 +256,7 @@ html_code = f"""
     width: 100vw;
     height: calc(100vh - 110px);
     z-index: -1;
-    object-fit: cover;
+    object-fit: contain;
     opacity: 0.8;
     background-color: black;
     pointer-events: none;
@@ -520,4 +520,5 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
