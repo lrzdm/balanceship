@@ -48,41 +48,40 @@ if "robots" in st.query_params:
 
 st.markdown("""
 <style>
-  /* trasparente su elementi di livello alto */
-  html, body, .stApp, .stApp > div, .block-container, .main {
+  html, body, .stApp, .stApp > div, .main {
     background: transparent !important;
-    margin: 30px !important;
+    margin: 0 !important;
     padding: 0 !important;
   }
 
-  /* regola generale per le classi dinamiche emotion */
+  /* Margine laterale solo sul contenuto principale */
+  .block-container {
+    margin-left: 30px !important;
+    margin-right: 30px !important;
+    padding: 0 !important;
+    background: transparent !important;
+  }
+
   [class^="st-emotion-cache-"] {
     display: block !important;
     flex: none !important;
     background: transparent !important;
   }
 
-  /* regola specifica (se vuoi nasconderla del tutto) */
   .st-emotion-cache-1u02ojh {
-    /* prova prima display:block; se vuoi nasconderla usa display:none !important; */
     display: block !important;
     flex: none !important;
     background: transparent !important;
   }
 
-  /* forzano il container dell'iframe ad usare tutta la larghezza */
-  .stElementContainer {
+  .stElementContainer, .stIFrame {
     width: 100% !important;
     background: transparent !important;
     overflow: visible !important;
   }
-
-  .stIFrame {
-    width: 100% !important;
-    background: transparent !important;
-  }
 </style>
 """, unsafe_allow_html=True)
+
 
 
 quotes = [
@@ -565,6 +564,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
