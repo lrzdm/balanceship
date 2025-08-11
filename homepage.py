@@ -48,40 +48,66 @@ if "robots" in st.query_params:
 
 st.markdown("""
 <style>
-  /* Sfondo trasparente base */
+  /* Sfondo trasparente */
   html, body, .stApp, .stApp > div, .main {
     background: transparent !important;
     margin: 0 !important;
     padding: 0 !important;
   }
 
-  /* Margini laterali responsivi */
+  /* Contenitore principale con margini adattivi */
   .block-container {
-    margin-left: 30px !important;
-    margin-right: 30px !important;
+    max-width: 95% !important;   /* Desktop */
+    margin: 0 auto !important;
     padding: 0 !important;
     background: transparent !important;
   }
 
+  /* Tablet */
   @media (max-width: 1024px) {
     .block-container {
-      margin-left: 5% !important;
-      margin-right: 5% !important;
+      max-width: 90% !important;
     }
   }
 
+  /* Mobile */
   @media (max-width: 640px) {
     .block-container {
-      margin-left: 2% !important;
-      margin-right: 2% !important;
+      max-width: 100% !important;
+      padding-left: 5% !important;
+      padding-right: 5% !important;
     }
   }
 
-  /* SOLO il contenitore video/logo */
+  /* Blocca flex nel blocco "bianco" */
   .st-emotion-cache-1u02ojh {
     display: block !important;
     flex: none !important;
     background: transparent !important;
+    width: 100% !important;
+  }
+
+  /* Video & logo ridimensionabili */
+  .st-emotion-cache-1u02ojh video,
+  .st-emotion-cache-1u02ojh img {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  /* Tablet - riduci un po' */
+  @media (max-width: 1024px) {
+    .st-emotion-cache-1u02ojh video,
+    .st-emotion-cache-1u02ojh img {
+      max-width: 80% !important;
+    }
+  }
+
+  /* Mobile - riduci di più */
+  @media (max-width: 640px) {
+    .st-emotion-cache-1u02ojh video,
+    .st-emotion-cache-1u02ojh img {
+      max-width: 60% !important;
+    }
   }
 
   /* Ripristino flex per l'header */
@@ -101,8 +127,6 @@ st.markdown("""
   }
 </style>
 """, unsafe_allow_html=True)
-
-
 
 
 quotes = [
@@ -585,6 +609,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
