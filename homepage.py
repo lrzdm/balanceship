@@ -14,12 +14,12 @@ from urllib.parse import urlparse
 
 st.markdown(f"""
 <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-PMRTNWT1ZZ"></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-Q5FDX0L1H2"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-  gtag('config', 'G-PMRTNWT1ZZ');
+  gtag('config', 'G-Q5FDX0L1H2');
 </script>
 """, unsafe_allow_html=True)
 
@@ -632,6 +632,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
