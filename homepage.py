@@ -17,7 +17,7 @@ st.markdown(f"""
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-PMRTNWT1ZZ"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
-  function gtag(){{dataLayer.push(arguments);}}
+  function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
   gtag('config', 'G-PMRTNWT1ZZ');
 </script>
@@ -632,6 +632,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
