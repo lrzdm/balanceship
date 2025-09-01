@@ -12,7 +12,7 @@ from PIL import Image
 import random
 from urllib.parse import urlparse
 
-st.markdown(f"""
+st.markdown("""
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q5FDX0L1H2"></script>
 <script>
@@ -22,6 +22,7 @@ st.markdown(f"""
   gtag('config', 'G-Q5FDX0L1H2');
 </script>
 """, unsafe_allow_html=True)
+
 
 
 st.set_page_config(
@@ -632,6 +633,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
