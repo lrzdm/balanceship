@@ -11,7 +11,7 @@ import os
 from PIL import Image
 import random
 from urllib.parse import urlparse
-from streamlit_analytics import streamlit_analytics, log_event
+from streamlit_analytics import track, log_event
 
 # 1️⃣ GA4 JS invisibile
 GA_TAG = """
@@ -649,6 +649,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
