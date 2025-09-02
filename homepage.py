@@ -25,8 +25,7 @@ GA_TAG = """
 </script>
 """
 
-# Inietta nel DOM (anche se Streamlit non permette <head>, viene comunque caricato)
-components.html(GA_TAG, height=0, width=0)
+st.markdown(GA_TAG, unsafe_allow_html=True)
 
 
 st.set_page_config(
@@ -637,6 +636,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
