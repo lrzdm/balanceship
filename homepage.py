@@ -11,24 +11,24 @@ import os
 from PIL import Image
 import random
 from urllib.parse import urlparse
+from streamlit_js_eval import streamlit_js_eval
 
 # Google Analytics snippet con evento di test
-GA_TAG = """
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-Q5FDX0L1H2"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-Q5FDX0L1H2');
+streamlit_js_eval("""
+// Google Analytics
+(function(){
+    var s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://www.googletagmanager.com/gtag/js?id=G-Q5FDX0L1H2';
+    document.head.appendChild(s);
 
-  // Evento di test per verificare il tracciamento
-  gtag('event', 'test_event', { 'debug_mode': true });
-</script>
-"""
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-Q5FDX0L1H2');
+})();
+""")
 
-# Inietta direttamente l’HTML/JS
-components.html(GA_TAG, height=0, width=0)
 
 
 
@@ -641,6 +641,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
