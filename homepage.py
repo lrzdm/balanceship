@@ -15,8 +15,7 @@ from streamlit_js_eval import streamlit_js_eval
 
 # Google Analytics snippet con evento di test
 streamlit_js_eval(
-    "label_ga",  # un'etichetta qualsiasi, obbligatoria
-    """
+    code="""
     (function(){
         var s = document.createElement('script');
         s.async = true;
@@ -28,7 +27,8 @@ streamlit_js_eval(
         gtag('js', new Date());
         gtag('config', 'G-Q5FDX0L1H2');
     })();
-    """
+    """,
+    label="ga_tag"
 )
 
 
@@ -640,6 +640,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
