@@ -11,7 +11,7 @@ import os
 from PIL import Image
 import random
 from urllib.parse import urlparse
-from streamlit_analytics import track, log_event
+from streamlit_analytics import track
 
 # 1️⃣ GA4 JS invisibile
 GA_TAG = """
@@ -26,19 +26,16 @@ GA_TAG = """
 """
 components.html(GA_TAG, height=0, width=0, scrolling=False)
 
-# 2️⃣ Streamlit Analytics invisibile
-analytics = streamlit_analytics(ga4_id="G-Q5FDX0L1H2")
-analytics.__enter__()  # avvia tracking invisibile
+# --- 2️⃣ Streamlit Analytics invisibile ---
+track("G-Q5FDX0L1H2")  # inizia tracking invisibile
 
-# Homepage Streamlit
+# --- 3️⃣ Contenuti della homepage ---
 st.title("Benvenuto nel mio sito")
-st.write("Contenuti della homepage…")
+st.write("Contenuti principali della homepage…")
 
-# Esempio evento personalizzato invisibile
-log_event("cta_click", {"button_name": "Download PDF"})
-
-# Chiudi tracking alla fine
-analytics.__exit__(None, None, None)
+# Esempio interazione
+if st.button("Scarica PDF"):
+    st.write("PDF scaricato!")  # qui puoi tracciare un evento custom via GA4 JS o track
 
 
 st.set_page_config(
@@ -649,6 +646,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
