@@ -14,18 +14,19 @@ from urllib.parse import urlparse
 from streamlit_js_eval import streamlit_js_eval
 
 # Google Analytics snippet con evento di test
-GA_TAG = """
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-Q5FDX0L1H2"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-Q5FDX0L1H2');
-</script>
-"""
+st.javascript("""
+    (function(){
+        var script = document.createElement('script');
+        script.src = "https://www.googletagmanager.com/gtag/js?id=G-Q5FDX0L1H2";
+        script.async = true;
+        document.head.appendChild(script);
 
-st.markdown(GA_TAG, unsafe_allow_html=True)
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-Q5FDX0L1H2');
+    })();
+""")
 
 
 st.set_page_config(
@@ -636,6 +637,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
