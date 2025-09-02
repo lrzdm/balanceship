@@ -11,9 +11,9 @@ import os
 from PIL import Image
 import random
 from urllib.parse import urlparse
-from streamlit_js_eval import streamlit_js_eval
+from streamlit_analytics import streamlit_analytics, log_event
 
-# Google Analytics snippet con evento di test
+# 1️⃣ GA4 JS invisibile
 GA_TAG = """
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q5FDX0L1H2"></script>
@@ -24,8 +24,22 @@ GA_TAG = """
   gtag('config', 'G-Q5FDX0L1H2');
 </script>
 """
-
 components.html(GA_TAG, height=0, width=0, scrolling=False)
+
+# 2️⃣ Streamlit Analytics invisibile
+analytics = streamlit_analytics(ga4_id="G-Q5FDX0L1H2")
+analytics.__enter__()  # avvia tracking invisibile
+
+# Homepage Streamlit
+st.title("Benvenuto nel mio sito")
+st.write("Contenuti della homepage…")
+
+# Esempio evento personalizzato invisibile
+log_event("cta_click", {"button_name": "Download PDF"})
+
+# Chiudi tracking alla fine
+analytics.__exit__(None, None, None)
+
 
 st.set_page_config(
     page_title="Balanceship – Financial Dashboard",
@@ -635,6 +649,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
