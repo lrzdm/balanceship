@@ -14,20 +14,18 @@ from urllib.parse import urlparse
 from streamlit_js_eval import streamlit_js_eval
 
 # Google Analytics snippet con evento di test
-st.javascript("""
-    (function(){
-        var script = document.createElement('script');
-        script.src = "https://www.googletagmanager.com/gtag/js?id=G-Q5FDX0L1H2";
-        script.async = true;
-        document.head.appendChild(script);
+GA_TAG = """
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-Q5FDX0L1H2"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-Q5FDX0L1H2');
+</script>
+"""
 
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-Q5FDX0L1H2');
-    })();
-""")
-
+components.html(GA_TAG, height=0, width=0, scrolling=False)
 
 st.set_page_config(
     page_title="Balanceship – Financial Dashboard",
@@ -637,6 +635,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
