@@ -12,19 +12,24 @@ from PIL import Image
 import random
 from urllib.parse import urlparse
 
-GA_ID = "G-Q5FDX0L1H2"
-
-ga_code = f"""
-<script async src="https://www.googletagmanager.com/gtag/js?id={GA_ID}"></script>
+# Google Analytics snippet con evento di test
+GA_TAG = """
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-Q5FDX0L1H2"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
-  function gtag(){{dataLayer.push(arguments);}}
+  function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-  gtag('config', '{GA_ID}');
+  gtag('config', 'G-Q5FDX0L1H2');
+
+  // Evento di test per verificare il tracciamento
+  gtag('event', 'test_event', { 'debug_mode': true });
 </script>
 """
 
-components.html(ga_code, height=0)
+# Inietta direttamente l’HTML/JS
+components.html(GA_TAG, height=0, width=0)
+
 
 
 
@@ -636,6 +641,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
