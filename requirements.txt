@@ -12,4 +12,4 @@ numpy
 streamlit_autorefresh
 Flask==2.3.3
 gunicorn==21.2.0
-streamlit-js-eval
+streamlit-analytics
