@@ -12,20 +12,20 @@ from PIL import Image
 import random
 from urllib.parse import urlparse
 
-
 GA_ID = "G-Q5FDX0L1H2"
 
-# Esegui il tag GA4
-html(f"""
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id={GA_ID}"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){{dataLayer.push(arguments);}}
-  gtag('js', new Date());
-  gtag('config', '{GA_ID}');
-</script>
-""", height=0)
+if "ga_loaded" not in st.session_state:
+    html(f"""
+    <script async src="https://www.googletagmanager.com/gtag/js?id={GA_ID}"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){{dataLayer.push(arguments);}}
+      gtag('js', new Date());
+      gtag('config', '{GA_ID}');
+    </script>
+    """, height=0)
+    st.session_state["ga_loaded"] = True
+
 
 
 st.set_page_config(
@@ -636,6 +636,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
