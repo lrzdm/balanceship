@@ -29,14 +29,6 @@ components.html(GA_TAG, height=0, width=0, scrolling=False)
 # --- 2️⃣ Streamlit Analytics invisibile ---
 track("G-Q5FDX0L1H2")  # inizia tracking invisibile
 
-# --- 3️⃣ Contenuti della homepage ---
-st.title("Benvenuto nel mio sito")
-st.write("Contenuti principali della homepage…")
-
-# Esempio interazione
-if st.button("Scarica PDF"):
-    st.write("PDF scaricato!")  # qui puoi tracciare un evento custom via GA4 JS o track
-
 
 st.set_page_config(
     page_title="Balanceship – Financial Dashboard",
@@ -646,6 +638,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
