@@ -11,23 +11,32 @@ import os
 from PIL import Image
 import random
 from urllib.parse import urlparse
-from streamlit_analytics import track
+import requests
+import uuid
 
-# 1️⃣ GA4 JS invisibile
-GA_TAG = """
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-Q5FDX0L1H2"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-Q5FDX0L1H2');
-</script>
-"""
-components.html(GA_TAG, height=0, width=0, scrolling=False)
+# Dati di configurazione GA4
+MEASUREMENT_ID = "G-Q5FDX0L1H2"   # Il tuo ID GA4
+API_SECRET = "kRfQwfxDQ0aACcjkJNENPA"  # Quello creato in GA4
 
-# --- 2️⃣ Streamlit Analytics invisibile ---
-track("G-Q5FDX0L1H2")  # inizia tracking invisibile
+def send_pageview():
+    client_id = str(uuid.uuid4())  # crea un id random per ogni sessione
+    url = f"https://www.google-analytics.com/mp/collect?measurement_id={MEASUREMENT_ID}&api_secret={API_SECRET}"
+
+    payload = {
+        "client_id": client_id,
+        "events": [
+            {"name": "page_view"}
+        ]
+    }
+
+    try:
+        requests.post(url, json=payload)
+    except Exception as e:
+        st.write("Errore tracking:", e)
+
+# Manda evento page_view a GA
+send_pageview()
+
 
 
 st.set_page_config(
@@ -638,6 +647,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
