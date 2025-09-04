@@ -13,29 +13,41 @@ import random
 from urllib.parse import urlparse
 import requests
 import uuid
+from streamlit_javascript import st_javascript
 
-# Dati di configurazione GA4
-MEASUREMENT_ID = "G-Q5FDX0L1H2"   # Il tuo ID GA4
-API_SECRET = "kRfQwfxDQ0aACcjkJNENPA"  # Quello creato in GA4
+# --- CONFIGURAZIONE GA4 ---
+MEASUREMENT_ID = "G-Q5FDX0L1H2"   # il tuo ID GA4
+API_SECRET = "IL_TUO_API_SECRET"  # quello creato in Google Analytics
 
+# --- GENERA CLIENT_ID STABILE PER SESSIONE ---
+if "client_id" not in st.session_state:
+    st.session_state["client_id"] = str(uuid.uuid4())
+
+# --- RECUPERA IP UTENTE DAL BROWSER ---
+user_ip = st_javascript("await fetch('https://api.ipify.org?format=json').then(r => r.json()).then(d => d.ip)")
+if user_ip is None:
+    user_ip = "0.0.0.0"  # fallback
+
+# --- FUNZIONE PER INVIARE PAGEVIEW ---
 def send_pageview():
-    client_id = str(uuid.uuid4())  # crea un id random per ogni sessione
     url = f"https://www.google-analytics.com/mp/collect?measurement_id={MEASUREMENT_ID}&api_secret={API_SECRET}"
-
     payload = {
-        "client_id": client_id,
+        "client_id": st.session_state["client_id"],
         "events": [
-            {"name": "page_view"}
+            {
+                "name": "page_view",
+                "params": {
+                    "page_title": "Homepage",
+                    "page_location": "https://www.balanceship.net/",
+                    "engagement_time_msec": 1
+                }
+            }
         ]
     }
+    # aggiungo IP reale
+    headers = {"X-Forwarded-For": user_ip}
+    requests.post(url, json=payload, headers=headers)
 
-    try:
-        requests.post(url, json=payload)
-    except Exception as e:
-        st.write("Errore tracking:", e)
-
-# Manda evento page_view a GA
-send_pageview()
 
 
 
@@ -647,6 +659,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
