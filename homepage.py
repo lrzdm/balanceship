@@ -17,7 +17,7 @@ from streamlit_javascript import st_javascript
 
 # --- CONFIGURAZIONE GA4 ---
 MEASUREMENT_ID = "G-Q5FDX0L1H2"   # il tuo ID GA4
-API_SECRET = "IL_TUO_API_SECRET"  # quello creato in Google Analytics
+API_SECRET = "kRfQwfxDQ0aACcjkJNENPA"  # quello creato in Google Analytics
 
 # --- GENERA CLIENT_ID STABILE PER SESSIONE ---
 if "client_id" not in st.session_state:
@@ -659,6 +659,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
