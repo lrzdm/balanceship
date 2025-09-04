@@ -13,26 +13,17 @@ import random
 from urllib.parse import urlparse
 import requests
 import uuid
-from streamlit_javascript import st_javascript
 
-# --- CONFIG GA4 ---
-MEASUREMENT_ID = "G-Q5FDX0L1H2"   # il tuo ID GA4
-API_SECRET = "kRfQwfxDQ0aACcjkJNENPA"  # il tuo API secret GA4
+MEASUREMENT_ID = "G-Q5FDX0L1H2" # Il tuo ID GA4 
+API_SECRET = "kRfQwfxDQ0aACcjkJNENPA" # Quello creato in GA4 
 
-# --- CLIENT_ID STABILE PER SESSIONE ---
 if "client_id" not in st.session_state:
     st.session_state["client_id"] = str(uuid.uuid4())
 
-# --- RECUPERO IP UTENTE DAL BROWSER (per geolocalizzazione) ---
-user_ip = st_javascript("await fetch('https://api.ipify.org?format=json').then(r => r.json()).then(d => d.ip)")
-if user_ip is None:
-    user_ip = "0.0.0.0"
-
 def send_pageview():
     url = f"https://www.google-analytics.com/mp/collect?measurement_id={MEASUREMENT_ID}&api_secret={API_SECRET}"
-
     payload = {
-        "client_id": st.session_state["client_id"],  # utente unico
+        "client_id": st.session_state["client_id"],
         "events": [
             {
                 "name": "page_view",
@@ -44,11 +35,9 @@ def send_pageview():
             }
         ]
     }
+    requests.post(url, json=payload)
 
-    try:
-        requests.post(url, json=payload, headers={"X-Forwarded-For": user_ip})
-    except Exception as e:
-        st.error(f"Errore tracking: {e}")
+send_pageview()
 
 
 st.set_page_config(
@@ -659,6 +648,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
