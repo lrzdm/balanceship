@@ -263,7 +263,7 @@ def kpi_chart(df_visible, df_full, metric, title):
             x=[company_names[-1]],
             y=[global_avg],
             mode="text",
-            text=[f"{global_avg:.1f}%"]  # per la linea Companies Avg,
+            text=[f"{global_avg:.1f}%"],  # per la linea Companies Avg
             textposition="top right",
             textfont=dict(color="red"),
             showlegend=False
@@ -289,7 +289,7 @@ def kpi_chart(df_visible, df_full, metric, title):
             x=[company_names[-1]],
             y=[sector_avg],
             mode="text",
-            text=[f"{sector_avg:.1f}%"]  # per la linea Sector Avg,
+            text=[f"{sector_avg:.1f}%"],  # per la linea Sector Avg
             textposition="bottom right",
             textfont=dict(color="blue"),
             showlegend=False
@@ -446,5 +446,6 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
