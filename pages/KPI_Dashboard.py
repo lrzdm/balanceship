@@ -378,20 +378,21 @@ for index, row in df_visible.iterrows():
     # EBITDA Margin
     if not pd.isna(ebitda_margin):
         if ebitda_margin > avg_ebitda * 1.2:
-            insight_list.append(f"**{company}** demonstrates operational efficiency well above the sector norm, with an EBITDA margin of {ebitda_margin:.2f}%.")
-            insight_list.append(f"The EBITDA margin of **{company}** ({ebitda_margin:.2f}%) exceeds its industry average.")
+            insight_list.append(f"**{company}** demonstrates operational efficiency well above the sector norm, with an EBITDA margin of {ebitda_margin}.")
+            insight_list.append(f"The EBITDA margin of **{company}** ({ebitda_margin}) exceeds its industry average.")
         elif ebitda_margin < avg_ebitda * 0.8:
-            insight_list.append(f"**{company}** struggles to convert revenue into operating profit, with an EBITDA margin of only {ebitda_margin:.2f}%.")
-            insight_list.append(f"The EBITDA performance of **{company}** ({ebitda_margin:.2f}%) lags well behind sector peers.")
+            insight_list.append(f"**{company}** struggles to convert revenue into operating profit, with an EBITDA margin of only {ebitda_margin}.")
+            insight_list.append(f"The EBITDA performance of **{company}** ({ebitda_margin}) lags well behind sector peers.")
 
     # FCF Margin
     if not pd.isna(fcf_margin):
         if fcf_margin > avg_fcf * 1.2:
-            insight_list.append(f"**{company}** stands out for its excellent cash flow generation, posting a FCF margin of {fcf_margin:.2f}%.")
-            insight_list.append(f"With a FCF margin of {fcf_margin:.2f}%, **{company}** ranks among the top in cash conversion.")
+            insight_list.append(f"**{company}** stands out for its excellent cash flow generation, posting a FCF margin of {fcf_margin}.")
+            insight_list.append(f"With a FCF margin of {fcf_margin}, **{company}** ranks among the top in cash conversion.")
         elif fcf_margin < avg_fcf * 0.8:
-            insight_list.append(f"**{company}** underperforms in turning revenue into free cash flow, with a margin of {fcf_margin:.2f}%.")
-            insight_list.append(f"**{company}** shows weakness in FCF efficiency compared to the sector (only {fcf_margin:.2f}%).")
+            insight_list.append(f"**{company}** underperforms in turning revenue into free cash flow, with a margin of {fcf_margin}.")
+            insight_list.append(f"**{company}** shows weakness in FCF efficiency compared to the sector (only {fcf_margin}).")
+
 
     # Debt to Equity
     if not pd.isna(debt_equity):
@@ -464,6 +465,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
