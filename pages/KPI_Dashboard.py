@@ -7,6 +7,7 @@ import os
 import base64
 import requests
 import uuid
+import textwrap
 
 MEASUREMENT_ID = "G-Q5FDX0L1H2" # Il tuo ID GA4 
 API_SECRET = "kRfQwfxDQ0aACcjkJNENPA" # Quello creato in GA4 
@@ -61,13 +62,13 @@ def get_base64_of_bin_file(bin_file):
         data = f.read()
     return base64.b64encode(data).decode()
 
-def wrap_labels(labels, width=12):
-    wrapped = []
-    for label in labels:
-        # Dividi la stringa in blocchi di lunghezza 'width'
-        parts = [label[i:i+width] for i in range(0, len(label), width)]
-        wrapped.append("<br>".join(parts))
-    return wrapped
+
+def wrap_labels_wordwise(labels, width=12):
+    """
+    Wrappa i label andando a capo tra le parole invece che a caratteri fissi.
+    """
+    return [textwrap.fill(label, width=width) for label in labels]
+
 
 # --- SIDEBAR ---
 logo_path = os.path.join("images", "logo4.png")
@@ -222,90 +223,106 @@ def kpi_chart(df_visible, df_full, metric, title):
 
     fig = go.Figure()
 
-    #company_names = df_visible["company_name"].tolist()
-    company_names_raw = df_visible["company_name"].tolist()  # nomi originali
-    company_names = wrap_labels(company_names_raw, width=12)  # nomi wrappati
+    # Nomi aziende
+    company_names_raw = df_visible["company_name"].tolist()
+    company_names = wrap_labels_wordwise(company_names_raw, width=12)
 
-    #company_colors = {name: color_palette[i % len(color_palette)] for i, name in enumerate(company_names)}
     company_colors = {name: color_palette[i % len(color_palette)] for i, name in enumerate(company_names_raw)}
 
-    # BAR per le aziende selezionate
-    y_values = df_visible[metric].round(3) * 100  # decimali -> percentuali
+    # --- Se il KPI è percentuale ---
+    percentage_metrics = ["EBITDA Margin", "FCF Margin"]  # solo questi in %
+    is_percentage = metric in percentage_metrics
+
+    # Prepara valori Y
+    if is_percentage:
+        y_values = df_visible[metric].round(3) * 100
+        y_text = [f"{v:.1f}%" for v in y_values]
+        yaxis_title = f"{metric} (%)"
+    else:
+        y_values = df_visible[metric].round(3)
+        y_text = [f"{v:.2f}" for v in y_values]
+        yaxis_title = metric
+
+    # --- BAR chart ---
     fig.add_trace(go.Bar(
         x=company_names,
         y=y_values,
         marker_color=[company_colors[name] for name in company_names_raw],
-        text=[f"{v:.1f}%" for v in y_values],
+        text=y_text,
         textposition="auto",
         showlegend=False
     ))
 
-
-    # Calcola medie
-    global_avg = df_visible[metric].mean()*100
+    # --- Medie ---
+    global_avg = df_visible[metric].mean()
     sector_avg = None
     if selected_sector != "All":
         sector_df = df_full[df_full["sector"] == selected_sector]
         if not sector_df.empty:
-            sector_avg = sector_df[metric].mean()*100
+            sector_avg = sector_df[metric].mean()
 
-    # --- LINEA: Market Avg ---
-    if not pd.isna(global_avg):
-        global_avg = round(global_avg, 1)
-        fig.add_shape(
-            type="line",
-            xref="paper", yref="y",
-            x0=0, x1=1, y0=global_avg, y1=global_avg,
-            line=dict(color="red", dash="dash")
-        )
-        # Dummy trace per legenda + label
-        fig.add_trace(go.Scatter(
-            x=[company_names[-1]],
-            y=[global_avg],
-            mode="text",
-            text=[f"{global_avg:.1f}%"],  # per la linea Companies Avg
-            textposition="top right",
-            textfont=dict(color="red"),
-            showlegend=False
-        ))
-        fig.add_trace(go.Scatter(
-            x=[None], y=[None],
-            mode="lines",
-            line=dict(color="red", dash="dash"),
-            showlegend=False,
-            name="Companies Avg"
-        ))
+    if is_percentage:
+        if not pd.isna(global_avg):
+            global_avg = round(global_avg * 100, 1)
+            fig.add_shape(
+                type="line", xref="paper", yref="y",
+                x0=0, x1=1, y0=global_avg, y1=global_avg,
+                line=dict(color="red", dash="dash")
+            )
+            fig.add_trace(go.Scatter(
+                x=[company_names[-1]], y=[global_avg],
+                mode="text", text=[f"{global_avg:.1f}%"],
+                textposition="top right", textfont=dict(color="red"),
+                showlegend=False
+            ))
 
-    # --- LINEA: Sector Avg ---
-    if sector_avg is not None and not pd.isna(sector_avg):
-        sector_avg = round(sector_avg, 1)
-        fig.add_shape(
-            type="line",
-            xref="paper", yref="y",
-            x0=0, x1=1, y0=sector_avg, y1=sector_avg,
-            line=dict(color="blue", dash="dot")
-        )
-        fig.add_trace(go.Scatter(
-            x=[company_names[-1]],
-            y=[sector_avg],
-            mode="text",
-            text=[f"{sector_avg:.1f}%"],  # per la linea Sector Avg
-            textposition="bottom right",
-            textfont=dict(color="blue"),
-            showlegend=False
-        ))
-        fig.add_trace(go.Scatter(
-            x=[None], y=[None],
-            mode="lines",
-            line=dict(color="blue", dash="dot"),
-            showlegend=False,
-            name="Sector Avg"
-        ))
+        if sector_avg is not None and not pd.isna(sector_avg):
+            sector_avg = round(sector_avg * 100, 1)
+            fig.add_shape(
+                type="line", xref="paper", yref="y",
+                x0=0, x1=1, y0=sector_avg, y1=sector_avg,
+                line=dict(color="blue", dash="dot")
+            )
+            fig.add_trace(go.Scatter(
+                x=[company_names[-1]], y=[sector_avg],
+                mode="text", text=[f"{sector_avg:.1f}%"],
+                textposition="bottom right", textfont=dict(color="blue"),
+                showlegend=False
+            ))
+
+    else:  # valori assoluti (Debt/Equity, EPS)
+        if not pd.isna(global_avg):
+            global_avg = round(global_avg, 2)
+            fig.add_shape(
+                type="line", xref="paper", yref="y",
+                x0=0, x1=1, y0=global_avg, y1=global_avg,
+                line=dict(color="red", dash="dash")
+            )
+            fig.add_trace(go.Scatter(
+                x=[company_names[-1]], y=[global_avg],
+                mode="text", text=[f"{global_avg:.2f}"],
+                textposition="top right", textfont=dict(color="red"),
+                showlegend=False
+            ))
+
+        if sector_avg is not None and not pd.isna(sector_avg):
+            sector_avg = round(sector_avg, 2)
+            fig.add_shape(
+                type="line", xref="paper", yref="y",
+                x0=0, x1=1, y0=sector_avg, y1=sector_avg,
+                line=dict(color="blue", dash="dot")
+            )
+            fig.add_trace(go.Scatter(
+                x=[company_names[-1]], y=[sector_avg],
+                mode="text", text=[f"{sector_avg:.2f}"],
+                textposition="bottom right", textfont=dict(color="blue"),
+                showlegend=False
+            ))
 
     # Layout generale
     fig.update_layout(
         title=title,
-        yaxis_title=f"{metric} (%)",
+        yaxis_title=yaxis_title,
         barmode="group",
         height=280,
         margin=dict(t=28, b=28, l=20, r=20),
@@ -319,6 +336,7 @@ def kpi_chart(df_visible, df_full, metric, title):
     )
 
     return fig
+
 
 
 # I grafici ora senza legenda interna (già fatto nel kpi_chart)
@@ -446,6 +464,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
