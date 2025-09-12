@@ -253,6 +253,20 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True):
         if sector_avg is not None:
             sector_avg *= 100
 
+    # Delta rispetto alla media globale
+    for i, val in enumerate(y_values):
+        delta = val - global_avg
+        sign = "+" if delta >= 0 else ""
+        fig.add_trace(go.Scatter(
+            x=[company_names[i]],
+            y=[val],
+            mode="text",
+            text=[f"{sign}{delta:.1f}{'%' if is_percent else ''}"],
+            textposition="top center",
+            textfont=dict(size=10, color="black"),
+            showlegend=False
+        ))
+    
     # --- Linea Global Avg ---
     if not pd.isna(global_avg):
         fig.add_shape(
@@ -445,6 +459,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
