@@ -47,26 +47,6 @@ st.set_page_config(
 )
 
 
-st.markdown("""
-<style>
-/* Label accanto al menu hamburger (Main menu) */
-[aria-label="Main menu"]::after {
-    content: " Menu";
-    color: white;
-    font-size: 16px;
-    margin-left: 6px;
-    font-weight: 500;
-}
-
-/* Facoltativo: ingrandire leggermente l'icona */
-[aria-label="Main menu"] svg {
-    width: 24px;
-    height: 24px;
-}
-</style>
-""", unsafe_allow_html=True)
-
-
 # ✅ SEO & LinkedIn metadata
 st.markdown("""
 <meta name="description" content="Explore company KPIs and financial data on BalanceShip. Use AI-powered insights to guide smart investment decisions.">
@@ -669,6 +649,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
