@@ -272,16 +272,57 @@ def kpi_chart(df_visible, df_full, metric, title, compare_to="global"):
 
     # --- LINEE MEDIE ---
     if not pd.isna(global_avg):
-        fig.add_shape(type="line", xref="paper", yref="y", x0=0, x1=1, y0=global_avg, y1=global_avg,
-                      line=dict(color="red", dash="dash"))
-        fig.add_trace(go.Scatter(x=[None], y=[None], mode="lines", line=dict(color="red", dash="dash"),
-                                 showlegend=False, name="Companies Avg"))
-
+        fig.add_shape(
+            type="line",
+            xref="paper", yref="y",
+            x0=0, x1=1, y0=global_avg, y1=global_avg,
+            line=dict(color="red", dash="dash")
+        )
+        # Etichetta sopra la linea
+        fig.add_trace(go.Scatter(
+            x=[company_names[-1]],
+            y=[global_avg],
+            mode="text",
+            text=[f"{global_avg:.1f}%" if is_percentage else f"{global_avg:.2f}"],
+            textposition="top right",
+            textfont=dict(color="red"),
+            showlegend=False
+        ))
+        # Dummy trace per legenda
+        fig.add_trace(go.Scatter(
+            x=[None], y=[None],
+            mode="lines",
+            line=dict(color="red", dash="dash"),
+            showlegend=False,
+            name="Companies Avg"
+        ))
+    
     if sector_avg is not None and not pd.isna(sector_avg):
-        fig.add_shape(type="line", xref="paper", yref="y", x0=0, x1=1, y0=sector_avg, y1=sector_avg,
-                      line=dict(color="blue", dash="dot"))
-        fig.add_trace(go.Scatter(x=[None], y=[None], mode="lines", line=dict(color="blue", dash="dot"),
-                                 showlegend=False, name="Sector Avg"))
+        fig.add_shape(
+            type="line",
+            xref="paper", yref="y",
+            x0=0, x1=1, y0=sector_avg, y1=sector_avg,
+            line=dict(color="blue", dash="dot")
+        )
+        # Etichetta sopra la linea
+        fig.add_trace(go.Scatter(
+            x=[company_names[-1]],
+            y=[sector_avg],
+            mode="text",
+            text=[f"{sector_avg:.1f}%" if is_percentage else f"{sector_avg:.2f}"],
+            textposition="bottom right",
+            textfont=dict(color="blue"),
+            showlegend=False
+        ))
+        # Dummy trace per legenda
+        fig.add_trace(go.Scatter(
+            x=[None], y=[None],
+            mode="lines",
+            line=dict(color="blue", dash="dot"),
+            showlegend=False,
+            name="Sector Avg"
+        ))
+
 
     # Layout
     fig.update_layout(
@@ -448,6 +489,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
