@@ -618,6 +618,8 @@ st.markdown(f"""
 st.markdown("</div>", unsafe_allow_html=True)
 
 # --- SIDEBAR ---
+st.sidebar.title("☰ Menu")
+
 logo_path = os.path.join("images", "logo4.png")
 logo_base64 = get_base64_of_bin_file(logo_path) if os.path.exists(logo_path) else ""
 
@@ -648,6 +650,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
