@@ -261,6 +261,19 @@ def kpi_chart(df_visible, df_full, metric, title):
         if not sector_df.empty:
             sector_avg = sector_df[metric].mean()
 
+    # --- DELTA rispetto a global avg ---
+    if not pd.isna(global_avg):
+        for i, (company, val) in enumerate(zip(company_names, y_values)):
+            delta = val - global_avg
+            fig.add_annotation(
+                x=company,
+                y=val,
+                text=f"Δ {delta:+.1f}%",   # sempre con + o - davanti
+                showarrow=False,
+                yshift=15,
+                font=dict(size=10, color="gray")
+            )
+    
     if is_percentage:
         if not pd.isna(global_avg):
             global_avg = round(global_avg * 100, 1)
@@ -377,21 +390,45 @@ for index, row in df_visible.iterrows():
 
     # EBITDA Margin
     if not pd.isna(ebitda_margin):
-        if ebitda_margin > avg_ebitda * 1.2:
-            insight_list.append(f"**{company}** demonstrates operational efficiency well above the sector norm, with an EBITDA margin of {ebitda_margin}.")
-            insight_list.append(f"The EBITDA margin of **{company}** ({ebitda_margin}) exceeds its industry average.")
-        elif ebitda_margin < avg_ebitda * 0.8:
-            insight_list.append(f"**{company}** struggles to convert revenue into operating profit, with an EBITDA margin of only {ebitda_margin}.")
-            insight_list.append(f"The EBITDA performance of **{company}** ({ebitda_margin}) lags well behind sector peers.")
-
+        ebitda_margin_pct = ebitda_margin * 100
+        if ebitda_margin_pct > avg_ebitda * 1.2:
+            insight_list.append(
+                f"**{company}** demonstrates operational efficiency well above the sector norm, "
+                f"with an EBITDA margin of {ebitda_margin_pct:.1f}%."
+            )
+            insight_list.append(
+                f"The EBITDA margin of **{company}** ({ebitda_margin_pct:.1f}%) exceeds its industry average."
+            )
+        elif ebitda_margin_pct < avg_ebitda * 0.8:
+            insight_list.append(
+                f"**{company}** struggles to convert revenue into operating profit, "
+                f"with an EBITDA margin of only {ebitda_margin_pct:.1f}%."
+            )
+            insight_list.append(
+                f"The EBITDA performance of **{company}** ({ebitda_margin_pct:.1f}%) lags well behind sector peers."
+            )
+    
     # FCF Margin
     if not pd.isna(fcf_margin):
-        if fcf_margin > avg_fcf * 1.2:
-            insight_list.append(f"**{company}** stands out for its excellent cash flow generation, posting a FCF margin of {fcf_margin}.")
-            insight_list.append(f"With a FCF margin of {fcf_margin}, **{company}** ranks among the top in cash conversion.")
-        elif fcf_margin < avg_fcf * 0.8:
-            insight_list.append(f"**{company}** underperforms in turning revenue into free cash flow, with a margin of {fcf_margin}.")
-            insight_list.append(f"**{company}** shows weakness in FCF efficiency compared to the sector (only {fcf_margin}).")
+        fcf_margin_pct = fcf_margin * 100
+        if fcf_margin_pct > avg_fcf * 1.2:
+            insight_list.append(
+                f"**{company}** stands out for its excellent cash flow generation, "
+                f"posting a FCF margin of {fcf_margin_pct:.1f}%."
+            )
+            insight_list.append(
+                f"With a FCF margin of {fcf_margin_pct:.1f}%, **{company}** ranks among the top in cash conversion."
+            )
+        elif fcf_margin_pct < avg_fcf * 0.8:
+            insight_list.append(
+                f"**{company}** underperforms in turning revenue into free cash flow, "
+                f"with a margin of {fcf_margin_pct:.1f}%."
+            )
+            insight_list.append(
+                f"**{company}** shows weakness in FCF efficiency compared to the sector "
+                f"(only {fcf_margin_pct:.1f}%)."
+            )
+
 
 
     # Debt to Equity
@@ -465,6 +502,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
