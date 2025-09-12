@@ -213,12 +213,9 @@ st.plotly_chart(legend_chart(), use_container_width=True)
 
 # Funzione grafico (GO con legenda e formattazione)
 def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True):
-    import plotly.graph_objects as go
-    import textwrap
-
     fig = go.Figure()
 
-    # Nomi aziende (wrappati wordwise)
+    # Nomi aziende selezionate (wrappati wordwise)
     company_names_raw = df_visible["company_name"].tolist()
     company_names_wrapped = [textwrap.fill(label, width=12) for label in company_names_raw]
 
@@ -228,7 +225,7 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True):
     # Valori
     y_values = df_visible[metric]
     if is_percent:
-        y_values = y_values * 100  # converto in %
+        y_values = y_values * 100
 
     # BAR
     fig.add_trace(go.Bar(
@@ -240,13 +237,13 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True):
         showlegend=False
     ))
 
-    # Calcolo medie
+    # Calcolo medie SOLO su aziende selezionate e settore corretto
     global_avg = df_visible[metric].mean()
     sector_avg = None
     if selected_sector != "All":
-        sector_df = df_kpi_all[df_kpi_all["sector"] == selected_sector]
-        if not sector_df.empty:
-            sector_avg = sector_df[metric].mean()
+        df_sector = df_kpi_all[df_kpi_all["sector"] == selected_sector]  # solo quel settore
+        if not df_sector.empty:
+            sector_avg = df_sector[metric].mean()
 
     if is_percent:
         global_avg *= 100
@@ -258,7 +255,7 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True):
         delta = val - global_avg
         sign = "+" if delta >= 0 else ""
         fig.add_trace(go.Scatter(
-            x=[company_names[i]],
+            x=[company_names_wrapped[i]],
             y=[val],
             mode="text",
             text=[f"{sign}{delta:.1f}{'%' if is_percent else ''}"],
@@ -266,8 +263,8 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True):
             textfont=dict(size=10, color="black"),
             showlegend=False
         ))
-    
-    # --- Linea Global Avg ---
+
+    # Linea Global Avg
     if not pd.isna(global_avg):
         fig.add_shape(
             type="line", xref="paper", yref="y",
@@ -283,7 +280,7 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True):
             showlegend=False
         ))
 
-    # --- Linea Sector Avg ---
+    # Linea Sector Avg
     if sector_avg is not None and not pd.isna(sector_avg):
         fig.add_shape(
             type="line", xref="paper", yref="y",
@@ -459,6 +456,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
