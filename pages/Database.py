@@ -38,8 +38,8 @@ def send_pageview():
             {
                 "name": "page_view",
                 "params": {
-                    "page_title": "Homepage",
-                    "page_location": "https://www.balanceship.net/",
+                    "page_title": "Database",
+                    "page_location": "https://www.balanceship.net/Database",
                     "engagement_time_msec": 1
                 }
             }
@@ -344,4 +344,5 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
