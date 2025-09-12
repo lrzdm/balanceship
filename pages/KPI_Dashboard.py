@@ -253,16 +253,24 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True):
     # Delta rispetto alla media globale
     for i, val in enumerate(y_values):
         delta = val - global_avg
-        sign = "+" if delta >= 0 else ""
-        fig.add_trace(go.Scatter(
-            x=[company_names_wrapped[i]],
-            y=[val],
-            mode="text",
-            text=[f"{sign}{delta:.1f}{'%' if is_percent else ''}"],
-            textposition="top center",
-            textfont=dict(size=10, color="black"),
+
+        fig.add_trace(go.Indicator(
+            mode="number+delta",
+            value=val,
+            delta={
+                "reference": global_avg,
+                "relative": True,
+                "position": "top"
+            },
+            number={
+                "suffix": "%" if is_percent else "",
+                "font": {"size": 12}
+            },
+            domain={"x": [i/len(y_values), (i+1)/len(y_values)], "y": [1.05, 1.2]},
+            title={"text": company_names_wrapped[i], "font": {"size": 10}},
             showlegend=False
         ))
+
 
     # Linea Global Avg
     if not pd.isna(global_avg):
@@ -456,6 +464,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
