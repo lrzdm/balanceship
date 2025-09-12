@@ -298,15 +298,15 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True):
 # I grafici ora senza legenda interna (già fatto nel kpi_chart)
 col1, col2 = st.columns(2)
 with col1:
-    st.plotly_chart(kpi_chart(df_visible, df_kpi_all, "ebitda_margin", "EBITDA Margin", is_percent=True), use_container_width=True)
+    st.plotly_chart(kpi_chart(df_visible, df_kpi_all, "EBITDA Margin", "EBITDA Margin", is_percent=True), use_container_width=True)
 with col2:
-    st.plotly_chart(kpi_chart(df_visible, df_kpi_all, "debt_equity", "Debt / Equity", is_percent=False), use_container_width=True)
+    st.plotly_chart(kpi_chart(df_visible, df_kpi_all, "Debt to Equity", "Debt / Equity", is_percent=False), use_container_width=True)
 
 col3, col4 = st.columns(2)
 with col3:
-    st.plotly_chart(kpi_chart(df_visible, df_kpi_all, "fcf_margin", "Free Cash Flow Margin", is_percent=True), use_container_width=True)
+    st.plotly_chart(kpi_chart(df_visible, df_kpi_all, "FCF Margin", "Free Cash Flow Margin", is_percent=True), use_container_width=True)
 with col4:
-    st.plotly_chart(kpi_chart(df_visible, df_kpi_all, "eps", "Earnings Per Share (EPS)", is_percent=False), use_container_width=True)
+    st.plotly_chart(kpi_chart(df_visible, df_kpi_all, "EPS", "Earnings Per Share (EPS)", is_percent=False), use_container_width=True)
 
 #-----BOX INSIGHTS------
 from random import shuffle
@@ -445,6 +445,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
