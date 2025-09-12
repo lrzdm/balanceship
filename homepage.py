@@ -46,6 +46,21 @@ st.set_page_config(
     layout="wide"
 )
 
+
+st.markdown("""
+<style>
+/* Aggiungi label accanto al bottone delle tre frecce (menu) */
+button[kind="header"]::after {
+    content: " ☰ Menu";
+    color: white;         /* colore testo */
+    font-size: 16px;      /* grandezza testo */
+    margin-left: 6px;     /* spazio rispetto alle frecce */
+    font-weight: 500;
+}
+</style>
+""", unsafe_allow_html=True)
+
+
 # ✅ SEO & LinkedIn metadata
 st.markdown("""
 <meta name="description" content="Explore company KPIs and financial data on BalanceShip. Use AI-powered insights to guide smart investment decisions.">
@@ -618,8 +633,6 @@ st.markdown(f"""
 st.markdown("</div>", unsafe_allow_html=True)
 
 # --- SIDEBAR ---
-st.sidebar.title("☰ Menu")
-
 logo_path = os.path.join("images", "logo4.png")
 logo_base64 = get_base64_of_bin_file(logo_path) if os.path.exists(logo_path) else ""
 
@@ -650,6 +663,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
