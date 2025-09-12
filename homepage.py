@@ -20,6 +20,18 @@ API_SECRET = "kRfQwfxDQ0aACcjkJNENPA" # Quello creato in GA4
 if "client_id" not in st.session_state:
     st.session_state["client_id"] = str(uuid.uuid4())
 
+# --------------- Client-side GA4 -----------------
+st.markdown(f"""
+<!-- GA4 tracking client-side -->
+<script async src="https://www.googletagmanager.com/gtag/js?id={MEASUREMENT_ID}"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){{dataLayer.push(arguments);}}
+  gtag('js', new Date());
+  gtag('config', '{MEASUREMENT_ID}');
+</script>
+""", unsafe_allow_html=True)
+
 def send_pageview():
     url = f"https://www.google-analytics.com/mp/collect?measurement_id={MEASUREMENT_ID}&api_secret={API_SECRET}"
     payload = {
@@ -649,6 +661,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
