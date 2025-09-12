@@ -61,6 +61,14 @@ def get_base64_of_bin_file(bin_file):
         data = f.read()
     return base64.b64encode(data).decode()
 
+def wrap_labels(labels, width=12):
+    wrapped = []
+    for label in labels:
+        # Dividi la stringa in blocchi di lunghezza 'width'
+        parts = [label[i:i+width] for i in range(0, len(label), width)]
+        wrapped.append("<br>".join(parts))
+    return wrapped
+
 # --- SIDEBAR ---
 logo_path = os.path.join("images", "logo4.png")
 logo_base64 = get_base64_of_bin_file(logo_path) if os.path.exists(logo_path) else ""
@@ -163,7 +171,6 @@ df_kpi_all = pd.merge(
     how="left"
 )
 
-
 # Rinomina chiara
 df_kpi_all.rename(columns={
     "EBITDA Margin": "EBITDA Margin",
@@ -215,30 +222,36 @@ def kpi_chart(df_visible, df_full, metric, title):
 
     fig = go.Figure()
 
-    company_names = df_visible["company_name"].tolist()
-    company_colors = {name: color_palette[i % len(color_palette)] for i, name in enumerate(company_names)}
+    #company_names = df_visible["company_name"].tolist()
+    company_names_raw = df_visible["company_name"].tolist()  # nomi originali
+    company_names = wrap_labels(company_names_raw, width=12)  # nomi wrappati
+
+    #company_colors = {name: color_palette[i % len(color_palette)] for i, name in enumerate(company_names)}
+    company_colors = {name: color_palette[i % len(color_palette)] for i, name in enumerate(company_names_raw)}
 
     # BAR per le aziende selezionate
+    y_values = df_visible[metric].round(3) * 100  # decimali -> percentuali
     fig.add_trace(go.Bar(
         x=company_names,
-        y=df_visible[metric].round(3),
-        marker_color=[company_colors[name] for name in company_names],
-        text=df_visible[metric].round(3),
+        y=y_values,
+        marker_color=[company_colors[name] for name in company_names_raw],
+        text=[f"{v:.1f}%" for v in y_values],
         textposition="auto",
         showlegend=False
     ))
 
+
     # Calcola medie
-    global_avg = df_visible[metric].mean()
+    global_avg = df_visible[metric].mean()*100
     sector_avg = None
     if selected_sector != "All":
         sector_df = df_full[df_full["sector"] == selected_sector]
         if not sector_df.empty:
-            sector_avg = sector_df[metric].mean()
+            sector_avg = sector_df[metric].mean()*100
 
     # --- LINEA: Market Avg ---
     if not pd.isna(global_avg):
-        global_avg = round(global_avg, 3)
+        global_avg = round(global_avg, 1)
         fig.add_shape(
             type="line",
             xref="paper", yref="y",
@@ -250,7 +263,7 @@ def kpi_chart(df_visible, df_full, metric, title):
             x=[company_names[-1]],
             y=[global_avg],
             mode="text",
-            text=[f"{global_avg}"],
+            text=[f"{global_avg:.1f}%"]  # per la linea Companies Avg,
             textposition="top right",
             textfont=dict(color="red"),
             showlegend=False
@@ -265,7 +278,7 @@ def kpi_chart(df_visible, df_full, metric, title):
 
     # --- LINEA: Sector Avg ---
     if sector_avg is not None and not pd.isna(sector_avg):
-        sector_avg = round(sector_avg, 3)
+        sector_avg = round(sector_avg, 1)
         fig.add_shape(
             type="line",
             xref="paper", yref="y",
@@ -276,7 +289,7 @@ def kpi_chart(df_visible, df_full, metric, title):
             x=[company_names[-1]],
             y=[sector_avg],
             mode="text",
-            text=[f"{sector_avg}"],
+            text=[f"{sector_avg:.1f}%"]  # per la linea Sector Avg,
             textposition="bottom right",
             textfont=dict(color="blue"),
             showlegend=False
@@ -292,7 +305,7 @@ def kpi_chart(df_visible, df_full, metric, title):
     # Layout generale
     fig.update_layout(
         title=title,
-        yaxis_title=metric,
+        yaxis_title=f"{metric} (%)",
         barmode="group",
         height=280,
         margin=dict(t=28, b=28, l=20, r=20),
@@ -433,4 +446,5 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
