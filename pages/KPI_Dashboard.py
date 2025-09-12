@@ -212,42 +212,48 @@ st.plotly_chart(legend_chart(), use_container_width=True)
 
 
 # Funzione grafico (GO con legenda e formattazione)
-def wrap_labels_wordwise(labels, width=12):
-    """Wrappa i label andando a capo tra le parole invece che a caratteri fissi."""
-    return [textwrap.fill(label, width=width) for label in labels]
+def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True):
+    import plotly.graph_objects as go
+    import textwrap
 
-def kpi_chart(df_visible, df_full, metric, title, is_percent=True):
     fig = go.Figure()
 
-    # nomi aziende
+    # Nomi aziende (wrappati wordwise)
     company_names_raw = df_visible["company_name"].tolist()
-    company_names_wrapped = wrap_labels_wordwise(company_names_raw, width=14)
+    company_names_wrapped = [textwrap.fill(label, width=12) for label in company_names_raw]
 
-    # colori aziende
+    # Colori aziendali
     company_colors = {name: color_palette[i % len(color_palette)] for i, name in enumerate(company_names_raw)}
 
-    # valori Y (se percentuale moltiplichiamo per 100)
-    y_values = df_visible[metric] * (100 if is_percent else 1)
+    # Valori
+    y_values = df_visible[metric]
+    if is_percent:
+        y_values = y_values * 100  # converto in %
 
     # BAR
     fig.add_trace(go.Bar(
-        x=company_names_raw,
+        x=company_names_wrapped,
         y=y_values,
         marker_color=[company_colors[name] for name in company_names_raw],
-        text=[f"{v:.1f}%" if is_percent else f"{v:.2f}" for v in y_values],
+        text=[f"{v:.1f}{'%' if is_percent else ''}" for v in y_values],
         textposition="auto",
         showlegend=False
     ))
 
-    # --- Averages ---
-    global_avg = df_visible[metric].mean() * (100 if is_percent else 1)
+    # Calcolo medie
+    global_avg = df_visible[metric].mean()
     sector_avg = None
     if selected_sector != "All":
-        sector_df = df_full[df_full["sector"] == selected_sector]
+        sector_df = df_kpi_all[df_kpi_all["sector"] == selected_sector]
         if not sector_df.empty:
-            sector_avg = sector_df[metric].mean() * (100 if is_percent else 1)
+            sector_avg = sector_df[metric].mean()
 
-    # Companies Avg line
+    if is_percent:
+        global_avg *= 100
+        if sector_avg is not None:
+            sector_avg *= 100
+
+    # --- Linea Global Avg ---
     if not pd.isna(global_avg):
         fig.add_shape(
             type="line", xref="paper", yref="y",
@@ -255,15 +261,15 @@ def kpi_chart(df_visible, df_full, metric, title, is_percent=True):
             line=dict(color="red", dash="dash")
         )
         fig.add_trace(go.Scatter(
-            x=[company_names_raw[-1]], y=[global_avg],
+            x=[company_names_wrapped[-1]], y=[global_avg],
             mode="text",
-            text=[f"{global_avg:.1f}%" if is_percent else f"{global_avg:.2f}"],
+            text=[f"{global_avg:.1f}{'%' if is_percent else ''}"],
             textposition="top right",
             textfont=dict(color="red"),
             showlegend=False
         ))
 
-    # Sector Avg line
+    # --- Linea Sector Avg ---
     if sector_avg is not None and not pd.isna(sector_avg):
         fig.add_shape(
             type="line", xref="paper", yref="y",
@@ -271,60 +277,36 @@ def kpi_chart(df_visible, df_full, metric, title, is_percent=True):
             line=dict(color="blue", dash="dot")
         )
         fig.add_trace(go.Scatter(
-            x=[company_names_raw[-1]], y=[sector_avg],
+            x=[company_names_wrapped[-1]], y=[sector_avg],
             mode="text",
-            text=[f"{sector_avg:.1f}%" if is_percent else f"{sector_avg:.2f}"],
+            text=[f"{sector_avg:.1f}{'%' if is_percent else ''}"],
             textposition="bottom right",
             textfont=dict(color="blue"),
             showlegend=False
         ))
 
-    # --- Delta vs Global Avg ---
-    for i, val in enumerate(y_values):
-        delta = val - global_avg
-        if not pd.isna(delta):
-            fig.add_annotation(
-                x=company_names_raw[i],
-                y=val + (max(y_values) * 0.05),
-                text=f"Δ {delta:+.1f}%" if is_percent else f"Δ {delta:+.2f}",
-                showarrow=False,
-                font=dict(size=10, color="black")
-            )
-
     # Layout
     fig.update_layout(
         title=title,
-        yaxis_title=f"{metric} (%)" if is_percent else metric,
-        barmode="group",
-        height=320,
-        margin=dict(t=30, b=30, l=30, r=30),
-    )
-
-    # ✅ Asse X con labels wrappati
-    fig.update_xaxes(
-        tickvals=company_names_raw,
-        ticktext=company_names_wrapped,
-        tickangle=0
+        yaxis_title=f"{metric}{' (%)' if is_percent else ''}",
+        height=280,
+        margin=dict(t=28, b=28, l=20, r=20),
     )
 
     return fig
 
-
-
-
-
 # I grafici ora senza legenda interna (già fatto nel kpi_chart)
 col1, col2 = st.columns(2)
 with col1:
-    st.plotly_chart(kpi_chart(df_visible, df_full, "ebitda_margin", "EBITDA Margin", is_percent=True))
+    st.plotly_chart(kpi_chart(df_visible, df_kpi_all, "ebitda_margin", "EBITDA Margin", is_percent=True), use_container_width=True)
 with col2:
-    st.plotly_chart(kpi_chart(df_visible, df_full, "debt_equity", "Debt / Equity", is_percent=False))
+    st.plotly_chart(kpi_chart(df_visible, df_kpi_all, "debt_equity", "Debt / Equity", is_percent=False), use_container_width=True)
 
 col3, col4 = st.columns(2)
 with col3:
-    st.plotly_chart(kpi_chart(df_visible, df_full, "fcf_margin", "Free Cash Flow Margin", is_percent=True))
+    st.plotly_chart(kpi_chart(df_visible, df_kpi_all, "fcf_margin", "Free Cash Flow Margin", is_percent=True), use_container_width=True)
 with col4:
-    st.plotly_chart(kpi_chart(df_visible, df_full, "eps", "Earnings Per Share (EPS)", is_percent=False))
+    st.plotly_chart(kpi_chart(df_visible, df_kpi_all, "eps", "Earnings Per Share (EPS)", is_percent=False), use_container_width=True)
 
 #-----BOX INSIGHTS------
 from random import shuffle
@@ -463,6 +445,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
