@@ -9,6 +9,7 @@ import requests
 import uuid
 import textwrap
 
+
 MEASUREMENT_ID = "G-Q5FDX0L1H2" # Il tuo ID GA4 
 API_SECRET = "kRfQwfxDQ0aACcjkJNENPA" # Quello creato in GA4 
 
@@ -61,23 +62,6 @@ def get_base64_of_bin_file(bin_file):
     with open(bin_file, 'rb') as f:
         data = f.read()
     return base64.b64encode(data).decode()
-
-
-def wrap_labels_wordwise(labels, width=12):
-    wrapped = []
-    for label in labels:
-        words = label.split()
-        line = ""
-        lines = []
-        for w in words:
-            if len(line + " " + w) <= width:
-                line = (line + " " + w).strip()
-            else:
-                lines.append(line)
-                line = w
-        lines.append(line)
-        wrapped.append("\n".join(lines))
-    return wrapped
 
 
 # --- SIDEBAR ---
@@ -228,123 +212,103 @@ st.plotly_chart(legend_chart(), use_container_width=True)
 
 
 # Funzione grafico (GO con legenda e formattazione)
-def kpi_chart(df_visible, df_full, metric, title, compare_to="global"):
-    import plotly.graph_objects as go
+def wrap_labels_wordwise(labels, width=12):
+    """Wrappa i label andando a capo tra le parole invece che a caratteri fissi."""
+    return [textwrap.fill(label, width=width) for label in labels]
 
+def kpi_chart(df_visible, df_full, metric, title, is_percent=True):
     fig = go.Figure()
 
+    # nomi aziende
     company_names_raw = df_visible["company_name"].tolist()
-    company_names = wrap_labels_wordwise(company_names_raw, width=12)
+    company_names_wrapped = wrap_labels_wordwise(company_names_raw, width=14)
+
+    # colori aziende
     company_colors = {name: color_palette[i % len(color_palette)] for i, name in enumerate(company_names_raw)}
 
-    # Metriche in percentuale vs assolute
-    percentage_metrics = ["EBITDA Margin", "FCF Margin"]
-    is_percentage = metric in percentage_metrics
+    # valori Y (se percentuale moltiplichiamo per 100)
+    y_values = df_visible[metric] * (100 if is_percent else 1)
 
-    # Valori y (per grafico)
-    if is_percentage:
-        y_values = df_visible[metric] * 100
-    else:
-        y_values = df_visible[metric]
-
+    # BAR
     fig.add_trace(go.Bar(
-        x=company_names,
+        x=company_names_raw,
         y=y_values,
         marker_color=[company_colors[name] for name in company_names_raw],
-        text=[f"{v:.1f}%" if is_percentage else f"{v:.2f}" for v in y_values],
+        text=[f"{v:.1f}%" if is_percent else f"{v:.2f}" for v in y_values],
         textposition="auto",
         showlegend=False
     ))
 
-    # --- Calcolo medie ---
-    if is_percentage:
-        global_avg = df_visible[metric].mean() * 100
-        sector_avg = df_full[df_full["sector"] == selected_sector][metric].mean() * 100 if selected_sector != "All" else None
-    else:
-        global_avg = df_visible[metric].mean()
-        sector_avg = df_full[df_full["sector"] == selected_sector][metric].mean() if selected_sector != "All" else None
+    # --- Averages ---
+    global_avg = df_visible[metric].mean() * (100 if is_percent else 1)
+    sector_avg = None
+    if selected_sector != "All":
+        sector_df = df_full[df_full["sector"] == selected_sector]
+        if not sector_df.empty:
+            sector_avg = sector_df[metric].mean() * (100 if is_percent else 1)
 
-    # Scegli quale media usare per il delta
-    reference = global_avg if compare_to == "global" else sector_avg
-
-    # --- DELTA sopra barre ---
-    if reference is not None and not pd.isna(reference):
-        for i, (company, val) in enumerate(zip(company_names, y_values)):
-            delta = val - reference
-            fig.add_annotation(
-                x=company,
-                y=val,
-                text=f"Δ {delta:+.1f}%" if is_percentage else f"Δ {delta:+.2f}",
-                showarrow=False,
-                yshift=15,
-                font=dict(size=10, color="gray")
-            )
-
-    # --- LINEE MEDIE ---
+    # Companies Avg line
     if not pd.isna(global_avg):
         fig.add_shape(
-            type="line",
-            xref="paper", yref="y",
+            type="line", xref="paper", yref="y",
             x0=0, x1=1, y0=global_avg, y1=global_avg,
             line=dict(color="red", dash="dash")
         )
-        # Etichetta sopra la linea
         fig.add_trace(go.Scatter(
-            x=[company_names[-1]],
-            y=[global_avg],
+            x=[company_names_raw[-1]], y=[global_avg],
             mode="text",
-            text=[f"{global_avg:.1f}%" if is_percentage else f"{global_avg:.2f}"],
+            text=[f"{global_avg:.1f}%" if is_percent else f"{global_avg:.2f}"],
             textposition="top right",
             textfont=dict(color="red"),
             showlegend=False
         ))
-        # Dummy trace per legenda
-        fig.add_trace(go.Scatter(
-            x=[None], y=[None],
-            mode="lines",
-            line=dict(color="red", dash="dash"),
-            showlegend=False,
-            name="Companies Avg"
-        ))
-    
+
+    # Sector Avg line
     if sector_avg is not None and not pd.isna(sector_avg):
         fig.add_shape(
-            type="line",
-            xref="paper", yref="y",
+            type="line", xref="paper", yref="y",
             x0=0, x1=1, y0=sector_avg, y1=sector_avg,
             line=dict(color="blue", dash="dot")
         )
-        # Etichetta sopra la linea
         fig.add_trace(go.Scatter(
-            x=[company_names[-1]],
-            y=[sector_avg],
+            x=[company_names_raw[-1]], y=[sector_avg],
             mode="text",
-            text=[f"{sector_avg:.1f}%" if is_percentage else f"{sector_avg:.2f}"],
+            text=[f"{sector_avg:.1f}%" if is_percent else f"{sector_avg:.2f}"],
             textposition="bottom right",
             textfont=dict(color="blue"),
             showlegend=False
         ))
-        # Dummy trace per legenda
-        fig.add_trace(go.Scatter(
-            x=[None], y=[None],
-            mode="lines",
-            line=dict(color="blue", dash="dot"),
-            showlegend=False,
-            name="Sector Avg"
-        ))
 
+    # --- Delta vs Global Avg ---
+    for i, val in enumerate(y_values):
+        delta = val - global_avg
+        if not pd.isna(delta):
+            fig.add_annotation(
+                x=company_names_raw[i],
+                y=val + (max(y_values) * 0.05),
+                text=f"Δ {delta:+.1f}%" if is_percent else f"Δ {delta:+.2f}",
+                showarrow=False,
+                font=dict(size=10, color="black")
+            )
 
     # Layout
     fig.update_layout(
         title=title,
-        yaxis_title=f"{metric} (%)" if is_percentage else metric,
+        yaxis_title=f"{metric} (%)" if is_percent else metric,
         barmode="group",
-        height=280,
-        margin=dict(t=28, b=28, l=20, r=20),
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="center", x=0.5)
+        height=320,
+        margin=dict(t=30, b=30, l=30, r=30),
+    )
+
+    # ✅ Asse X con labels wrappati
+    fig.update_xaxes(
+        tickvals=company_names_raw,
+        ticktext=company_names_wrapped,
+        tickangle=0
     )
 
     return fig
+
 
 
 
@@ -499,6 +463,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
