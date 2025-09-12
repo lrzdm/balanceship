@@ -64,10 +64,20 @@ def get_base64_of_bin_file(bin_file):
 
 
 def wrap_labels_wordwise(labels, width=12):
-    """
-    Wrappa i label andando a capo tra le parole invece che a caratteri fissi.
-    """
-    return [textwrap.fill(label, width=width) for label in labels]
+    wrapped = []
+    for label in labels:
+        words = label.split()
+        line = ""
+        lines = []
+        for w in words:
+            if len(line + " " + w) <= width:
+                line = (line + " " + w).strip()
+            else:
+                lines.append(line)
+                line = w
+        lines.append(line)
+        wrapped.append("\n".join(lines))
+    return wrapped
 
 
 # --- SIDEBAR ---
@@ -489,6 +499,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
