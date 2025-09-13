@@ -214,21 +214,25 @@ st.plotly_chart(legend_chart(), use_container_width=True)
 # Funzione grafico (GO con legenda e formattazione)
 def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
               selected_year=None, selected_sector=None):
+    import plotly.graph_objects as go
+    import textwrap
+    import pandas as pd
+
     fig = go.Figure()
 
-    # Nomi aziende selezionate (wrappati wordwise)
+    # --- Nomi aziende selezionate (wrappati wordwise) ---
     company_names_raw = df_visible["company_name"].tolist()
     company_names_wrapped = [textwrap.fill(label, width=12) for label in company_names_raw]
 
-    # Colori aziendali
+    # --- Colori aziendali ---
     company_colors = {name: color_palette[i % len(color_palette)] for i, name in enumerate(company_names_raw)}
 
-    # Valori
+    # --- Valori ---
     y_values = df_visible[metric]
     if is_percent:
         y_values = y_values * 100
 
-    # BAR
+    # --- BAR ---
     fig.add_trace(go.Bar(
         x=company_names_wrapped,
         y=y_values,
@@ -238,7 +242,7 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
         showlegend=False
     ))
 
-    # --- Media globale ---
+    # --- Media globale (solo aziende visibili) ---
     global_avg = df_visible[metric].mean()
     if is_percent:
         global_avg *= 100
@@ -246,14 +250,20 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
     # --- Media settore filtrata correttamente ---
     sector_avg = None
     if selected_sector and selected_sector != "All":
-        df_sector = df_kpi_all[
-            (df_kpi_all["sector"] == selected_sector) &
-            (df_kpi_all["year"] == selected_year)
-        ]
-        if not df_sector.empty:
-            sector_avg = df_sector[metric].mean()
-            if is_percent:
-                sector_avg *= 100
+        # normalizzo tipi per sicurezza
+        if "year" in df_kpi_all.columns:
+            df_kpi_all["year"] = df_kpi_all["year"].astype(str)
+            selected_year_str = str(selected_year)
+
+            df_sector = df_kpi_all[
+                (df_kpi_all["sector"] == selected_sector) &
+                (df_kpi_all["year"] == selected_year_str)
+            ]
+
+            if not df_sector.empty:
+                sector_avg = df_sector[metric].mean()
+                if is_percent:
+                    sector_avg *= 100
 
     # --- Delta rispetto alla global avg ---
     for i, val in enumerate(y_values):
@@ -300,6 +310,8 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
             textfont=dict(color="blue"),
             showlegend=False
         ))
+    else:
+        print(f"[DEBUG] No sector avg for {selected_sector}, {selected_year}")
 
     # --- Layout ---
     fig.update_layout(
@@ -465,6 +477,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
