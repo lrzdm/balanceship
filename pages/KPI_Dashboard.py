@@ -212,7 +212,8 @@ st.plotly_chart(legend_chart(), use_container_width=True)
 
 
 # Funzione grafico (GO con legenda e formattazione)
-def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True):
+def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
+              selected_year=None, selected_exchange=None, selected_sector=None):
     fig = go.Figure()
 
     # Nomi aziende selezionate (wrappati wordwise)
@@ -237,36 +238,39 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True):
         showlegend=False
     ))
 
-    # Calcolo medie SOLO su aziende selezionate e settore corretto
+    # --- Media globale ---
     global_avg = df_visible[metric].mean()
-    sector_avg = None
-    if selected_sector != "All":
-        df_sector = df_kpi_all[df_kpi_all["sector"] == selected_sector]  # solo quel settore
-        if not df_sector.empty:
-            sector_avg = df_sector[metric].mean()
-
     if is_percent:
         global_avg *= 100
-        if sector_avg is not None:
-            sector_avg *= 100
 
-    # Delta rispetto alla media globale
+    # --- Media settore filtrata correttamente ---
+    sector_avg = None
+    if selected_sector and selected_sector != "All":
+        df_sector = df_kpi_all[
+            (df_kpi_all["sector"] == selected_sector) &
+            (df_kpi_all["year"] == selected_year) &
+            (df_kpi_all["exchange"] == selected_exchange)
+        ]
+        if not df_sector.empty:
+            sector_avg = df_sector[metric].mean()
+            if is_percent:
+                sector_avg *= 100
+
+    # --- Delta rispetto alla global avg ---
     for i, val in enumerate(y_values):
         delta = val - global_avg
-        sign = "▲" if delta > 0 else "▼"
+        arrow = "▲" if delta > 0 else ("▼" if delta < 0 else "")
+        color = "green" if delta > 0 else ("red" if delta < 0 else "black")
         fig.add_trace(go.Scatter(
             x=[company_names_wrapped[i]],
-            y=[val],
+            y=[val + (max(y_values) * 0.05)],  # offset sopra la barra
             mode="text",
-            text=[f"{sign}{abs(delta):.1f}{'%' if is_percent else ''}"],
-            textposition="top center",
-            textfont=dict(size=10, color="green" if delta > 0 else "red"),
+            text=[f"{arrow}{abs(delta):.1f}{'%' if is_percent else ''}"],
+            textfont=dict(size=10, color=color),
             showlegend=False
         ))
 
-
-
-    # Linea Global Avg
+    # --- Linea global avg ---
     if not pd.isna(global_avg):
         fig.add_shape(
             type="line", xref="paper", yref="y",
@@ -282,7 +286,7 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True):
             showlegend=False
         ))
 
-    # Linea Sector Avg
+    # --- Linea sector avg ---
     if sector_avg is not None and not pd.isna(sector_avg):
         fig.add_shape(
             type="line", xref="paper", yref="y",
@@ -298,12 +302,12 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True):
             showlegend=False
         ))
 
-    # Layout
+    # --- Layout ---
     fig.update_layout(
         title=title,
         yaxis_title=f"{metric}{' (%)' if is_percent else ''}",
-        height=280,
-        margin=dict(t=28, b=28, l=20, r=20),
+        height=320,
+        margin=dict(t=40, b=40, l=40, r=20),
     )
 
     return fig
@@ -311,15 +315,19 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True):
 # I grafici ora senza legenda interna (già fatto nel kpi_chart)
 col1, col2 = st.columns(2)
 with col1:
-    st.plotly_chart(kpi_chart(df_visible, df_kpi_all, "EBITDA Margin", "EBITDA Margin", is_percent=True), use_container_width=True)
+    st.plotly_chart(kpi_chart(df_visible, df_kpi_all, "EBITDA Margin", "EBITDA Margin", is_percent=True, selected_year=selected_year,
+              selected_exchange=selected_exchange, selected_sector=selected_sector), use_container_width=True)
 with col2:
-    st.plotly_chart(kpi_chart(df_visible, df_kpi_all, "Debt to Equity", "Debt / Equity", is_percent=False), use_container_width=True)
+    st.plotly_chart(kpi_chart(df_visible, df_kpi_all, "Debt to Equity", "Debt / Equity", is_percent=False, selected_year=selected_year,
+              selected_exchange=selected_exchange, selected_sector=selected_sector), use_container_width=True)
 
 col3, col4 = st.columns(2)
 with col3:
-    st.plotly_chart(kpi_chart(df_visible, df_kpi_all, "FCF Margin", "Free Cash Flow Margin", is_percent=True), use_container_width=True)
+    st.plotly_chart(kpi_chart(df_visible, df_kpi_all, "FCF Margin", "Free Cash Flow Margin", is_percent=True, selected_year=selected_year,
+              selected_exchange=selected_exchange, selected_sector=selected_sector), use_container_width=True)
 with col4:
-    st.plotly_chart(kpi_chart(df_visible, df_kpi_all, "EPS", "Earnings Per Share (EPS)", is_percent=False), use_container_width=True)
+    st.plotly_chart(kpi_chart(df_visible, df_kpi_all, "EPS", "Earnings Per Share (EPS)", is_percent=False, selected_year=selected_year,
+              selected_exchange=selected_exchange, selected_sector=selected_sector), use_container_width=True)
 
 #-----BOX INSIGHTS------
 from random import shuffle
@@ -458,6 +466,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
