@@ -213,7 +213,7 @@ st.plotly_chart(legend_chart(), use_container_width=True)
 
 # Funzione grafico (GO con legenda e formattazione)
 def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
-              selected_year=None, selected_exchange=None, selected_sector=None):
+              selected_year=None, selected_sector=None):
     fig = go.Figure()
 
     # Nomi aziende selezionate (wrappati wordwise)
@@ -248,8 +248,7 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
     if selected_sector and selected_sector != "All":
         df_sector = df_kpi_all[
             (df_kpi_all["sector"] == selected_sector) &
-            (df_kpi_all["year"] == selected_year) &
-            (df_kpi_all["exchange"] == selected_exchange)
+            (df_kpi_all["year"] == selected_year)
         ]
         if not df_sector.empty:
             sector_avg = df_sector[metric].mean()
@@ -316,18 +315,18 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
 col1, col2 = st.columns(2)
 with col1:
     st.plotly_chart(kpi_chart(df_visible, df_kpi_all, "EBITDA Margin", "EBITDA Margin", is_percent=True, selected_year=selected_year,
-              selected_exchange=selected_exchange, selected_sector=selected_sector), use_container_width=True)
+              selected_sector=selected_sector), use_container_width=True)
 with col2:
     st.plotly_chart(kpi_chart(df_visible, df_kpi_all, "Debt to Equity", "Debt / Equity", is_percent=False, selected_year=selected_year,
-              selected_exchange=selected_exchange, selected_sector=selected_sector), use_container_width=True)
+              selected_sector=selected_sector), use_container_width=True)
 
 col3, col4 = st.columns(2)
 with col3:
     st.plotly_chart(kpi_chart(df_visible, df_kpi_all, "FCF Margin", "Free Cash Flow Margin", is_percent=True, selected_year=selected_year,
-              selected_exchange=selected_exchange, selected_sector=selected_sector), use_container_width=True)
+              selected_sector=selected_sector), use_container_width=True)
 with col4:
     st.plotly_chart(kpi_chart(df_visible, df_kpi_all, "EPS", "Earnings Per Share (EPS)", is_percent=False, selected_year=selected_year,
-              selected_exchange=selected_exchange, selected_sector=selected_sector), use_container_width=True)
+              selected_sector=selected_sector), use_container_width=True)
 
 #-----BOX INSIGHTS------
 from random import shuffle
@@ -466,6 +465,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
