@@ -210,13 +210,14 @@ def legend_chart():
 # Mostro legenda sotto filtri, sopra grafici
 st.plotly_chart(legend_chart(), use_container_width=True)
 
-def _safe_mean(df, col):
+def _safe_median(df, col):
+    """Restituisce la mediana sicura (gestisce NaN, inf, col mancanti)."""
     if df is None or df.empty or col not in df.columns:
         return np.nan
     series = pd.to_numeric(df[col], errors="coerce").replace([np.inf, -np.inf], np.nan).dropna()
     if series.empty:
         return np.nan
-    return float(series.mean())
+    return float(series.median())
 
 
 # Funzione grafico (GO con legenda e formattazione)
@@ -230,7 +231,6 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
     company_colors = {name: color_palette[i % len(color_palette)] for i, name in enumerate(company_names_raw)}
 
     # valori y per il grafico (converti in % se richiesto)
-    # Forziamo numeric e preserviamo l'ordine di df_visible
     y_series = pd.to_numeric(df_visible[metric], errors="coerce")
     y_values = y_series.values.astype(float)
     if is_percent:
@@ -246,37 +246,32 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
         showlegend=False
     ))
 
-    # --- Global avg (solo sulle aziende visibili) ---
-    global_avg_raw = _safe_mean(df_visible, metric)
-    global_avg = np.nan if np.isnan(global_avg_raw) else (global_avg_raw * (100 if is_percent else 1))
+    # --- Global median (solo sulle aziende visibili) ---
+    global_median_raw = _safe_median(df_visible, metric)
+    global_median = np.nan if np.isnan(global_median_raw) else (global_median_raw * (100 if is_percent else 1))
 
-    # --- Sector avg: filtro coerente su anno + sector (no exchange) ---
-    sector_avg = np.nan
+    # --- Sector median: filtro coerente su anno + sector (no exchange) ---
+    sector_median = np.nan
     if selected_sector and selected_sector != "All" and "sector" in df_kpi_all.columns:
-        # normalizzo anno a string per evitare mismatch
         df_temp = df_kpi_all.copy()
         if "year" in df_temp.columns:
             df_temp["year"] = df_temp["year"].astype(str)
             sel_year = str(selected_year)
             df_sector = df_temp[(df_temp["sector"] == selected_sector) & (df_temp["year"] == sel_year)]
         else:
-            # se non c'è la colonna year, prendi tutto il settore
             df_sector = df_temp[df_temp["sector"] == selected_sector]
 
-        sector_mean_raw = _safe_mean(df_sector, metric)
-        if not np.isnan(sector_mean_raw):
-            sector_avg = sector_mean_raw * (100 if is_percent else 1)
-        else:
-            sector_avg = np.nan
+        sector_median_raw = _safe_median(df_sector, metric)
+        if not np.isnan(sector_median_raw):
+            sector_median = sector_median_raw * (100 if is_percent else 1)
 
-    # --- Delta (frecce) rispetto alla global avg ---
-    # Se global_avg è NaN, saltiamo i delta
-    if not np.isnan(global_avg):
-        offset = max(y_values.max() - y_values.min(), 1e-6) * 0.05  # offset calcolato in modo robusto
+    # --- Delta rispetto alla global median ---
+    if not np.isnan(global_median):
+        offset = max(y_values.max() - y_values.min(), 1e-6) * 0.05
         for i, val in enumerate(y_values):
             if np.isnan(val):
                 continue
-            delta = val - global_avg
+            delta = val - global_median
             arrow = "▲" if delta > 0 else ("▼" if delta < 0 else "")
             color = "green" if delta > 0 else ("red" if delta < 0 else "black")
             fig.add_trace(go.Scatter(
@@ -288,33 +283,25 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
                 showlegend=False
             ))
 
-    # --- Linea global avg (rosso) ---
-    if not np.isnan(global_avg):
-        # Preferisco add_hline (più semplice). Se non disponibile verrà fatto fallback.
-        try:
-            fig.add_hline(y=global_avg, line=dict(color="red", dash="dash"),
-                          annotation_text=f"Companies Avg: {global_avg:.1f}{'%' if is_percent else ''}",
-                          annotation_position="top left")
-        except Exception:
-            # fallback a add_shape (entrambi usano float garantiti)
-            fig.add_shape(type="line", xref="paper", yref="y", x0=0, x1=1, y0=float(global_avg), y1=float(global_avg),
-                          line=dict(color="red", dash="dash"))
-            fig.add_annotation(x=1, y=float(global_avg), text=f"{global_avg:.1f}{'%' if is_percent else ''}",
-                               xref="paper", yref="y", xanchor="right", yanchor="bottom", font=dict(color="red"))
+    # --- Linea global median (rosso) ---
+    if not np.isnan(global_median):
+        fig.add_hline(
+            y=global_median,
+            line=dict(color="red", dash="dash"),
+            annotation_text=f"Companies Median: {global_median:.1f}{'%' if is_percent else ''}",
+            annotation_position="top left"
+        )
 
-    # --- Linea sector avg (blu) se presente ---
-    if not np.isnan(sector_avg):
-        try:
-            fig.add_hline(y=sector_avg, line=dict(color="blue", dash="dot"),
-                          annotation_text=f"Sector Avg: {sector_avg:.1f}{'%' if is_percent else ''}",
-                          annotation_position="bottom right")
-        except Exception:
-            fig.add_shape(type="line", xref="paper", yref="y", x0=0, x1=1, y0=float(sector_avg), y1=float(sector_avg),
-                          line=dict(color="blue", dash="dot"))
-            fig.add_annotation(x=1, y=float(sector_avg), text=f"{sector_avg:.1f}{'%' if is_percent else ''}",
-                               xref="paper", yref="y", xanchor="right", yanchor="top", font=dict(color="blue"))
+    # --- Linea sector median (blu) ---
+    if not np.isnan(sector_median):
+        fig.add_hline(
+            y=sector_median,
+            line=dict(color="blue", dash="dot"),
+            annotation_text=f"Sector Median: {sector_median:.1f}{'%' if is_percent else ''}",
+            annotation_position="bottom right"
+        )
 
-    # --- Layout e ritorno ---
+    # --- Layout ---
     fig.update_layout(
         title=title,
         yaxis_title=f"{metric}{' (%)' if is_percent else ''}",
@@ -323,6 +310,7 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
     )
 
     return fig
+
 
 # I grafici ora senza legenda interna (già fatto nel kpi_chart)
 col1, col2 = st.columns(2)
@@ -478,6 +466,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
