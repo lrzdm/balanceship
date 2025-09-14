@@ -210,6 +210,15 @@ def legend_chart():
 # Mostro legenda sotto filtri, sopra grafici
 st.plotly_chart(legend_chart(), use_container_width=True)
 
+def _safe_mean(df, col):
+    """Ritorna float(mean) in modo sicuro oppure np.nan se non ci sono valori validi."""
+    if df is None or df.empty:
+        return np.nan
+    # forziamo numerico e scartiamo NaN
+    series = pd.to_numeric(df[col], errors="coerce").dropna()
+    if series.empty:
+        return np.nan
+    return float(series.mean())
 
 # Funzione grafico (GO con legenda e formattazione)
 def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
@@ -470,6 +479,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
