@@ -214,106 +214,99 @@ st.plotly_chart(legend_chart(), use_container_width=True)
 # Funzione grafico (GO con legenda e formattazione)
 def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
               selected_year=None, selected_sector=None):
-    import plotly.graph_objects as go
-    import textwrap
-    import pandas as pd
 
     fig = go.Figure()
-
-    # --- Nomi aziende selezionate (wrappati wordwise) ---
+    # --- Preparazioni ---
     company_names_raw = df_visible["company_name"].tolist()
     company_names_wrapped = [textwrap.fill(label, width=12) for label in company_names_raw]
-
-    # --- Colori aziendali ---
     company_colors = {name: color_palette[i % len(color_palette)] for i, name in enumerate(company_names_raw)}
 
-    # --- Valori ---
-    y_values = df_visible[metric]
+    # valori y per il grafico (converti in % se richiesto)
+    # Forziamo numeric e preserviamo l'ordine di df_visible
+    y_series = pd.to_numeric(df_visible[metric], errors="coerce")
+    y_values = y_series.values.astype(float)
     if is_percent:
         y_values = y_values * 100
 
-    # --- BAR ---
+    # --- Bar principale ---
     fig.add_trace(go.Bar(
         x=company_names_wrapped,
         y=y_values,
         marker_color=[company_colors[name] for name in company_names_raw],
-        text=[f"{v:.1f}{'%' if is_percent else ''}" for v in y_values],
+        text=[f"{v:.1f}{'%' if is_percent else ''}" if not np.isnan(v) else "" for v in y_values],
         textposition="auto",
         showlegend=False
     ))
 
-    # --- Media globale (solo aziende visibili) ---
-    global_avg = df_visible[metric].mean()
-    if is_percent:
-        global_avg *= 100
+    # --- Global avg (solo sulle aziende visibili) ---
+    global_avg_raw = _safe_mean(df_visible, metric)
+    global_avg = np.nan if np.isnan(global_avg_raw) else (global_avg_raw * (100 if is_percent else 1))
 
-    # --- Media settore filtrata correttamente ---
-    sector_avg = None
-    if selected_sector and selected_sector != "All":
-        # normalizzo tipi per sicurezza
-        if "year" in df_kpi_all.columns:
-            df_kpi_all["year"] = df_kpi_all["year"].astype(str)
-            selected_year_str = str(selected_year)
+    # --- Sector avg: filtro coerente su anno + sector (no exchange) ---
+    sector_avg = np.nan
+    if selected_sector and selected_sector != "All" and "sector" in df_kpi_all.columns:
+        # normalizzo anno a string per evitare mismatch
+        df_temp = df_kpi_all.copy()
+        if "year" in df_temp.columns:
+            df_temp["year"] = df_temp["year"].astype(str)
+            sel_year = str(selected_year)
+            df_sector = df_temp[(df_temp["sector"] == selected_sector) & (df_temp["year"] == sel_year)]
+        else:
+            # se non c'è la colonna year, prendi tutto il settore
+            df_sector = df_temp[df_temp["sector"] == selected_sector]
 
-            df_sector = df_kpi_all[
-                (df_kpi_all["sector"] == selected_sector) &
-                (df_kpi_all["year"] == selected_year_str)
-            ]
+        sector_mean_raw = _safe_mean(df_sector, metric)
+        if not np.isnan(sector_mean_raw):
+            sector_avg = sector_mean_raw * (100 if is_percent else 1)
+        else:
+            sector_avg = np.nan
 
-            if not df_sector.empty:
-                sector_avg = df_sector[metric].mean()
-                if is_percent:
-                    sector_avg *= 100
+    # --- Delta (frecce) rispetto alla global avg ---
+    # Se global_avg è NaN, saltiamo i delta
+    if not np.isnan(global_avg):
+        offset = max(y_values.max() - y_values.min(), 1e-6) * 0.05  # offset calcolato in modo robusto
+        for i, val in enumerate(y_values):
+            if np.isnan(val):
+                continue
+            delta = val - global_avg
+            arrow = "▲" if delta > 0 else ("▼" if delta < 0 else "")
+            color = "green" if delta > 0 else ("red" if delta < 0 else "black")
+            fig.add_trace(go.Scatter(
+                x=[company_names_wrapped[i]],
+                y=[val + offset],
+                mode="text",
+                text=[f"{arrow}{abs(delta):.1f}{'%' if is_percent else ''}"],
+                textfont=dict(size=10, color=color),
+                showlegend=False
+            ))
 
-    # --- Delta rispetto alla global avg ---
-    for i, val in enumerate(y_values):
-        delta = val - global_avg
-        arrow = "▲" if delta > 0 else ("▼" if delta < 0 else "")
-        color = "green" if delta > 0 else ("red" if delta < 0 else "black")
-        fig.add_trace(go.Scatter(
-            x=[company_names_wrapped[i]],
-            y=[val + (max(y_values) * 0.05)],  # offset sopra la barra
-            mode="text",
-            text=[f"{arrow}{abs(delta):.1f}{'%' if is_percent else ''}"],
-            textfont=dict(size=10, color=color),
-            showlegend=False
-        ))
+    # --- Linea global avg (rosso) ---
+    if not np.isnan(global_avg):
+        # Preferisco add_hline (più semplice). Se non disponibile verrà fatto fallback.
+        try:
+            fig.add_hline(y=global_avg, line=dict(color="red", dash="dash"),
+                          annotation_text=f"Companies Avg: {global_avg:.1f}{'%' if is_percent else ''}",
+                          annotation_position="top left")
+        except Exception:
+            # fallback a add_shape (entrambi usano float garantiti)
+            fig.add_shape(type="line", xref="paper", yref="y", x0=0, x1=1, y0=float(global_avg), y1=float(global_avg),
+                          line=dict(color="red", dash="dash"))
+            fig.add_annotation(x=1, y=float(global_avg), text=f"{global_avg:.1f}{'%' if is_percent else ''}",
+                               xref="paper", yref="y", xanchor="right", yanchor="bottom", font=dict(color="red"))
 
-    # --- Linea global avg ---
-    if not pd.isna(global_avg):
-        fig.add_shape(
-            type="line", xref="paper", yref="y",
-            x0=0, x1=1, y0=global_avg, y1=global_avg,
-            line=dict(color="red", dash="dash")
-        )
-        fig.add_trace(go.Scatter(
-            x=[company_names_wrapped[-1]], y=[global_avg],
-            mode="text",
-            text=[f"{global_avg:.1f}{'%' if is_percent else ''}"],
-            textposition="top right",
-            textfont=dict(color="red"),
-            showlegend=False
-        ))
+    # --- Linea sector avg (blu) se presente ---
+    if not np.isnan(sector_avg):
+        try:
+            fig.add_hline(y=sector_avg, line=dict(color="blue", dash="dot"),
+                          annotation_text=f"Sector Avg: {sector_avg:.1f}{'%' if is_percent else ''}",
+                          annotation_position="bottom right")
+        except Exception:
+            fig.add_shape(type="line", xref="paper", yref="y", x0=0, x1=1, y0=float(sector_avg), y1=float(sector_avg),
+                          line=dict(color="blue", dash="dot"))
+            fig.add_annotation(x=1, y=float(sector_avg), text=f"{sector_avg:.1f}{'%' if is_percent else ''}",
+                               xref="paper", yref="y", xanchor="right", yanchor="top", font=dict(color="blue"))
 
-    # --- Linea sector avg ---
-    if sector_avg is not None and not pd.isna(sector_avg):
-        fig.add_shape(
-            type="line", xref="paper", yref="y",
-            x0=0, x1=1, y0=sector_avg, y1=sector_avg,
-            line=dict(color="blue", dash="dot")
-        )
-        fig.add_trace(go.Scatter(
-            x=[company_names_wrapped[-1]], y=[sector_avg],
-            mode="text",
-            text=[f"{sector_avg:.1f}{'%' if is_percent else ''}"],
-            textposition="bottom right",
-            textfont=dict(color="blue"),
-            showlegend=False
-        ))
-    else:
-        print(f"[DEBUG] No sector avg for {selected_sector}, {selected_year}")
-
-    # --- Layout ---
+    # --- Layout e ritorno ---
     fig.update_layout(
         title=title,
         yaxis_title=f"{metric}{' (%)' if is_percent else ''}",
@@ -477,6 +470,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
