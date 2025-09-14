@@ -8,7 +8,7 @@ import base64
 import requests
 import uuid
 import textwrap
-
+import numpy as np
 
 MEASUREMENT_ID = "G-Q5FDX0L1H2" # Il tuo ID GA4 
 API_SECRET = "kRfQwfxDQ0aACcjkJNENPA" # Quello creato in GA4 
@@ -470,6 +470,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
