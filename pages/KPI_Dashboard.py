@@ -186,13 +186,13 @@ def legend_chart():
         x=[None], y=[None],
         mode="lines",
         line=dict(color="red", dash="dash"),
-        name="Companies Avg"
+        name="Companies Median"
     ))
     fig.add_trace(go.Scatter(
         x=[None], y=[None],
         mode="lines",
         line=dict(color="blue", dash="dot"),
-        name="Sector Avg"
+        name="Sector Median"
     ))
     fig.update_layout(
         height=50,
@@ -289,7 +289,8 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
             y=global_median,
             line=dict(color="red", dash="dash"),
             annotation_text=f"Companies Median: {global_median:.1f}{'%' if is_percent else ''}",
-            annotation_position="top left"
+            annotation_position="top left",
+            annotation_font_color="red"
         )
 
     # --- Linea sector median (blu) ---
@@ -298,7 +299,8 @@ def kpi_chart(df_visible, df_kpi_all, metric, title, is_percent=True,
             y=sector_median,
             line=dict(color="blue", dash="dot"),
             annotation_text=f"Sector Median: {sector_median:.1f}{'%' if is_percent else ''}",
-            annotation_position="bottom right"
+            annotation_position="bottom right",
+            annotation_font_color="blue"
         )
 
     # --- Layout ---
@@ -422,15 +424,23 @@ if insight_list:
     st.markdown("---")
     st.subheader("💡 Key Insights")
 
+    # Detect dark or light mode
+    is_dark_mode = st.get_option("theme.base") == "dark"
+
     # Convert **text** to real <b>text</b> without style
     def markdown_to_html(text):
         import re
         return re.sub(r"\*\*(.*?)\*\*", r"<b>\1</b>", text)
 
+    # Set colors based on theme
+    bg_color = "#1e1e1e" if is_dark_mode else "#f8f9fa"
+    text_color = "#f1f1f1" if is_dark_mode else "#000000"
+    border_color = "#0173C4"  # blu acceso, rimane lo stesso
+
     for insight in insight_list[:30]:
         html = markdown_to_html(insight)
 
-        # Emoji logica (positivi/negativi neutri)
+        # Emoji logica (positivi/negativi/neutri)
         if any(x in insight.lower() for x in ["strong", "above", "leads", "efficient", "outpacing", "robust", "solid", "positive"]):
             icon = "📈"
         elif any(x in insight.lower() for x in ["below", "weak", "underperform", "negative", "lag", "risk", "fall", "short"]):
@@ -441,11 +451,12 @@ if insight_list:
         st.markdown(
             f"""
             <div style="
-                background-color: #f8f9fa;
+                background-color: {bg_color};
+                color: {text_color};
                 padding: 10px 14px;
                 border-radius: 8px;
                 margin-bottom: 8px;
-                border-left: 4px solid #0173C4;
+                border-left: 4px solid {border_color};
                 font-size: 15px;
                 line-height: 1.5;">
                 <span style="margin-right: 6px;">{icon}</span>{html}
@@ -458,7 +469,6 @@ else:
     st.info("No insights available for the current filters.")
 
 
-
 #-----footer-------
 st.markdown("""
 <hr style="margin-top:50px;"/>
@@ -466,28 +476,3 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
