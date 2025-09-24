@@ -10,7 +10,5 @@ sqlalchemy
 psycopg2-binary
 numpy
 streamlit_autorefresh
-Flask==2.3.3
-gunicorn==21.2.0
-streamlit-analytics
-streamlit_javascript
+reportlab
+matplotlib
