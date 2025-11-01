@@ -14,19 +14,16 @@ from urllib.parse import urlparse
 import requests
 import uuid
 
-MEASUREMENT_ID = "G-Q5FDX0L1H2" # Il tuo ID GA4
-
 # --------------- Client-side GA4 -----------------
 st.markdown(f"""
 <!-- GA4 tracking client-side -->
-<script async src="https://www.googletagmanager.com/gtag/js?id={MEASUREMENT_ID}"></script>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-Q5FDX0L1H2"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
-  function gtag(){{dataLayer.push(arguments);}}
+  function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-  gtag('config', '{MEASUREMENT_ID}', {{
-    page_path: window.location.pathname
-  }});
+  gtag('config', 'G-Q5FDX0L1H2');
 </script>
 """, unsafe_allow_html=True)
 
@@ -640,6 +637,7 @@ st.markdown("""
     &copy; 2025 BalanceShip. All rights reserved.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
